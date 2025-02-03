@@ -1,0 +1,10 @@
+{
+	"env": {
+		"PNPM_INSTALL_OPTIONS": "--no-frozen-lockfile"
+	},
+	"build": {
+		"env": {
+			"NEXT_PUBLIC_REST_API_ENDPOINT": "Put your api endpoint here"
+		}
+	}
+}
