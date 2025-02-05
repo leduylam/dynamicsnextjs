@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider, HydrationBoundary } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 // import { ReactQueryDevtools } from "@tanstack/react-query/devtools";
+import { appWithTranslation } from "next-i18next";
 import { DefaultSeo } from "@components/common/default-seo";
 
 // Load Open Sans and satisfy typeface font
@@ -46,6 +47,7 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
     document.documentElement.dir = dir;
   }, [dir]);
   const Layout = (Component as any).Layout || Noop;
+
   return (
     <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
       <QueryClientProvider client={queryClientRef.current}>
@@ -68,4 +70,4 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
   );
 };
 
-export default CustomApp;
+export default appWithTranslation(CustomApp);

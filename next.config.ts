@@ -1,5 +1,6 @@
 import nextPWA from "next-pwa";
 import runtimeCache from "next-pwa/cache";
+import { i18n } from "./next-i18next.config";
 const withPWA = nextPWA({
   dest: "public",
   disable: process.env.NODE_ENV !== "production",
@@ -7,18 +8,11 @@ const withPWA = nextPWA({
 });
 
 export default withPWA({
-  output: "export",
+  i18n,
   typescript: {
     ignoreBuildErrors: true,
   },
   images: {
     unoptimized: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  webpack(config, { isServer }) {
-    console.log("Webpack config:", config);
-    return config;
   },
 });

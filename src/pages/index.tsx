@@ -29,7 +29,6 @@ interface Banner {
   };
 }
 export default function Home() {
-
   const { openModal, setModalView } = useUI();
   const [banner, setBanner] = useState<Banner | null>(null)
   const { data, isLoading } = useQuery({ queryKey: ['banner'], queryFn: getSecondBanner })

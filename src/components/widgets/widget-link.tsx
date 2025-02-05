@@ -60,7 +60,6 @@ const WidgetLink: FC<Props> = ({ className, data }) => {
                                     //     {t(`${list.title}`)}
                                     // </Link>
                                 )}
-
                             </li>
                         ))}
                     </ul>
@@ -86,8 +85,7 @@ const WidgetLink: FC<Props> = ({ className, data }) => {
                         ))}
                     </ul>
                 </div>
-            )
-            }
+            )}
         </div >
     );
 };

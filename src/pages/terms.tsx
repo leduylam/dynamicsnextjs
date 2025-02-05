@@ -68,4 +68,3 @@ export default function TermsPage() {
 }
 
 TermsPage.Layout = Layout;
-
