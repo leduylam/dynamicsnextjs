@@ -85,7 +85,7 @@ const ProductSingleDetails: React.FC = () => {
         );
       }
     }
-  }, [data])
+  }, [data, router])
   if (isLoading) return <p>Loading...</p>;
 
   const isSelected = !isEmpty(variations)
@@ -180,6 +180,7 @@ const ProductSingleDetails: React.FC = () => {
               key={index}
               className="col-span-1 transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
                   `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`

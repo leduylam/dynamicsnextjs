@@ -47,6 +47,7 @@ const ForgetPasswordForm = () => {
 					<Logo />
 				</div>
 				<p className="text-sm md:text-base text-body mt-3 sm:mt-4 mb-8 sm:mb-10">
+					{/* eslint-disable-next-line react/no-unescaped-entities */}
 					We'll send you a link to reset your password
 				</p>
 			</div>

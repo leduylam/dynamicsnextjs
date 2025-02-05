@@ -117,6 +117,7 @@ const ProductCard: FC<ProductProps> = ({
           imageContentClassName
         )}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={hoverImage || `${process.env.NEXT_PUBLIC_SITE_URL}/${product?.image}`}
           width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
@@ -254,6 +255,7 @@ const ProductCard: FC<ProductProps> = ({
           {product.image && Array.isArray(product.image) && (
             product?.image.map((img: any, index: number) => (
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`} alt=""
                   onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
                 />

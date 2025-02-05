@@ -16,6 +16,7 @@ const ErrorInformation: React.FC = () => {
 
         <Text variant="mediumHeading">Looks like you are lost</Text>
         <p className="text-sm md:text-base leading-7 pt-2 md:pt-3.5 pb-7 md:pb-9">
+          {/* eslint-disable-next-line react/no-unescaped-entities */}
           We can't find the page you're looking for
         </p>
         <Link

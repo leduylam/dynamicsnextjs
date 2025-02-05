@@ -11,11 +11,11 @@ export default function AccountPage() {
     const { isAuthorized } = useUI()
     useEffect(() => {
         console.log(isAuthorized);
-        
+
         if (isAuthorized === false) {
             router.push('/')
         }
-    }, [isAuthorized])
+    }, [isAuthorized, router])
     return (
         <AccountLayout>
             <h2 className="text-lg md:text-xl xl:text-2xl font-bold text-heading mb-3 xl:mb-5">

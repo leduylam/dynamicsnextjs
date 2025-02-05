@@ -51,6 +51,7 @@ export const ProductAttributes: React.FC<Props> = ({
                       <span
                         className="block w-full h-full rounded"
                       >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image}`} alt="" />
                       </span>
 
