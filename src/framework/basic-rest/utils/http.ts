@@ -7,7 +7,7 @@ const http = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    "Accept": "application/json",
+    Accept: "application/json",
   },
 });
 
@@ -59,7 +59,6 @@ http.interceptors.response.use(
             Authorization: `Bearer ${newToken ? newToken : ""}`,
           };
         }
-
         return http(originalRequest);
       } catch (error) {
         return Promise.reject(error);

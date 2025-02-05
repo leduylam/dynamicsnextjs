@@ -5,11 +5,6 @@ module.exports = {
 		defaultLocale: "en",
 		locales: ["en", "vi"],
 		localeDetection: false,
-		detection: {
-			order: ['querystring', 'cookie', 'header'],
-			caches: ['cookie'],
-		},
 	},
-
-	localePath: path.resolve('./public/locales'),
+	localePath: path.resolve("./public/locales"),
 };

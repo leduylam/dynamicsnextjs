@@ -9,6 +9,8 @@ import { useState } from 'react';
 import CheckoutList from './checkout-list';
 import { useCartQuery } from '@framework/carts/get-all-cart';
 import { clearItemFromCart } from '@framework/carts/get-delete-cart';
+import { useRouter } from 'next/router';
+import { ROUTES } from '@utils/routes';
 
 interface CheckoutInputType {
   address_id: number,
@@ -23,6 +25,7 @@ interface CheckoutInputType {
 }
 
 const CheckoutForm: React.FC = () => {
+  const router = useRouter()
   const { mutate: updateUser, isPending } = useCheckoutMutation();
   const {
     register,
@@ -33,7 +36,6 @@ const CheckoutForm: React.FC = () => {
   const { data: deliveryAddress } = useDeliveryAddressQuery()
   const [isFormVisible, setIsFormVisible] = useState(deliveryAddress ? deliveryAddress.length === 0 : false);
   const [addressId, setAddressId] = useState<number | null>(null)
-
 
   function onSubmit(input: CheckoutInputType) {
     const checkoutInput = {
@@ -49,6 +51,7 @@ const CheckoutForm: React.FC = () => {
             clearItemFromCart(item.id)
           }
         }
+        router.push(ROUTES.ORDERS)
       }
     });
   }

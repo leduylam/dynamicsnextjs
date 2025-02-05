@@ -10,7 +10,9 @@ export default function AccountPage() {
     const router = useRouter()
     const { isAuthorized } = useUI()
     useEffect(() => {
-        if (!isAuthorized) {
+        console.log(isAuthorized);
+        
+        if (isAuthorized === false) {
             router.push('/')
         }
     }, [isAuthorized])

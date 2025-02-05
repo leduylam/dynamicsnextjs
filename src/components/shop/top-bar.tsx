@@ -64,11 +64,11 @@ export default function SearchTopBar() {
         </div> */}
         <ListBox
           options={[
-            { name: 'text-sorting-options', value: 'options' },
-            { name: 'text-newest', value: 'newest' },
-            { name: 'text-popularity', value: 'popularity' },
-            { name: 'text-price-low-high', value: 'low-high' },
-            { name: 'text-price-high-low', value: 'high-low' },
+            { name: 'Sorting Options', value: 'options' },
+            { name: 'Newest', value: 'newest' },
+            { name: 'Popularity', value: 'popularity' },
+            { name: 'Price: low to high', value: 'low-high' },
+            { name: 'Price: high to low', value: 'high-low' },
           ]}
         />
       </div>

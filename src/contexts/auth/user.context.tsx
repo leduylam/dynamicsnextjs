@@ -20,7 +20,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     )
 
     const [state, dispatch] = React.useReducer(userReducer, JSON.parse(saveUser!));
-
     // Lưu thông tin người dùng vào localStorage mỗi khi trạng thái thay đổi
     React.useEffect(() => {
         setSaveUser(JSON.stringify(state))

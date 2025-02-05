@@ -17,11 +17,11 @@ const RelatedProducts: React.FC<ProductsProps> = ({
 	const {
 		query: { slug },
 	} = useRouter();
-	const { data, isLoading, error } = useRelatedProductsQuery(slug as string, {limit: 8});
+	const { data, isLoading, error } = useRelatedProductsQuery(slug as string, { limit: 8 });
 	return (
 		<div className={className}>
 			<SectionHeader sectionHeading={sectionHeading} />
-			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-x-3 md:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8">
+			<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-x-3 md:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8">
 				{error ? (
 					<div className="col-span-full">
 						<Alert message={error?.message} />

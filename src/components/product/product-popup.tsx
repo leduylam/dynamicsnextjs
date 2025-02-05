@@ -110,7 +110,7 @@ export default function ProductPopup() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={
-              `http://127.0.0.1:8000/${image}` ||
+              `${process.env.NEXT_PUBLIC_SITE_URL}/${image}` ||
               "/assets/placeholder/products/product-thumbnail.svg"
             }
             alt={data.name}
@@ -129,9 +129,10 @@ export default function ProductPopup() {
                 {data.name}
               </h2>
             </div>
-            {/* <p className="text-sm leading-6 md:text-body md:leading-7">
-              {data.description}
-            </p> */}
+            <p className="text-sm leading-6 md:text-body md:leading-7"
+              dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
+            >
+            </p>
             {isAuthorized && (
               <div className="flex items-center justify-between mt-3">
                 <div>

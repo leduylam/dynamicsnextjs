@@ -6,8 +6,10 @@ import { useLoginMutation, LoginInputType } from '@framework/auth/use-login';
 import { useUI } from '@contexts/ui.context';
 import Logo from '@components/ui/logo';
 import { useState } from 'react';
+import { useTranslation } from 'next-i18next';
 
 const LoginForm: React.FC = () => {
+  const { t } = useTranslation();
   const { setModalView, openModal, closeModal } = useUI();
   const [_, setError] = useState<string | null>(null);
   const { mutate: login, isPending } = useLoginMutation();
@@ -49,7 +51,7 @@ const LoginForm: React.FC = () => {
       >
         <div className="flex flex-col space-y-3.5">
           <Input
-            labelKey="forms:label-email"
+            labelKey="Email"
             type="email"
             variant="solid"
             {...register('email', {
@@ -63,7 +65,7 @@ const LoginForm: React.FC = () => {
             errorKey={errors.email?.message}
           />
           <PasswordInput
-            labelKey="forms:label-password"
+            labelKey="Password"
             errorKey={errors.password?.message}
             {...register('password', {
               required: `Password is required`,
