@@ -24,4 +24,6 @@ export const API_ENDPOINTS = {
   ADD_TO_CART: "dynamic/add_to_cart",
   CHECKOUT: "dynamic/checkout",
   DELIVERY_ADDRESS: "dynamic/delivery_address",
+  RETAILER_LOCATOR: "dynamic/retailer_locator",
+  PROVINCES: "/dynamic/retailer_locator/provinces",
 };

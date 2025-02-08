@@ -33,32 +33,6 @@ export const footer = {
         },
       ],
     },
-    // {
-    //   id: 3,
-    //   widgetTitle: 'widget-title-contact',
-    //   lists: [
-    //     {
-    //       id: 1,
-    //       title: 'link-support-center',
-    //       path: '/contact-us',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'link-customer-support',
-    //       path: '/',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'link-about-us',
-    //       path: '/contact-us',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'link-copyright',
-    //       path: '/',
-    //     },
-    //   ],
-    // },
     {
       id: 4,
       widgetTitle: 'About Us',
@@ -77,92 +51,60 @@ export const footer = {
         {
           id: 1,
           title: 'Retailer Locator',
-          path: '/privacy',
+          path: '/retailer-locator',
         },
         {
           id: 2,
           title: 'Puma Apparel Sizing chart',
-          path: '/terms',
+          path: '/puma-apparel-sizing-chart',
         },
         {
           id: 3,
           title: 'Puma Shoe Sizing chart',
-          path: '/privacy',
+          path: '/puma-shoe-sizing-chart',
         },
         {
           id: 4,
           title: 'Greg Norman Apparel Sizing chart',
-          path: '/',
+          path: 'greg-norman-apparel-sizing-chart',
         },
         {
           id: 5,
           title: 'US Kids Golf Sizing chart',
-          path: '/',
+          path: '/us-kids-golf-sizing-chart',
         },
         {
           id: 6,
           title: 'Custom Product',
-          path: '/',
+          path: 'https://wildsidevn.com/',
         },
         {
           id: 7,
           title: 'Register as a Retailer',
-          path: '/',
+          path: '/register-as-a-retailer',
         },
       ],
     },
-    // {
-    //   id: 6,
-    //   widgetTitle: 'widget-title-top-categories',
-    //   lists: [
-    //     {
-    //       id: 1,
-    //       title: 'link-men-wear',
-    //       path: '/search',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'link-men-wear',
-    //       path: '/search',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'link-kids-wear',
-    //       path: '/search',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'link-sports-wear',
-    //       path: '/search',
-    //     },
-    //   ],
-    // },
     {
       id: 1,
-      widgetTitle: 'widget-title-social',
+      widgetTitle: 'Socials',
       lists: [
         {
           id: 1,
           title: 'Instagram',
-          path: 'https://www.instagram.com/redqinc/',
+          path: 'https://www.instagram.com/dynamicsportsvietnam/',
           icon: <IoLogoInstagram />,
-        },
-        {
-          id: 2,
-          title: 'Twitter',
-          path: 'https://twitter.com/redqinc',
-          icon: <IoLogoTwitter />,
         },
         {
           id: 3,
           title: 'Facebook',
-          path: 'https://www.facebook.com/redqinc/',
+          path: 'https://www.facebook.com/profile.php?id=61573007002622',
           icon: <IoLogoFacebook />,
         },
         {
           id: 4,
           title: 'Youtube',
-          path: 'https://www.youtube.com/channel/UCjld1tyVHRNy_pe3ROLiLhw',
+          path: 'https://www.youtube.com/@dynamicsportsvietnam9443',
           icon: <IoLogoYoutube />,
         },
       ],

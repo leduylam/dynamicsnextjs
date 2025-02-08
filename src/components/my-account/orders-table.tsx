@@ -85,78 +85,48 @@ const OrdersTable: React.FC = () => {
           </table>
         ) : (
           <div className="w-full space-y-4">
-            <ul className="flex flex-col px-4 pt-5 pb-6 space-y-5 text-sm font-semibold border border-gray-300 rounded-md text-heading">
-              <li className="flex items-center justify-between">
-                Order
-                <span className="font-normal">
-                  <Link
-                    href="/my-account/orders/3203"
-                    className="underline hover:no-underline text-body"
-                  >
-                    #3203
-                  </Link>
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                Date
-                <span className="font-normal">March 18, 2021</span>
-              </li>
-              <li className="flex items-center justify-between">
-                Status
-                <span className="font-normal">Completed</span>
-              </li>
-              <li className="flex items-center justify-between">
-                Total
-                <span className="font-normal">$16,950.00 for 93 items</span>
-              </li>
-              <li className="flex items-center justify-between">
-                Actions
-                <span className="font-normal">
-                  <Link
-                    href="/my-account/orders/3203"
-                    className="text-sm leading-4 bg-heading text-white px-4 py-2.5 inline-block rounded-md hover:text-white hover:bg-gray-600"
-                  >
-                    View
-                  </Link>
-                </span>
-              </li>
-            </ul>
-            <ul className="flex flex-col px-4 pt-5 pb-6 space-y-5 text-sm font-semibold border border-gray-300 rounded-md text-heading">
-              <li className="flex items-center justify-between">
-                Order
-                <span className="font-normal">
-                  <Link
-                    href="/my-account/orders/3204"
-                    className="underline hover:no-underline text-body"
-                  >
-                    #3204
-                  </Link>
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                Date
-                <span className="font-normal">March 18, 2021</span>
-              </li>
-              <li className="flex items-center justify-between">
-                Status
-                <span className="font-normal">Completed</span>
-              </li>
-              <li className="flex items-center justify-between">
-                Total
-                <span className="font-normal">$16,950.00 for 93 items</span>
-              </li>
-              <li className="flex items-center justify-between">
-                Actions
-                <span className="font-normal">
-                  <Link
-                    href="/my-account/orders/3204"
-                    className="text-sm leading-4 bg-heading text-white px-4 py-2.5 inline-block rounded-md hover:text-white hover:bg-gray-600"
-                  >
-                    View
-                  </Link>
-                </span>
-              </li>
-            </ul>
+            {data && data.orders.map((order: any) => (
+              <ul className="flex flex-col px-4 pt-5 pb-6 space-y-5 text-sm font-semibold border border-gray-300 rounded-md text-heading" key={order.id}>
+                <li className="flex items-center justify-between">
+                  Order
+                  <span className="font-normal">
+                    <Link
+                      href={'/my-account/orders/' + order.id}
+                      className="underline hover:no-underline text-body"
+                    >
+                      {order.order_code}
+                    </Link>
+                  </span>
+                </li>
+                <li className="flex items-center justify-between">
+                  Date
+                  <span className="font-normal">{order.created_at}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  Status
+                  <span className="font-normal">{order.publish.name}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  Total
+                  <span className="font-normal">{number_format(order.grand_total)}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  Note
+                  <span className="font-normal">{order.memo}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  Actions
+                  <span className="font-normal">
+                    <Link
+                      href={'/my-account/orders/' + order.id}
+                      className="text-sm leading-4 bg-heading text-white px-4 py-2.5 inline-block rounded-md hover:text-white hover:bg-gray-600"
+                    >
+                      View
+                    </Link>
+                  </span>
+                </li>
+              </ul>
+            ))}
           </div>
         )}
       </motion.div>

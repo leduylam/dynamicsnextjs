@@ -17,28 +17,21 @@ import { useQuery } from '@tanstack/react-query';
 const social = [
   {
     id: 0,
-    link: '',
+    link: 'https://www.facebook.com/profile.php?id=61573007002622',
     icon: <IoLogoFacebook />,
     className: 'facebook',
     title: 'text-facebook',
   },
   {
-    id: 1,
-    link: '',
-    icon: <IoLogoTwitter />,
-    className: 'twitter',
-    title: 'text-twitter',
-  },
-  {
     id: 2,
-    link: '',
+    link: 'https://www.youtube.com/@dynamicsportsvietnam9443',
     icon: <IoLogoYoutube />,
     className: 'youtube',
     title: 'text-youtube',
   },
   {
     id: 3,
-    link: '',
+    link: 'https://www.instagram.com/dynamicsportsvietnam/',
     icon: <IoLogoInstagram />,
     className: 'instagram',
     title: 'text-instagram',
