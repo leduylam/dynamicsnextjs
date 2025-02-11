@@ -10,7 +10,7 @@ const ProductPopup = dynamic(() => import("@components/product/product-popup"));
 const ManagedModal: React.FC = () => {
 	const { displayModal, closeModal, modalView } = useUI();
 	return (
-		<Modal onClose={closeModal}>
+		<Modal open={!!displayModal} onClose={closeModal}>
 			{modalView === "LOGIN_VIEW" && <LoginForm />}
 			{modalView === "FORGET_PASSWORD" && <ForgetPasswordForm />}
 			{modalView === "PRODUCT_VIEW" && <ProductPopup />}
