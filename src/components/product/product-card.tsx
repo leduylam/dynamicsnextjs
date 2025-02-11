@@ -252,7 +252,7 @@ const ProductCard: FC<ProductProps> = ({
           {product?.name}
         </h2>
         <div className="grid grid-cols-5 gap-2">
-          {product.image && Array.isArray(product.image) && (
+          {product.image && Array.isArray(product.image) && product.image.length > 1 && (
             product?.image.map((img: any, index: number) => (
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -262,7 +262,6 @@ const ProductCard: FC<ProductProps> = ({
               </div>
             ))
           )}
-
         </div>
         {/* {!hideProductDescription && product?.description && (
           <p className="text-body text-xs lg:text-sm leading-normal xl:leading-relaxed max-w-[250px] truncate">

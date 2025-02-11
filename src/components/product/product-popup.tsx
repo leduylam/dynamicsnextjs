@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import isEmpty from "lodash/isEmpty";
 import { ROUTES } from "@utils/routes";
@@ -79,6 +79,14 @@ export default function ProductPopup() {
       setActiveState(attributeId)
     }
   }
+  useEffect(() => {
+    if (activeState) {
+      const foundAttribute = allAttribute.find((attr: any) => attr.id === activeState)
+      setAttributes({
+        [foundAttribute.name]: foundAttribute.value
+      })
+    }
+  }, [activeState])
 
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
