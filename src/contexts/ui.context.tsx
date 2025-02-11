@@ -185,7 +185,7 @@ function uiReducer(state: State, action: Action) {
     case "OPEN_MODAL": {
       return {
         ...state,
-        displayModal: false,
+        displayModal: true,
         displaySidebar: false,
       };
     }
