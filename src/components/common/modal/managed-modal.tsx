@@ -8,7 +8,7 @@ const ForgetPasswordForm = dynamic(
 );
 const ProductPopup = dynamic(() => import("@components/product/product-popup"));
 const ManagedModal: React.FC = () => {
-	const { displayModal = false, closeModal, modalView } = useUI();
+	const { displayModal, closeModal, modalView } = useUI();
 	return (
 		<Modal open={displayModal} onClose={closeModal}>
 			{modalView === "LOGIN_VIEW" && <LoginForm />}
