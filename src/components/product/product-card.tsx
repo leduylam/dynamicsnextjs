@@ -128,7 +128,7 @@ const ProductCard: FC<ProductProps> = ({
             `bg-gray-300 ${!disableBorderRadius && "rounded-s-md"
             }`,
             {
-              "w-full transition duration-200 ease-in":
+              "w-full transition duration-200 ease-in h-[204px] sm:h-[348px] md:h-[239px] lg:h-[202px] xl:h-[239px]":
                 variant === "grid" ||
                 variant === "gridModern" ||
                 variant === "gridModernWide" ||
@@ -257,6 +257,7 @@ const ProductCard: FC<ProductProps> = ({
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`} alt=""
+                  className='object-cover w-full h-[35px]'
                   onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
                 />
               </div>
