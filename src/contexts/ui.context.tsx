@@ -74,7 +74,6 @@ type Action =
   }
   | {
     type: "OPEN_MODAL";
-    view: MODAL_VIEWS
   }
   | {
     type: "CLOSE_MODAL";
@@ -186,8 +185,7 @@ function uiReducer(state: State, action: Action) {
     case "OPEN_MODAL": {
       return {
         ...state,
-        displayModal: !!action.view,
-        modalView: action.view || null,
+        displayModal: true,
         displaySidebar: false,
       };
     }
@@ -257,7 +255,7 @@ export const UIProvider: React.FC = (props) => {
   const openShop = () => dispatch({ type: "OPEN_SHOP" });
   const closeShop = () => dispatch({ type: "CLOSE_SHOP" });
 
-  const openModal = (view: MODAL_VIEWS) => dispatch({ type: "OPEN_MODAL", view });
+  const openModal = () => dispatch({ type: "OPEN_MODAL" });
   const closeModal = () => dispatch({ type: "CLOSE_MODAL" });
   const openSearch = () => dispatch({ type: "OPEN_SEARCH" });
   const closeSearch = () => dispatch({ type: "CLOSE_SEARCH" });
