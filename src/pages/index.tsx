@@ -9,7 +9,6 @@ import NewArrivalsProductFeed from "@components/product/feeds/new-arrivals-produ
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ROUTES } from "@utils/routes";
-import { useUI } from "@contexts/ui.context";
 import { getSecondBanner } from "@framework/banner/get-banner";
 interface Banner {
   id: string;
@@ -29,7 +28,7 @@ interface Banner {
   };
 }
 export default function Home() {
-  const { openModal, setModalView } = useUI();
+  // const { openModal, setModalView } = useUI();
   const [banner, setBanner] = useState<Banner | null>(null)
   const { data, isLoading } = useQuery({ queryKey: ['banner'], queryFn: getSecondBanner })
   useEffect(() => {
@@ -62,13 +61,13 @@ export default function Home() {
       }
     }
   }, [data, isLoading])
-  useEffect(() => {
-    setModalView("NEWSLETTER_VIEW");
-    setTimeout(() => {
-      openModal();
-    }, 2000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   setModalView("NEWSLETTER_VIEW");
+  //   setTimeout(() => {
+  //     openModal();
+  //   }, 2000);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   return (
     <>
       <HeroBlock />

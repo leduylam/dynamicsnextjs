@@ -298,7 +298,6 @@ export const UIProvider: React.FC = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state]
   );
-
   return <UIContext.Provider value={value} {...props} />;
 };
 
