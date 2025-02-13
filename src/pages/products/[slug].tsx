@@ -17,7 +17,7 @@ export default function ProductPage() {
 				<ProductSingleDetails />
 				<RelatedProducts sectionHeading="Related Products" />
 				{/* <Subscription /> */}
-				<BrandBlock sectionHeading="text-brands" />
+				<BrandBlock sectionHeading="Brands" />
 			</Container>
 		</>
 	);
