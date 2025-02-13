@@ -103,7 +103,7 @@ const ProductCard: FC<ProductProps> = ({
     >
       <div
         className={cn(
-          "flex",
+          "flex h-[204px] sm:h-[348px] md:h-[239px] lg:h-[202px] xl:h-[239px]",
           {
             "mb-3 md:mb-3.5": variant === "grid",
             "mb-3 md:mb-3.5 pb-0": variant === "gridSlim",
@@ -125,10 +125,10 @@ const ProductCard: FC<ProductProps> = ({
           loading={imgLoading}
           alt={product?.name || "Product Image"}
           className={cn(
-            `bg-gray-300 ${!disableBorderRadius && "rounded-s-md"
+            `bg-white ${!disableBorderRadius && "rounded-s-md object-contain"
             }`,
             {
-              "w-full transition duration-200 ease-in h-[204px] sm:h-[348px] md:h-[239px] lg:h-[202px] xl:h-[239px]":
+              "w-full transition duration-200 ease-in":
                 variant === "grid" ||
                 variant === "gridModern" ||
                 variant === "gridModernWide" ||

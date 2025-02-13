@@ -85,9 +85,9 @@ export default function ProductPopup() {
       setAttributes({
         [foundAttribute.name]: foundAttribute.value
       })
+      setChooseQuantity(foundAttribute.quantity)
     }
   }, [activeState])
-
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
     ? (activeAttributes.image || data.image)

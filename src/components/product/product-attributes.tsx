@@ -39,40 +39,38 @@ export const ProductAttributes: React.FC<Props> = ({
             <div key={id}>
               {
                 parent_id === 0 && (
-                  <>
-                    {image ? (
-                      <li
-                        key={`${value}-${id}`}
-                        className={cn(
-                          'cursor-pointer rounded border w-9 md:w-11 h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out hover:border-black',
-                          id === defuatlActive ? 'border-black' : 'border-gray-100'
-                        )}
-                        onClick={() => handleAttributeParent({ [title]: value }, id)}
+                  image ? (
+                    <li
+                      key={`${value}-${id}`}
+                      className={cn(
+                        'cursor-pointer rounded border w-9 md:w-11 h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out hover:border-black',
+                        id === defuatlActive ? 'border-black' : 'border-gray-100'
+                      )}
+                      onClick={() => handleAttributeParent({ [title]: value }, id)}
+                    >
+                      <span
+                        className="block w-full h-full rounded"
                       >
-                        <span
-                          className="block w-full h-full rounded"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image}`} alt="" className='object-cover w-full h-[35px]' />
-                        </span>
-                      </li>
-                    ) : (
-                      <li
-                        key={`${value}-${id}`}
-                        className={cn(
-                          'cursor-pointer rounded border w-9 md:min-w-11 h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out hover:border-black',
-                          id === defuatlActive ? 'border-black' : 'border-gray-100'
-                        )}
-                        onClick={() => handleAttributeParent({ [title]: value }, id)}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image}`} alt="" className='object-cover w-full h-[35px]' />
+                      </span>
+                    </li>
+                  ) : (
+                    <li
+                      key={`${value}-${id}`}
+                      className={cn(
+                        'cursor-pointer rounded border w-9 md:min-w-11 h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out hover:border-black',
+                        id === defuatlActive ? 'border-black' : 'border-gray-100'
+                      )}
+                      onClick={() => handleAttributeParent({ [title]: value }, id)}
+                    >
+                      <span
+                        className="flex justify-center items-center w-full h-full rounded"
                       >
-                        <span
-                          className="flex justify-center items-center w-full h-full rounded"
-                        >
-                          {value}
-                        </span>
-                      </li>
-                    )}
-                  </>
+                        {value}
+                      </span>
+                    </li>
+                  )
                 )
               }
               {
