@@ -132,10 +132,10 @@ const ProductSingleDetails: React.FC = () => {
       ? activeAttributes ? activeAttributes.album : []
       : data?.attributes.flatMap((attribute: any) => attribute.album)
   }
-  
+
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
-    : cleanSku(activeAttributes?.product_attribute_sku);
+    : activeAttributes.product_attribute_sku ? cleanSku(activeAttributes?.product_attribute_sku) : '';
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
@@ -323,7 +323,6 @@ const ProductSingleDetails: React.FC = () => {
             )}
           </ul>
         </div>
-
         <ProductMetaReview data={data} />
       </div>
       <div className="product-detail pt-8 col-span-8 md:flex gap-5">

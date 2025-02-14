@@ -20,7 +20,7 @@ const ProductMetaReview: React.FC<Props> = ({ data }) => {
 	}, [data])
 	const renderContent = (content: Array<{ id: number, spectValue: string }>) => {
 		if (!content || content.length === 0) {
-			return <p>No content available.</p>;
+			return <p></p>;
 		}
 		return (
 			<ul className="list-disc ml-6">
