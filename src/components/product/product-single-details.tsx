@@ -135,7 +135,7 @@ const ProductSingleDetails: React.FC = () => {
 
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
-    : activeAttributes.product_attribute_sku ? cleanSku(activeAttributes?.product_attribute_sku) : '';
+    : activeAttributes?.product_attribute_sku;
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
