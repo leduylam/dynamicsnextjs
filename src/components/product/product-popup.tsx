@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import isEmpty from "lodash/isEmpty";
 import { ROUTES } from "@utils/routes";
@@ -31,6 +31,7 @@ export default function ProductPopup() {
   )
   const [subActive, setSubActive] = useState<number>()
   const [chooseQuantity, setChooseQuantity] = useState<number>()
+  const [totalQuantity, setTotalQuantity] = useState<number>()
 
   const mergeAttributes = (attributes: any) => {
     return attributes.flatMap((attribute: { sub_attribute: any; }) => [
@@ -80,6 +81,16 @@ export default function ProductPopup() {
       setActiveState(attributeId)
     }
   }
+  useEffect(() => {
+    if (activeState) {
+      const foundAttribute = allAttribute.find((attr: any) => attr.id === activeState)
+      setAttributes({
+        [foundAttribute.name]: foundAttribute.value
+      })
+      setChooseQuantity(foundAttribute.quantity);
+    }
+  }, [activeState])
+
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
     ? (activeAttributes.image || data.image)
@@ -105,6 +116,7 @@ export default function ProductPopup() {
       openCart();
     }, 300);
   }
+
   return (
     <div className="rounded-lg bg-white">
       <div className="flex flex-col lg:flex-row w-full md:w-[650px] lg:w-[960px] mx-auto overflow-hidden">
@@ -134,10 +146,13 @@ export default function ProductPopup() {
               dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
             >
             </p>
-            <p>
-              <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">SKU: </span>
-              <span className="text-sm">{productSku}</span>
+            <p className="text-sm">
+              <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
+                SKU:
+              </span>
+              {productSku}
             </p>
+
             {isAuthorized && (
               <div className="flex items-center justify-between mt-3">
                 <div>
@@ -176,7 +191,9 @@ export default function ProductPopup() {
                 </div>
               </div>
             )}
+
           </div>
+
           {Object.keys(variations).map((variation) => {
             return (
               <ProductAttributes
@@ -194,6 +211,7 @@ export default function ProductPopup() {
           {isAuthorized && chooseQuantity && (
             <div>Quantity avaiable: {chooseQuantity}</div>
           )}
+
           <div className="pt-2 md:pt-4">
             {isAuthorized && (
               <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
@@ -217,6 +235,7 @@ export default function ProductPopup() {
                 </Button>
               </div>
             )}
+
 
             {viewCartBtn && (
               <button
