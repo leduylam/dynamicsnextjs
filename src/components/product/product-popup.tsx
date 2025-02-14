@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import isEmpty from "lodash/isEmpty";
 import { ROUTES } from "@utils/routes";
@@ -8,7 +8,7 @@ import Counter from "@components/common/counter";
 import { ProductAttributes } from "@components/product/product-attributes";
 import { generateCartItem } from "@utils/generate-cart-item";
 import { getVariations } from "@framework/utils/get-variations";
-import { number_format } from "src/helpers/my-helper";
+import { cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 export default function ProductPopup() {
@@ -31,6 +31,7 @@ export default function ProductPopup() {
   )
   const [subActive, setSubActive] = useState<number>()
   const [chooseQuantity, setChooseQuantity] = useState<number>()
+
   const mergeAttributes = (attributes: any) => {
     return attributes.flatMap((attribute: { sub_attribute: any; }) => [
       attribute, // Thêm attribute gốc
@@ -79,19 +80,13 @@ export default function ProductPopup() {
       setActiveState(attributeId)
     }
   }
-  useEffect(() => {
-    if (activeState) {
-      const foundAttribute = allAttribute.find((attr: any) => attr.id === activeState)
-      setAttributes({
-        [foundAttribute.name]: foundAttribute.value
-      })
-      setChooseQuantity(foundAttribute.quantity)
-    }
-  }, [activeState])
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
     ? (activeAttributes.image || data.image)
     : (Array.isArray(data.image) ? data.image[0] : data.image)
+  const productSku = activeAttributes?.sub_attribute.length > 0
+    ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
+    : cleanSku(activeAttributes?.product_attribute_sku);
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
@@ -110,7 +105,6 @@ export default function ProductPopup() {
       openCart();
     }, 300);
   }
-
   return (
     <div className="rounded-lg bg-white">
       <div className="flex flex-col lg:flex-row w-full md:w-[650px] lg:w-[960px] mx-auto overflow-hidden">
@@ -139,6 +133,10 @@ export default function ProductPopup() {
             <p className="text-sm leading-6 md:text-body md:leading-7"
               dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
             >
+            </p>
+            <p>
+              <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">SKU: </span>
+              <span className="text-sm">{productSku}</span>
             </p>
             {isAuthorized && (
               <div className="flex items-center justify-between mt-3">
@@ -178,9 +176,7 @@ export default function ProductPopup() {
                 </div>
               </div>
             )}
-
           </div>
-
           {Object.keys(variations).map((variation) => {
             return (
               <ProductAttributes
@@ -198,7 +194,6 @@ export default function ProductPopup() {
           {isAuthorized && chooseQuantity && (
             <div>Quantity avaiable: {chooseQuantity}</div>
           )}
-
           <div className="pt-2 md:pt-4">
             {isAuthorized && (
               <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
@@ -222,7 +217,6 @@ export default function ProductPopup() {
                 </Button>
               </div>
             )}
-
 
             {viewCartBtn && (
               <button

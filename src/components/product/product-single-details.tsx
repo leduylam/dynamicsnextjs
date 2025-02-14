@@ -15,7 +15,7 @@ import { SwiperSlide } from "swiper/react";
 import ProductMetaReview from "@components/product/product-meta-review";
 import { useSsrCompatible } from "@utils/use-ssr-compatible";
 import { useUI } from "@contexts/ui.context";
-import { number_format } from "src/helpers/my-helper";
+import { cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 
 const productGalleryCarouselResponsive = {
@@ -26,9 +26,6 @@ const productGalleryCarouselResponsive = {
     slidesPerView: 1,
   },
 };
-
-
-
 const ProductSingleDetails: React.FC = () => {
   const {
     query: { slug },
@@ -86,6 +83,7 @@ const ProductSingleDetails: React.FC = () => {
       }
     }
   }, [data, router])
+
   if (isLoading) return <p>Loading...</p>;
 
   const isSelected = !isEmpty(variations)
@@ -128,12 +126,16 @@ const ProductSingleDetails: React.FC = () => {
       );
     }
   }
-  const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
+  const activeAttributes = data?.attributes.find((attr: any) => attr.id === activeState) || null
   const productImages = {
     gallery: activeState
       ? activeAttributes ? activeAttributes.album : []
       : data?.attributes.flatMap((attribute: any) => attribute.album)
   }
+  
+  const productSku = activeAttributes?.sub_attribute.length > 0
+    ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
+    : cleanSku(activeAttributes?.product_attribute_sku);
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
@@ -145,6 +147,7 @@ const ProductSingleDetails: React.FC = () => {
       setSubActive(attributeId)
     }
   }
+
 
   return (
     <div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">
@@ -192,7 +195,6 @@ const ProductSingleDetails: React.FC = () => {
           ))}
         </div>
       )}
-
       <div className="col-span-4 pt-8 lg:pt-0">
         <div className="pb-7 mb-7 border-b border-gray-300">
           <h2 className="text-heading text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-bold hover:text-black mb-3.5">
@@ -228,9 +230,7 @@ const ProductSingleDetails: React.FC = () => {
                     {number_format(data?.product_price)} <span className="text-base italic">VND</span>
                   </div>
                 )}
-
               </div>
-
               <div className="text-gray-600 font-semibold text-base md:text-xl lg:text-lg italic underline">
                 Retail:
                 <span className="ml-2">{number_format(data?.product_retail_price)} </span>
@@ -238,9 +238,7 @@ const ProductSingleDetails: React.FC = () => {
               </div>
             </div>
           )}
-
         </div>
-
         <div className="pb-3 border-b border-gray-300">
           {Object.keys(variations).map((variation) => {
             return (
@@ -261,7 +259,6 @@ const ProductSingleDetails: React.FC = () => {
             <div>Stock avaiable: {chooseQuantity}</div>
           )}
         </div>
-
         {isAuthorized && (
           <div className="flex items-center gap-x-4 ltr:md:pr-32 rtl:md:pl-32 ltr:lg:pr-12 rtl:lg:pl-12 ltr:2xl:pr-32 rtl:2xl:pl-32 ltr:3xl:pr-48 rtl:3xl:pl-48  border-b border-gray-300 py-8">
             <Counter
@@ -291,7 +288,7 @@ const ProductSingleDetails: React.FC = () => {
               <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
                 SKU:
               </span>
-              {data?.sku}
+              {productSku}
             </li>
             <li>
               <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">

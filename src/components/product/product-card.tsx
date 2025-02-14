@@ -231,26 +231,30 @@ const ProductCard: FC<ProductProps> = ({
             {!!showRating && <RatingDisplay rating={2.5} />}
           </div>
         )}
-        <h2
-          className={cn("truncate mb-1", {
-            "text-sm md:text-base": variant === "grid",
-            "font-semibold": demoVariant !== "ancient",
-            "font-bold": demoVariant === "ancient",
-            "text-xs sm:text-sm md:text-base":
-              variant === "gridModern" ||
-              variant === "gridModernWide" ||
-              variant === "gridTrendy",
-            "md:mb-1.5 text-sm sm:text-base md:text-sm lg:text-base xl:text-lg":
-              variant === "gridSlim",
-            "text-sm sm:text-base md:mb-1.5 pb-0": variant === "listSmall",
-            "text-sm sm:text-base md:text-sm lg:text-base xl:text-lg md:mb-1.5":
-              variant === "list",
-            "text-white": bgTransparent,
-            "text-heading": !bgTransparent,
-          })}
-        >
-          {product?.name}
-        </h2>
+        <div className="mb-4 leading-3">
+          <h2
+            className={cn("truncate mb-1", {
+              "text-sm md:text-base": variant === "grid",
+              "font-semibold": demoVariant !== "ancient",
+              "font-bold": demoVariant === "ancient",
+              "text-xs sm:text-sm md:text-base":
+                variant === "gridModern" ||
+                variant === "gridModernWide" ||
+                variant === "gridTrendy",
+              "md:mb-1.5 text-sm sm:text-base md:text-sm lg:text-base xl:text-lg":
+                variant === "gridSlim",
+              "text-sm sm:text-base md:mb-1.5 pb-0": variant === "listSmall",
+              "text-sm sm:text-base md:text-sm lg:text-base xl:text-lg md:mb-1.5":
+                variant === "list",
+              "text-white": bgTransparent,
+              "text-heading": !bgTransparent,
+            })}
+          >
+            {product?.name}
+          </h2>
+          <p className="text-sm sm:text-base xl:text-base md:mb-1.5">{product.sku}</p>
+        </div>
+
         <div className="grid grid-cols-5 gap-2">
           {product.image && Array.isArray(product.image) && product.image.length > 1 && (
             product?.image.map((img: any, index: number) => (
