@@ -142,10 +142,11 @@ export default function ProductPopup() {
                 {data.name}
               </h2>
             </div>
-            <p className="text-sm leading-6 md:text-body md:leading-7"
-              dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
-            >
-            </p>
+            {data.description && data.description !== 'undefined' && (
+              <p className="text-sm leading-6 md:text-body md:leading-7"
+                dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
+              ></p>
+            )}
             <p className="text-sm">
               <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
                 SKU:

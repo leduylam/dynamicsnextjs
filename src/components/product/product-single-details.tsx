@@ -200,9 +200,11 @@ const ProductSingleDetails: React.FC = () => {
           <h2 className="text-heading text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-bold hover:text-black mb-3.5">
             {data?.name}
           </h2>
-          <p className="text-body text-sm lg:text-sm leading-6 lg:leading-8 indent-8"
-            dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
-          />
+          {data?.description && data.description !== 'undefined' && (
+            <p className="text-body text-sm lg:text-sm leading-6 lg:leading-8 indent-8"
+              dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
+            ></p>
+          )}
           {isAuthorized && (
             <div className="flex items-center justify-between mt-5">
               <div>
@@ -330,10 +332,12 @@ const ProductSingleDetails: React.FC = () => {
           <p className="text-base lg:text-lg font-semibold text-heading underline">Detail</p>
         </div>
         <div>
-          <div
-            className="leading-6 lg:leading-8 ck-content"
-            dangerouslySetInnerHTML={{ __html: data?.content ?? "" }}
-          />
+          {data?.content && data.content !== 'undefined' && (
+            <div
+              className="leading-6 lg:leading-8 ck-content"
+              dangerouslySetInnerHTML={{ __html: data?.content ?? "" }}
+            />
+          )}
         </div>
       </div>
     </div>
