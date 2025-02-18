@@ -69,6 +69,7 @@ const ProductCard: FC<ProductProps> = ({
       setHoverImage(randomImage);
     }
   }, [product?.image]);
+  
   return (
     <div
       className={cn(

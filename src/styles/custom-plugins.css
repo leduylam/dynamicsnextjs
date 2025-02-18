@@ -2,31 +2,34 @@
 .accordion.rc-collapse {
   @apply bg-transparent border-0 space-y-2.5;
 }
-.accordion.rc-collapse > .rc-collapse-item {
+
+.accordion.rc-collapse>.rc-collapse-item {
   @apply px-6 bg-gray-200 border-0 rounded-md;
 }
-.accordion.rc-collapse > .rc-collapse-item > .rc-collapse-header {
+
+.accordion.rc-collapse>.rc-collapse-item>.rc-collapse-header {
   @apply px-0 py-4 outline-none;
 }
-.accordion.rc-collapse > .rc-collapse-item > .rc-collapse-header h3 {
+
+.accordion.rc-collapse>.rc-collapse-item>.rc-collapse-header h3 {
   @apply py-0.5 transition duration-200 ease-in;
   letter-spacing: 0.015em;
 }
-.accordion.rc-collapse > .rc-collapse-item > .rc-collapse-header:hover h3 {
+
+.accordion.rc-collapse>.rc-collapse-item>.rc-collapse-header:hover h3 {
   @apply text-black;
 }
-.accordion.rc-collapse > .rc-collapse-item > .rc-collapse-content {
+
+.accordion.rc-collapse>.rc-collapse-item>.rc-collapse-content {
   @apply py-0 bg-transparent ltr:pl-0 rtl:pr-0 ltr:pr-32 rtl:pl-32 text-body;
 }
-.accordion.rc-collapse
-  > .rc-collapse-item
-  > .rc-collapse-content
-  > .rc-collapse-content-box {
+
+.accordion.rc-collapse>.rc-collapse-item>.rc-collapse-content>.rc-collapse-content-box {
   @apply pb-5 my-0 text-sm leading-6;
 }
 
 .react-tabs__tab--selected {
-  @apply font-semibold  rounded-md bg-gray-100 !important;
+  @apply font-semibold rounded-md bg-gray-100 !important;
 }
 
 .react-stars {
@@ -37,9 +40,11 @@
 .Toastify .fancy-progress-bar {
   background: rgba(255, 255, 255, 0.45);
 }
+
 .Toastify .Toastify__toast {
   background-color: #000;
 }
+
 .Toastify .Toastify__toast--error {
   background: #fae1e2 !important;
 }
@@ -67,10 +72,13 @@
 .Toastify .Toastify__toast .Toastify__close-button {
   opacity: 0.7;
 }
+
 .Toastify .Toastify__toast .Toastify__close-button:hover {
   opacity: 1;
 }
+
 @media (max-width: 480px) {
+
   .Toastify .Toastify__toast-container--top-left,
   .Toastify .Toastify__toast-container--top-center,
   .Toastify .Toastify__toast-container--top-right {
@@ -80,15 +88,18 @@
 
 /* Drawer */
 .rc-drawer .rc-drawer-content-wrapper {
-  @apply w-full sm:!w-450px;
+  @apply w-full sm:w-[450px];
 }
+
 .drawer-search {
   transform: translate(-50%, 50px);
 }
+
 .drawer-search.open {
   @apply fixed top-0 visible block opacity-100;
   transform: translate(-50%, 0);
 }
+
 .overlay {
   background-color: rgba(0, 0, 0, 0.35);
   z-index: 21;
@@ -102,9 +113,22 @@
   @apply ltr:left-0 rtl:right-0;
   transition: 0.35s ease-in-out;
 }
+
 .overlay.open {
   @apply opacity-100;
   visibility: visible;
+}
+
+.product-detail h2 {
+  @apply inline-block text-[42px] font-extrabold ml-2
+}
+
+.product-detail img.image-style-align-left {
+  @apply float-left my-6 inline-block
+}
+
+.product-detail ul {
+  @apply list-disc
 }
 
 /* CkEditor  */
@@ -113,20 +137,26 @@
   margin-left: 1.5em;
   max-width: 50%;
 }
-.ck-content h2{
+
+.ck-content h2 {
   font-size: 22px;
 }
-.ck-content h3{
+
+.ck-content h3 {
   font-size: 18px;
   font-weight: 600;
 }
-.ck-content .table{
+
+.ck-content .table {
   width: 100%;
 }
-.ck-content table{
+
+.ck-content table {
   width: 100%;
 }
-.ck-content table thead th,tbody tr td{
+
+.ck-content table thead th,
+tbody tr td {
   border: 1px solid #888;
   padding: 5px 10px;
 }

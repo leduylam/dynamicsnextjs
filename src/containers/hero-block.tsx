@@ -1,7 +1,6 @@
 import BannerCard from '@components/common/banner-card';
 import Carousel from '@components/ui/carousel/carousel';
 import { useWindowSize } from '@utils/use-window-size';
-import { ROUTES } from '@utils/routes';
 import { SwiperSlide } from 'swiper/react';
 import { useSsrCompatible } from '@utils/use-ssr-compatible';
 import { useBannersQuery } from '@framework/banner/get-banner';
@@ -86,7 +85,7 @@ const HeroBlock: React.FC = ({ demoVariant }: Props) => {
           >
             <BannerCard
               banner={banner}
-              href={`${ROUTES.COLLECTIONS}/${banner.slug}`}
+              href={`search?brand=${banner.slug}`}
             />
           </SwiperSlide>
         ))}

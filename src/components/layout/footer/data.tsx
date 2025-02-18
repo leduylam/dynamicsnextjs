@@ -39,7 +39,7 @@ export const footer = {
       lists: [
         {
           id: 1,
-          title: 'Dynamic Sports Company LTD is the exclusive distributor in Vietnam and Cambodia for some of the biggest brands in the golfing world today. Cobra Puma Golf, US Kids Golf, Greg Norman Apparel, PRG Accessories, Ahead Caps and Sundog eyewear. For a full list of retailers stocking our brands, please click on the \"Retailer Locator\" tab.',
+          title: 'Dynamic Sports Company LTD is the exclusive distributor in Vietnam and Cambodia for some of the biggest brands in the golfing world today. Cobra Puma Golf, US Kids Golf, Greg Norman Apparel, PRG Accessories, Blue Tees and Sundog eyewear. For a full list of retailers stocking our brands, please click on the \"Retailer Locator\" tab.',
           // path: '/faq',
         },
       ],
