@@ -48,11 +48,11 @@ export const footer = {
       id: 5,
       widgetTitle: 'Tools',
       lists: [
-        {
-          id: 1,
-          title: 'Retailer Locator',
-          path: '/retailer-locator',
-        },
+        // {
+        //   id: 1,
+        //   title: 'Retailer Locator',
+        //   path: '',
+        // },
         {
           id: 2,
           title: 'Puma Apparel Sizing chart',

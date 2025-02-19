@@ -120,7 +120,7 @@
 }
 
 .product-detail h2 {
-  @apply inline-block text-[42px] font-extrabold ml-2
+  @apply inline-block text-[42px] font-extrabold ml-2 leading-normal
 }
 
 .product-detail p {
