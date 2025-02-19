@@ -8,7 +8,7 @@ import Counter from "@components/common/counter";
 import { ProductAttributes } from "@components/product/product-attributes";
 import { generateCartItem } from "@utils/generate-cart-item";
 import { getVariations } from "@framework/utils/get-variations";
-import { cleanSku, number_format } from "src/helpers/my-helper";
+import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 export default function ProductPopup() {
@@ -31,7 +31,6 @@ export default function ProductPopup() {
   )
   const [subActive, setSubActive] = useState<number>()
   const [chooseQuantity, setChooseQuantity] = useState<number>()
-  const [totalQuantity, setTotalQuantity] = useState<number>()
 
   const mergeAttributes = (attributes: any) => {
     return attributes.flatMap((attribute: { sub_attribute: any; }) => [
@@ -95,9 +94,21 @@ export default function ProductPopup() {
   const image = activeState
     ? (activeAttributes.image || data.image)
     : (Array.isArray(data.image) ? data.image[0] : data.image)
+
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;
+
+  const getProductQuantity = () => {
+    if (activeAttributes) {
+      return calculateTotalQuantity(activeAttributes);
+    }
+    return 0;
+  };
+
+  // Lấy giá trị số lượng khi cần sử dụng
+  const productQuantity = getProductQuantity();
+
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
@@ -184,7 +195,6 @@ export default function ProductPopup() {
                         <span className="block mx-2">{number_format(price)} </span>
                       )}
                     </div>
-
                   </div>
                 </div>
                 <div className="text-heading font-semibold text-base md:text-xl lg:text-lg">
@@ -192,7 +202,6 @@ export default function ProductPopup() {
                 </div>
               </div>
             )}
-
           </div>
 
           {Object.keys(variations).map((variation) => {
@@ -210,9 +219,12 @@ export default function ProductPopup() {
             );
           })}
           {isAuthorized && chooseQuantity && (
-            <div>Quantity avaiable: {chooseQuantity}</div>
+            productQuantity === 0 ? (
+              <div className="text-red-600">Out of stock</div>
+            ) : (
+              <div>Quantity avaiable: {chooseQuantity}</div>
+            )
           )}
-
           <div className="pt-2 md:pt-4">
             {isAuthorized && (
               <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
@@ -229,15 +241,13 @@ export default function ProductPopup() {
                   variant="flat"
                   className={`w-full h-11 md:h-12 px-1.5 ${!isSelected && "bg-gray-400 hover:bg-gray-400"
                     }`}
-                  disabled={!isSelected}
+                  disabled={!isSelected || Number(productQuantity) <= 0}
                   loading={addToCartLoader}
                 >
                   Add to Cart
                 </Button>
               </div>
             )}
-
-
             {viewCartBtn && (
               <button
                 onClick={navigateToCartPage}

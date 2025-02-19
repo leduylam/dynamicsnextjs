@@ -15,16 +15,16 @@ interface ProductsProps {
   error?: string;
   uniqueKey?: string;
   variant?:
-    | "circle"
-    | "rounded"
-    | "listSmall"
-    | "grid"
-    | "gridSlim"
-    | "list"
-    | "gridModern"
-    | "gridModernWide"
-    | "gridTrendy"
-    | undefined;
+  | "circle"
+  | "rounded"
+  | "listSmall"
+  | "grid"
+  | "gridSlim"
+  | "list"
+  | "gridModern"
+  | "gridModernWide"
+  | "gridTrendy"
+  | undefined;
   limit?: number;
   imgWidth?: number | string;
   imgHeight?: number | string;
@@ -53,6 +53,8 @@ const ProductsBlock: React.FC<ProductsProps> = ({
   demoVariant,
   disableBorderRadius = false,
 }) => {
+  console.log(products);
+
   return (
     <div className={className}>
       {sectionHeading && (
@@ -67,12 +69,9 @@ const ProductsBlock: React.FC<ProductsProps> = ({
       ) : (
         <div
           className={cn(
-            `grid gap-x-${demoVariant === "ancient" ? 2 : 3} md:gap-x-${
-              demoVariant === "ancient" ? 2 : 5
-            } xl:gap-x-${demoVariant === "ancient" ? 2 : 7} gap-y-${
-              demoVariant === "ancient" ? 2 : 3
-            } xl:gap-y-${demoVariant === "ancient" ? 2 : 5} 2xl:gap-y-${
-              demoVariant === "ancient" ? 3 : 8
+            `grid gap-x-${demoVariant === "ancient" ? 2 : 3} md:gap-x-${demoVariant === "ancient" ? 2 : 5
+            } xl:gap-x-${demoVariant === "ancient" ? 2 : 7} gap-y-${demoVariant === "ancient" ? 2 : 3
+            } xl:gap-y-${demoVariant === "ancient" ? 2 : 5} 2xl:gap-y-${demoVariant === "ancient" ? 3 : 8
             } bg-white`,
             {
               "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5":

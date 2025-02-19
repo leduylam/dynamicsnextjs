@@ -77,7 +77,7 @@ export default function Home() {
         <BrandBlock sectionHeading="Brands" />
         {/* <CategoryBlock sectionHeading="text-shop-by-category" /> */}
         <Divider />
-        <BestSellerProductFeed />
+        <NewArrivalsProductFeed />
         {banner && (
           <BannerCard
             key={`banner--key${banner.id}`}
@@ -87,10 +87,8 @@ export default function Home() {
             classNameInner="h-28 sm:h-auto"
           />
         )}
-
-        <NewArrivalsProductFeed />
+        <BestSellerProductFeed />
         <Divider />
-
         {/* <CollectionBlock data={collection} /> */}
         {/* <FeatureBlock /> */}
         {/* <DownloadApps className="bg-linen" /> */}

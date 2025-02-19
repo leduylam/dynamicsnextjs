@@ -15,7 +15,7 @@ import { SwiperSlide } from "swiper/react";
 import ProductMetaReview from "@components/product/product-meta-review";
 import { useSsrCompatible } from "@utils/use-ssr-compatible";
 import { useUI } from "@contexts/ui.context";
-import { cleanSku, number_format } from "src/helpers/my-helper";
+import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
 
@@ -133,10 +133,19 @@ const ProductSingleDetails: React.FC = () => {
       ? activeAttributes ? activeAttributes.album : []
       : data?.attributes.flatMap((attribute: any) => attribute.album)
   }
-
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;
+
+  const getProductQuantity = () => {
+    if (activeAttributes) {
+      return calculateTotalQuantity(activeAttributes);
+    }
+    return 0;
+  };
+
+  // Lấy giá trị số lượng khi cần sử dụng
+  const productQuantity = getProductQuantity();
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
@@ -260,7 +269,11 @@ const ProductSingleDetails: React.FC = () => {
               );
             })}
             {isAuthorized && chooseQuantity && (
-              <div>Stock avaiable: {chooseQuantity}</div>
+              productQuantity === 0 ? (
+                <div className="text-red-600">Out of stock</div>
+              ) : (
+                <div>Quantity avaiable: {chooseQuantity}</div>
+              )
             )}
           </div>
           {isAuthorized && (
@@ -278,7 +291,7 @@ const ProductSingleDetails: React.FC = () => {
                 variant="slim"
                 className={`w-full md:w-6/12 xl:w-full ${!isSelected && "bg-gray-400 hover:bg-gray-400"
                   }`}
-                disabled={!isSelected}
+                disabled={!isSelected || Number(productQuantity) <= 0}
                 loading={addToCartLoader}
               >
                 <span className="py-2 3xl:px-8">Add to cart</span>
