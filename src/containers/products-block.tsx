@@ -53,8 +53,6 @@ const ProductsBlock: React.FC<ProductsProps> = ({
   demoVariant,
   disableBorderRadius = false,
 }) => {
-  console.log(products);
-
   return (
     <div className={className}>
       {sectionHeading && (
@@ -106,5 +104,4 @@ const ProductsBlock: React.FC<ProductsProps> = ({
     </div>
   );
 };
-
 export default ProductsBlock;

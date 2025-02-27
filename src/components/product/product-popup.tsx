@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import isEmpty from "lodash/isEmpty";
 import { ROUTES } from "@utils/routes";
 import { useUI } from "@contexts/ui.context";
@@ -18,7 +17,6 @@ export default function ProductPopup() {
     openCart,
     isAuthorized
   } = useUI();
-  const router = useRouter();
   const { price, price_sale, percent } = usePrice(data);
   // const { addItemToCart } = useCart();
   const { mutate: updateCart } = useCartMutation()
@@ -65,9 +63,7 @@ export default function ProductPopup() {
 
   function navigateToProductPage() {
     closeModal();
-    router.push(`${ROUTES.PRODUCT}/${data.slug}`, undefined, {
-      locale: router.locale,
-    });
+    window.location.href = `${ROUTES.PRODUCT}/${data.slug}`;
   }
   function handleAttributeParent(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
