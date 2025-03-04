@@ -18,4 +18,5 @@ export const ROUTES = {
   COLLECTIONS: "/collections",
   CATEGORY: "/category",
   ORDER: "/order",
+  REGISTER_API: "register-api",
 };
