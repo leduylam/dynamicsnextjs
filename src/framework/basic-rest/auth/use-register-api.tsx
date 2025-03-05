@@ -9,10 +9,10 @@ export interface RegisterInputType {
 }
 async function registerApi(input: RegisterInputType) {
     const response = await http.post(API_ENDPOINTS.REGISTERAPI, input);
-    return response?.data
+    return response?.data;
 }
 export const useRegisterApiMutation = () => {
     return useMutation({
-        mutationFn: (input: RegisterInputType) => registerApi(input),
+        mutationFn: (input: RegisterInputType) => registerApi(input)
     });
 };

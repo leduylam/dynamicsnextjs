@@ -9,9 +9,11 @@ interface RegisterApiProps {
     'url': string
 }
 const RegisterApiForm: React.FC = () => {
+    
     const { t } = useTranslation();
     const [response, setResponse] = useState<any>(null);
     const [_, setError] = useState<string | null>(null);
+    const [errorServer, setErrorServer] = useState<string | null>(null)
     const { mutate: registerApi, isPending } = useRegisterApiMutation();
     const {
         register,
@@ -26,10 +28,13 @@ const RegisterApiForm: React.FC = () => {
                     onSuccess: (data) => {
                         setResponse(data)
                         reset()
-                    }
+                    }, onError: (error: any) => {
+                        if (error.response && error.response.status === 403) {
+                            setErrorServer(error.response.data.message)
+                        }
+                    },
                 }
             );
-
         } catch (error) {
             setError('Invalid credentials. Please try again.');
         }
@@ -38,9 +43,12 @@ const RegisterApiForm: React.FC = () => {
         <>
             <div className="w-full px-5 py-5 mx-auto overflow-hidden bg-white border border-gray-300 rounded-lg sm:w-96 md:w-450px sm:px-8 mb-10">
                 <div className="text-center mb-6 pt-2.5">
-                    <p className="mt-2 mb-8 text-sm md:text-base text-body sm:mb-10">
+                    <p className="mt-2 text-sm md:text-base text-body">
                         Connection port for integration with other systems
                     </p>
+                    {errorServer && (
+                        <p className='text-sm text-red-500 italic'>{errorServer}</p>
+                    )}
                 </div>
                 <form
                     onSubmit={handleSubmit(onSubmit)}

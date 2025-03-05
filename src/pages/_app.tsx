@@ -24,6 +24,7 @@ import "@styles/swiper-carousel.css";
 import "@styles/custom-plugins.css";
 import "@styles/tailwind.css";
 import "@styles/rc-drawer.css";
+import "@framework/utils/http"
 import { getDirection } from "@utils/get-direction";
 
 function handleExitComplete() {

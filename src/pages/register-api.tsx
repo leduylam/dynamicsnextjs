@@ -1,10 +1,19 @@
 import Container from '@components/ui/container';
 import Layout from '@components/layout/layout';
-import LoginForm from '@components/auth/login-form';
 import PageHeader from '@components/ui/page-header';
 import RegisterApiForm from '@components/auth/register-api-form';
+import { useUI } from '@contexts/ui.context';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function RegisterApi() {
+    const router = useRouter();
+    const { isAuthorized } = useUI()
+    useEffect(() => {
+        if (!isAuthorized) {
+            router.replace('/')
+        }
+    }, [isAuthorized]);
     return (
         <>
             <PageHeader pageHeader="Register" />
