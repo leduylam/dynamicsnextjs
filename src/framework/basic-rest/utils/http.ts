@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { getToken } from "./get-token";
 import Cookies from "js-cookie";
 
@@ -12,13 +12,34 @@ const http = axios.create({
 });
 
 // Change request data/error here
-http.interceptors.request.use(
+http.interceptors.response.use(
   (config) => {
     const token = getToken();
     config.headers.Authorization = `Bearer ${token || ""}`;
     return config;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const newToken = await refreshAccessToken();
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${
+            newToken ? newToken : ""
+          }`;
+        } else {
+          originalRequest.headers = {
+            Authorization: `Bearer ${newToken ? newToken : ""}`,
+          };
+        }
+        return http(originalRequest);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
     return Promise.reject(error);
   }
 );
@@ -26,7 +47,7 @@ http.interceptors.request.use(
 const refreshAccessToken = async () => {
   try {
     const response = await http.post(
-      `/auth/refresh`,
+      `v1/auth/refresh`,
       {},
       { withCredentials: true }
     );
@@ -46,7 +67,7 @@ const refreshAccessToken = async () => {
 //       _retry?: boolean;
 //     };
 //     console.log(originalRequest);
-    
+
 //     if (error.response?.status === 401 && !originalRequest._retry) {
 //       originalRequest._retry = true;
 //       try {

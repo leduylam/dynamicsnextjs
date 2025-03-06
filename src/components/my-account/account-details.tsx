@@ -7,11 +7,19 @@ import {
   useUpdateUserMutation,
   UpdateUserType,
 } from '@framework/customer/use-update-customer';
-import { useUser } from '@contexts/auth/user.context';
-
 const defaultValues = {};
-const AccountDetails: React.FC = () => {
-  const { state: user } = useUser()
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+}
+interface AccountDetailsProps {
+  data: User | null;
+}
+
+const AccountDetails: React.FC<AccountDetailsProps> = ({ data }) => {
   const { mutate: updateUser, isPending } = useUpdateUserMutation();
   const {
     register,
@@ -44,7 +52,7 @@ const AccountDetails: React.FC = () => {
         <div className="flex flex-col space-y-4 sm:space-y-5">
           <Input
             labelKey="Name"
-            value={user?.name! ?? ''}
+            value={data?.name! ?? ''}
             {...register('name', {
               required: 'forms:display-name-required',
             })}
@@ -55,7 +63,7 @@ const AccountDetails: React.FC = () => {
             <Input
               type="tel"
               labelKey="Phone"
-              value={user?.phone! ?? ''}
+              value={data?.phone! ?? ''}
               {...register('phone', {
                 required: 'forms:phone-required',
               })}
@@ -66,7 +74,7 @@ const AccountDetails: React.FC = () => {
             <Input
               type="email"
               labelKey="Email"
-              value={user?.email! ?? ''}
+              value={data?.email! ?? ''}
               {...register('email', {
                 required: 'forms:email-required',
                 pattern: {
@@ -84,7 +92,7 @@ const AccountDetails: React.FC = () => {
             <Input
               type="text"
               labelKey="Address"
-              value={user?.address! ?? ''}
+              value={data?.address! ?? ''}
               {...register('address', {
                 required: 'forms:address-required',
               })}

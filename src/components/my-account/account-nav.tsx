@@ -9,6 +9,7 @@ import {
 } from "react-icons/io5";
 import { ROUTES } from "@utils/routes";
 import { useLogoutMutation } from "@framework/auth/use-logout";
+import { TbApi } from "react-icons/tb";
 
 const accountMenu = [
     {
@@ -60,6 +61,21 @@ export default function AccountNav() {
                     </Link>
                 );
             })}
+
+            <Link
+                href={`${ROUTES.CONNECT}`}
+                className={
+                    mainPath === ROUTES.CONNECT
+                        ? "bg-gray-100 font-semibold flex items-center cursor-pointer text-sm lg:text-base text-heading py-3.5 px-4 lg:px-5 rounded mb-2 "
+                        : "flex items-center cursor-pointer text-sm lg:text-base text-heading font-normal py-3.5 px-4 lg:px-5 rounded mb-2"
+                }
+            >
+                <TbApi className="w-5 h-5" />
+                <span className="ltr:pl-2 rtl:pr-2">
+                    Connects
+                </span>
+            </Link>
+
             <button
                 className="flex items-center cursor-pointer text-sm lg:text-base text-heading font-normal py-3.5 px-4 lg:px-5 focus:outline-none"
                 onClick={() => logout()}

@@ -103,7 +103,7 @@ export const pumaShoeSizingChart = [
             ],
           },
           {
-            head_title: "Women's Shoes",
+            head_title: "Junior's Shoes",
             thead: ["US", "EU", "UK", "JPN"],
             tbody: [
               {

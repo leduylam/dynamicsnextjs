@@ -4,12 +4,13 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useRegisterApiMutation } from '@framework/auth/use-register-api';
+import { useUI } from '@contexts/ui.context';
 interface RegisterApiProps {
     'name': string,
     'url': string
 }
 const RegisterApiForm: React.FC = () => {
-    
+    const { isAuthorized } = useUI()
     const { t } = useTranslation();
     const [response, setResponse] = useState<any>(null);
     const [_, setError] = useState<string | null>(null);
@@ -42,6 +43,7 @@ const RegisterApiForm: React.FC = () => {
     return (
         <>
             <div className="w-full px-5 py-5 mx-auto overflow-hidden bg-white border border-gray-300 rounded-lg sm:w-96 md:w-450px sm:px-8 mb-10">
+               
                 <div className="text-center mb-6 pt-2.5">
                     <p className="mt-2 text-sm md:text-base text-body">
                         Connection port for integration with other systems
@@ -75,8 +77,11 @@ const RegisterApiForm: React.FC = () => {
                                 required: `Password is required`,
                             })}
                         />
-                        <p className='text-sm italic'>Khi đăng ký webhook URL, sự kiện webhook mặc định sẽ là update_stock. Mỗi khi tồn kho được cập nhật, một yêu cầu sẽ được gửi đến URL đã đăng ký để thông báo về sự thay đổi.</p>
+                        <p className='text-sm italic'>
+                            Khi đăng ký webhook URL, sự kiện webhook mặc định sẽ là update_stock. Mỗi khi tồn kho được cập nhật, một yêu cầu sẽ được gửi đến URL đã đăng ký để thông báo về sự thay đổi.
+                        </p>
                         <div className="relative">
+                            
                             <Button
                                 type="submit"
                                 loading={isPending}
@@ -89,6 +94,7 @@ const RegisterApiForm: React.FC = () => {
                     </div>
                 </form>
             </div>
+
             {response && (
                 <div className="w-full px-5 py-5 mx-auto overflow-hidden bg-white border border-gray-300 rounded-lg sm:px-8 mb-10">
                     <p className='text-lg pb-2'>Tham số sinh token</p>
@@ -222,9 +228,6 @@ const RegisterApiForm: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div>
-                    <p></p>
                 </div>
             </div>
         </>

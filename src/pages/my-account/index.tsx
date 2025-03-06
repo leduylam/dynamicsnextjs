@@ -2,18 +2,7 @@ import Link from "@components/ui/link";
 import Layout from "@components/layout/layout";
 import AccountLayout from "@components/my-account/account-layout";
 import { ROUTES } from "@utils/routes";
-import { useUI } from "@contexts/ui.context";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-
 export default function AccountPage() {
-    const router = useRouter()
-    const { isAuthorized } = useUI()
-    useEffect(() => {
-        if (isAuthorized === false) {
-            router.push('/')
-        }
-    }, [isAuthorized, router])
     return (
         <AccountLayout>
             <h2 className="text-lg md:text-xl xl:text-2xl font-bold text-heading mb-3 xl:mb-5">
@@ -46,6 +35,5 @@ export default function AccountPage() {
         </AccountLayout>
     );
 }
-
 AccountPage.Layout = Layout;
 

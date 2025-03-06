@@ -12,7 +12,6 @@ interface ProductGridProps {
 
 export const ProductGrid: FC<ProductGridProps> = ({ className = "", params }) => {
   const { query } = useRouter();
-
   const {
     isFetching: isLoading,
     isFetchingNextPage: loadingMore,

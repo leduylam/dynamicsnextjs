@@ -5,6 +5,7 @@ import { SwiperSlide } from 'swiper/react';
 import { useSsrCompatible } from '@utils/use-ssr-compatible';
 import { useBannersQuery } from '@framework/banner/get-banner';
 import { useEffect, useState } from 'react';
+import { ROUTES } from '@utils/routes';
 interface BannerProps {
   id: number | string,
   title: string,
@@ -85,7 +86,7 @@ const HeroBlock: React.FC = ({ demoVariant }: Props) => {
           >
             <BannerCard
               banner={banner}
-              href={`search?brand=${banner.slug}`}
+              href={`${ROUTES.COLLECTIONS}/${banner.slug}`}
             />
           </SwiperSlide>
         ))}

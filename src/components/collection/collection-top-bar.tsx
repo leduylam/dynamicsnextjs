@@ -1,54 +1,66 @@
-import { Drawer } from "@components/common/drawer/drawer";
-import { MdCollectionsBookmark } from "react-icons/md";
-import Text from "@components/ui/text";
-import { useUI } from "@contexts/ui.context";
-import { useRouter } from "next/router";
-import { getDirection } from "@utils/get-direction";
-import CollectionFilterSidebar from "./collection-filter-sidebar";
-import motionProps from "@components/common/drawer/motion";
+import { motion } from "framer-motion";
+import { ProductGrid } from "@components/product/product-grid";
 
 const CollectionTopBar = () => {
-  const { openFilter, displayFilter, closeFilter } = useUI();
-  const {
-    locale,
-    query: { slug },
-  } = useRouter();
-
-  const collectionTitle = slug?.toString().split("-").join(" ");
-  const dir = getDirection(locale);
-  const contentWrapperCSS = dir === "ltr" ? { left: 0 } : { right: 0 };
+  const imagesBanner = [
+    { id: 1, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img1-884x1000_600x.webp' },
+    { id: 2, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img3-884x752_600x.webp' },
+    { id: 3, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img5-884x1136_600x.webp' },
+    { id: 4, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img2-884x663_600x.jpg' },
+    { id: 5, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img4-884x911_600x.webp' },
+    { id: 6, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img6_7-426x527_600x.webp' },
+  ]
   return (
-    <div className="flex justify-between items-center mb-7">
-      <Text
-        variant="pageHeading"
-        className="hidden lg:inline-flex pb-1 capitalize"
-      >
-        {collectionTitle}
-      </Text>
-      <button
-        className="lg:hidden text-heading text-sm px-4 py-2 font-semibold border border-gray-300 rounded-md flex items-center transition duration-200 ease-in-out focus:outline-none hover:bg-gray-200"
-        onClick={openFilter}
-      >
-        <MdCollectionsBookmark className="text-lg" />
-        <span className="ltr:pl-2 rtl:pr-2">Filters</span>
-      </button>
-      <div className="flex items-center justify-end">
-        <div className="flex-shrink-0 text-body text-xs md:text-sm leading-4">
-          9,608 items
+    <div className="min-h-screen text-gray-900">
+      {/* Header with Logo */}
+      <header className="py-6 px-10 bg-white shadow-md flex justify-center">
+        <img src="https://tatgolf.pumagolfvn.com/wp-content/uploads/2024/03/ap_collab_logo-Puma-min_400x.png" alt="Brand Logo" />
+      </header>
+
+      {/* Title */}
+      <main className="flex flex-col items-center text-center py-10 px-6">
+        <div className="mb-20 w-2/3">
+          <motion.h2
+            className="text-4xl font-extrabold mb-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            CHEERS TO THE KING
+          </motion.h2>
+          <motion.p
+            className="text-base mb-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            The Puma x Arnold Palmer collection captures the essence of golfs global icon and pays homage to the Kings iconic style with a contemporary twist.
+          </motion.p>
         </div>
-      </div>
-      {/* TODO: need to use just one drawer component */}
-      <Drawer
-        placement={dir === "rtl" ? "right" : "left"}
-        open={displayFilter}
-        onClose={closeFilter}
-        styles={{
-          wrapper: contentWrapperCSS,
-        }}
-        {...motionProps}
-      >
-        <CollectionFilterSidebar />
-      </Drawer>
+
+
+        {/* Image Section */}
+        <ul className="grid grid-cols-3 gap-4 mb-10">
+          <li>
+            <img src={imagesBanner[0].src} alt="Image 1" className="w-full object-cover rounded-lg shadow-md mb-4" />
+            <img src={imagesBanner[3].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+          </li>
+          <li>
+            <img src={imagesBanner[1].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
+            <img src={imagesBanner[4].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+          </li>
+          <li>
+            <img src={imagesBanner[2].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
+            <img src={imagesBanner[5].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+          </li>
+        </ul>
+
+        {/* Related Products */}
+        <h3 className="text-2xl font-bold mb-4">BỘ SƯU TẬP ARNOLD PALMER</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <ProductGrid />
+        </div>
+      </main>
     </div>
   );
 };
