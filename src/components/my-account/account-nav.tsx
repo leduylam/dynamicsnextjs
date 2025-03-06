@@ -5,11 +5,12 @@ import {
     IoCartOutline,
     IoPersonOutline,
     IoSettingsOutline,
-    IoLogOutOutline,
+    IoLogOutOutline,    
 } from "react-icons/io5";
 import { ROUTES } from "@utils/routes";
 import { useLogoutMutation } from "@framework/auth/use-logout";
 import { TbApi } from "react-icons/tb";
+import { useCheckAccess } from "src/framework/auth/checkAccess";
 
 const accountMenu = [
     {
@@ -35,6 +36,7 @@ const accountMenu = [
 ];
 
 export default function AccountNav() {
+    const canConnectApi = useCheckAccess([], ["view-api"]);
     const { mutate: logout } = useLogoutMutation();
     const { pathname } = useRouter();
     const newPathname = pathname.split("/").slice(2, 3);
@@ -61,21 +63,21 @@ export default function AccountNav() {
                     </Link>
                 );
             })}
-
-            <Link
-                href={`${ROUTES.CONNECT}`}
-                className={
-                    mainPath === ROUTES.CONNECT
-                        ? "bg-gray-100 font-semibold flex items-center cursor-pointer text-sm lg:text-base text-heading py-3.5 px-4 lg:px-5 rounded mb-2 "
-                        : "flex items-center cursor-pointer text-sm lg:text-base text-heading font-normal py-3.5 px-4 lg:px-5 rounded mb-2"
-                }
-            >
-                <TbApi className="w-5 h-5" />
-                <span className="ltr:pl-2 rtl:pr-2">
-                    Connects
-                </span>
-            </Link>
-
+            {canConnectApi && (
+                <Link
+                    href={`${ROUTES.CONNECT}`}
+                    className={
+                        mainPath === ROUTES.CONNECT
+                            ? "bg-gray-100 font-semibold flex items-center cursor-pointer text-sm lg:text-base text-heading py-3.5 px-4 lg:px-5 rounded mb-2 "
+                            : "flex items-center cursor-pointer text-sm lg:text-base text-heading font-normal py-3.5 px-4 lg:px-5 rounded mb-2"
+                    }
+                >
+                    <TbApi className="w-5 h-5" />
+                    <span className="ltr:pl-2 rtl:pr-2">
+                        Connects
+                    </span>
+                </Link>
+            )}
             <button
                 className="flex items-center cursor-pointer text-sm lg:text-base text-heading font-normal py-3.5 px-4 lg:px-5 focus:outline-none"
                 onClick={() => logout()}

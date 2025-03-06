@@ -7,19 +7,13 @@ import {
   useUpdateUserMutation,
   UpdateUserType,
 } from '@framework/customer/use-update-customer';
+import { useAuth } from '@contexts/auth/auth-context';
 const defaultValues = {};
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-}
-interface AccountDetailsProps {
-  data: User | null;
-}
 
-const AccountDetails: React.FC<AccountDetailsProps> = ({ data }) => {
+
+const AccountDetails: React.FC = () => {
+  const authContext = useAuth();
+  const user = authContext ? authContext.user : null;
   const { mutate: updateUser, isPending } = useUpdateUserMutation();
   const {
     register,
@@ -52,7 +46,7 @@ const AccountDetails: React.FC<AccountDetailsProps> = ({ data }) => {
         <div className="flex flex-col space-y-4 sm:space-y-5">
           <Input
             labelKey="Name"
-            value={data?.name! ?? ''}
+            value={user?.name! ?? ''}
             {...register('name', {
               required: 'forms:display-name-required',
             })}
@@ -63,7 +57,7 @@ const AccountDetails: React.FC<AccountDetailsProps> = ({ data }) => {
             <Input
               type="tel"
               labelKey="Phone"
-              value={data?.phone! ?? ''}
+              value={user?.phone! ?? ''}
               {...register('phone', {
                 required: 'forms:phone-required',
               })}
@@ -74,7 +68,7 @@ const AccountDetails: React.FC<AccountDetailsProps> = ({ data }) => {
             <Input
               type="email"
               labelKey="Email"
-              value={data?.email! ?? ''}
+              value={user?.email! ?? ''}
               {...register('email', {
                 required: 'forms:email-required',
                 pattern: {
@@ -92,7 +86,7 @@ const AccountDetails: React.FC<AccountDetailsProps> = ({ data }) => {
             <Input
               type="text"
               labelKey="Address"
-              value={data?.address! ?? ''}
+              value={user?.address! ?? ''}
               {...register('address', {
                 required: 'forms:address-required',
               })}

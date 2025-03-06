@@ -10,6 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ROUTES } from "@utils/routes";
 import { getSecondBanner } from "@framework/banner/get-banner";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { GetStaticProps } from "next";
 interface Banner {
   id: string;
   title: string;
@@ -101,3 +103,10 @@ export default function Home() {
 
 Home.Layout = Layout;
 
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+    },
+  };
+};

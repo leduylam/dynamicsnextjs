@@ -1,6 +1,7 @@
 import React from "react";
 import { getToken } from "@framework/utils/get-token";
 import { CartProvider } from "./cart/cart.context";
+import { AuthProvider } from "./auth/auth-context";
 
 export interface State {
   isAuthorized: boolean;
@@ -310,10 +311,13 @@ export const useUI = () => {
 
 // @ts-ignore
 export const ManagedUIContext: React.FC = ({ children }) => (
-  <CartProvider>
-    {/* @ts-ignore */}
-    <UIProvider>{children}</UIProvider>
-  </CartProvider>
+  <AuthProvider>
+    <CartProvider>
+      {/* @ts-ignore */}
+      <UIProvider>{children}</UIProvider>
+    </CartProvider>
+  </AuthProvider>
+
   // @ts-ignore
 
 );

@@ -8,7 +8,6 @@ import { useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider, HydrationBoundary } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 // import { ReactQueryDevtools } from "@tanstack/react-query/devtools";
-import { appWithTranslation } from "next-i18next";
 import { DefaultSeo } from "@components/common/default-seo";
 
 // Load Open Sans and satisfy typeface font
@@ -26,6 +25,7 @@ import "@styles/tailwind.css";
 import "@styles/rc-drawer.css";
 import "@framework/utils/http"
 import { getDirection } from "@utils/get-direction";
+import { appWithTranslation } from "next-i18next";
 
 function handleExitComplete() {
   if (typeof window !== "undefined") {
