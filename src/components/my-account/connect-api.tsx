@@ -16,13 +16,13 @@ const ConnectApi = ({ apiKey }: any) => {
                 variants={fadeInTop(0.35)}
                 className={`w-full flex  h-full lg:w-8/12 flex-col`}
             >
-                <div className="mb-5 flex gap-3">
+                <div className="mb-5 flex items-center gap-3">
                     <h2 className="font-semibold">AppId:</h2>
-                    <p>{apiKey?.client_id}</p>
+                    <p className="bg-black text-white px-2 pt-1">{apiKey?.api_key.client_id}</p>
                 </div>
-                <div className="flex gap-3">
-                    <h2 className="font-semibold">Secret</h2>
-                    <p>{apiKey?.client_secret}</p>
+                <div className="flex items-center gap-3">
+                    <h2 className="font-semibold">Secret:</h2>
+                    <p className="bg-black text-white px-2 pt-1">{apiKey?.api_key.client_secret}</p>
                 </div>
             </motion.div>
         </>
