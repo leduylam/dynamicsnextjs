@@ -91,7 +91,7 @@ export default function Home() {
         )}
         <BestSellerProductFeed />
         <Divider />
-        {/* <CollectionBlock data={collection} /> */}
+        {/* <Collectio  nBlock data={collection} /> */}
         {/* <FeatureBlock /> */}
         {/* <DownloadApps className="bg-linen" /> */}
         {/* <Support /> */}

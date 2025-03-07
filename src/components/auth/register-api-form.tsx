@@ -144,11 +144,7 @@ const RegisterApiForm: React.FC = () => {
                         <p className='mb-5 font-semibold'>Bước 2: Thêm header Authorization: Bearer {`{token}`} vào các request {`{ get-products }`} xử lý dữ liệu và thực hiện gọi api danh sách sản phẩm có phân trang </p>
                         <pre className='bg-black text-white px-2 pt-1 overflow-x-auto'>
                             <code className="language-bat">curl <span className="token operator">--</span>location <span className="token operator">--</span>request GET <span className="text-green-600">{`'https://api.dynamicsportsvn.com/api/v2/get-products'`}</span> \<br />
-                                <span className="token operator">--</span>header <span className="text-green-600">{`'Content-Type: application/json'`}</span> \<br />
-                                <span className="token operator">--</span>data <span className="text-green-600">{`{`}</span><br />
-                                <span className="ml-24 text-green-600">{`"client_id"`}</span><span className="text-green-600">:</span> <span className="text-green-600">{`"PublicAPI"`}</span><span className="text-green-600">,</span><br />
-                                <span className="ml-24 text-green-600">{"client_secret"}</span><span className="text-green-600">:</span> <span className="text-green-600">{`"zrt8J3MqqWEmdrL+oXldGuQbaIuETNVE5k6uQuPLIEc="`}</span><br />
-                                <span className="text-green-600">{`}`}</span>
+                                <span className="token operator">--</span>header <span className="text-green-600">{`'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkZGF0YSI6Ik9NdVc2dytKL0o4dWN0ZUVwQ2x4dlBtbVNuNElnQ2ZPSHlmQVJpOStISU9RWXYzSjBqWHQ1NGFmaVAvYXkzNzJ2UnoyVXJmWDA2dWtXUzZoOWRUVGc0Tzk2NVRYTDEwY1pTWWt1RTJuVUZhYTMrbHo3enpEYWx4RDFHcDE5UzVqdi9nRDduanNHNW5zVi9vUXRENVFDejJXT3RKZDQ3UXA4UmRVem05dWZkaEtsVEtCTVJHUWtwQ1pJbHZrU1JoOVFMdTE3RVFWU3JBbUVITGVoTElxeU5qc1M3MWFkYUZWNVVRQk9jd294OEU9IiwiZXhwIjoxNzEwODIwNjE0LCJpc3MiOiJNSVNBIiwiYXVkIjoiQU1JU0NSTTIifQ.bQ7YCePHY4sX1t0AzDGfLhp6N0fKaT0oxNM6Cy6sf88'`}</span> \<br />
                             </code>
                         </pre>
                     </div>
