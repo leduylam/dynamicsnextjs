@@ -5,7 +5,7 @@ import AccountDetails from "@components/my-account/account-details";
 export default function AccountDetailsPage() {
 	return (
 		<AccountLayout>
-			<AccountDetails />
+			<AccountDetails/>
 		</AccountLayout>
 	);
 }

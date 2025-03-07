@@ -2,16 +2,12 @@ import Input from '@components/ui/input';
 import Button from '@components/ui/button';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
-import { useTranslation } from 'next-i18next';
 import { useRegisterApiMutation } from '@framework/auth/use-register-api';
-import { useUI } from '@contexts/ui.context';
 interface RegisterApiProps {
     'name': string,
     'url': string
 }
 const RegisterApiForm: React.FC = () => {
-    const { isAuthorized } = useUI()
-    const { t } = useTranslation();
     const [response, setResponse] = useState<any>(null);
     const [_, setError] = useState<string | null>(null);
     const [errorServer, setErrorServer] = useState<string | null>(null)
@@ -94,7 +90,6 @@ const RegisterApiForm: React.FC = () => {
                     </div>
                 </form>
             </div>
-
             {response && (
                 <div className="w-full px-5 py-5 mx-auto overflow-hidden bg-white border border-gray-300 rounded-lg sm:px-8 mb-10">
                     <p className='text-lg pb-2'>Tham số sinh token</p>
