@@ -76,7 +76,7 @@ export default function Home() {
       <Container>
         {/* <FlashSaleBlock /> */}
         {/* <BannerCarouselBlock bannerData={promotionBanners} /> */}
-        <BrandBlock sectionHeading="Brands" />
+        <BrandBlock sectionHeading="text-brands" />
         {/* <CategoryBlock sectionHeading="text-shop-by-category" /> */}
         <Divider />
         <NewArrivalsProductFeed />

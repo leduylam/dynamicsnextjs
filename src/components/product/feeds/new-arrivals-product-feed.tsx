@@ -28,7 +28,7 @@ export default function NewArrivalsProductFeed({
       hideProductDescription={hideProductDescription}
       showCategory={showCategory}
       showRating={showRating}
-      sectionHeading="New Arrivals"
+      sectionHeading="text-new-arrivals"
       products={data}
       loading={isLoading}
       error={error?.message}
