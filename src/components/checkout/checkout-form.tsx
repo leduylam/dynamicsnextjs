@@ -11,7 +11,6 @@ import { useCartQuery } from '@framework/carts/get-all-cart';
 import { clearItemFromCart } from '@framework/carts/get-delete-cart';
 import { useRouter } from 'next/router';
 import { ROUTES } from '@utils/routes';
-
 interface CheckoutInputType {
   address_id: number,
   name: string;
@@ -24,7 +23,11 @@ interface CheckoutInputType {
   orderItem: []
 }
 
-const CheckoutForm: React.FC = () => {
+interface CheckoutFormProps {
+  companies: any;
+}
+
+const CheckoutForm: React.FC<CheckoutFormProps> = () => {
   const router = useRouter()
   const { mutate: updateUser, isPending } = useCheckoutMutation();
   const {
@@ -36,7 +39,6 @@ const CheckoutForm: React.FC = () => {
   const { data: deliveryAddress } = useDeliveryAddressQuery()
   const [isFormVisible, setIsFormVisible] = useState(deliveryAddress ? deliveryAddress.length === 0 : false);
   const [addressId, setAddressId] = useState<number | null>(null)
-
   function onSubmit(input: CheckoutInputType) {
     const checkoutInput = {
       ...input,
@@ -65,7 +67,6 @@ const CheckoutForm: React.FC = () => {
   const handleCancelForm = () => {
     setIsFormVisible(false)
   }
-
   return (
     <>
       <h2 className="text-lg md:text-xl xl:text-2xl font-bold text-heading mb-6 xl:mb-8">
@@ -77,73 +78,75 @@ const CheckoutForm: React.FC = () => {
         noValidate
       >
         <div className="flex flex-col space-y-4 lg:space-y-5">
-          {deliveryAddress && deliveryAddress.length && !isFormVisible ? (
-            <CheckoutList items={deliveryAddress} handleOtherAddress={handleOtherAddress} handleChangeRadios={handleChangeRadios} />
-          ) : (
-            <>
-              <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
+          {
+            deliveryAddress && deliveryAddress.length && !isFormVisible ? (
+              <CheckoutList items={deliveryAddress} handleOtherAddress={handleOtherAddress} handleChangeRadios={handleChangeRadios} />
+            ) : (
+              <>
+                <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
+                  <Input
+                    labelKey="Name *"
+                    {...register('name', {
+                      required: 'Name is required',
+                    })}
+                    errorKey={errors.name?.message}
+                    variant="solid"
+                    className="w-full"
+                  />
+                </div>
                 <Input
-                  labelKey="Name *"
-                  {...register('name', {
-                    required: 'Name is required',
+                  labelKey="Address *"
+                  {...register('address', {
+                    required: 'Address is required',
                   })}
-                  errorKey={errors.name?.message}
+                  errorKey={errors.address?.message}
                   variant="solid"
-                  className="w-full"
                 />
-              </div>
-              <Input
-                labelKey="Address *"
-                {...register('address', {
-                  required: 'Address is required',
-                })}
-                errorKey={errors.address?.message}
-                variant="solid"
-              />
-              <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
-                <Input
-                  type="tel"
-                  labelKey="Phone *"
-                  {...register('phone', {
-                    required: 'Phone number is required',
-                  })}
-                  errorKey={errors.phone?.message}
-                  variant="solid"
-                  className="w-full lg:w-1/2 "
-                />
+                <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
+                  <Input
+                    type="tel"
+                    labelKey="Phone *"
+                    {...register('phone', {
+                      required: 'Phone number is required',
+                    })}
+                    errorKey={errors.phone?.message}
+                    variant="solid"
+                    className="w-full lg:w-1/2 "
+                  />
 
-                <Input
-                  type="email"
-                  labelKey="Email *"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value:
-                        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                      message: 'Please provide valid email address',
-                    },
-                  })}
-                  errorKey={errors.email?.message}
-                  variant="solid"
-                  className="w-full lg:w-1/2 ltr:lg:ml-3 rtl:lg:mr-3 mt-2 md:mt-0"
-                />
-              </div>
-              <div className="relative flex items-center justify-between ">
-                <CheckBox
-                  labelKey="Save this information for next time"
-                  {...register('save')}
-                />
-                {deliveryAddress && deliveryAddress.length && (
-                  <p
-                    onClick={handleCancelForm}
-                    className='cursor-pointer text-sm font-semibold hover:underline text-red-500'
-                  >
-                    Cancel
-                  </p>
-                )}
-              </div>
-            </>
-          )}
+                  <Input
+                    type="email"
+                    labelKey="Email *"
+                    {...register('email', {
+                      required: 'Email is required',
+                      pattern: {
+                        value:
+                          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                        message: 'Please provide valid email address',
+                      },
+                    })}
+                    errorKey={errors.email?.message}
+                    variant="solid"
+                    className="w-full lg:w-1/2 ltr:lg:ml-3 rtl:lg:mr-3 mt-2 md:mt-0"
+                  />
+                </div>
+                <div className="relative flex items-center justify-between ">
+                  <CheckBox
+                    labelKey="Save this information for next time"
+                    {...register('save')}
+                  />
+                  {deliveryAddress && deliveryAddress.length && (
+                    <p
+                      onClick={handleCancelForm}
+                      className='cursor-pointer text-sm font-semibold hover:underline text-red-500'
+                    >
+                      Cancel
+                    </p>
+                  )}
+                </div>
+              </>
+            )
+          }
           <TextArea
             labelKey="Order Notes (Optional)"
             {...register('note')}

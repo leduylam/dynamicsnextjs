@@ -1,16 +1,19 @@
 import ProductsBlock from "@containers/products-block";
-import { useBestSellerProductsQuery } from "@framework/product/get-all-best-seller-products";
+import { useEffect, useState } from "react";
 
-export default function BestSellerProductFeed() {
-	const { data, isLoading, error } = useBestSellerProductsQuery({
-		limit: 10,
-	});
-
+export default function BestSellerProductFeed({ data, error }: any) {
+	const [hydrated, setHydrated] = useState(false);
+	useEffect(() => {
+		setHydrated(true);
+	}, []);
+	if (!hydrated) {
+		return <p>Loading...</p>; // Tránh UI bị thay đổi sau Hydration
+	}
 	return (
 		<ProductsBlock
 			sectionHeading="tab-best-sellers"
 			products={data}
-			loading={isLoading}
+			loading={false}
 			error={error?.message}
 			uniqueKey="best-sellers"
 		/>

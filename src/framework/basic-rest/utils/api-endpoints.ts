@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   PRODUCTS: "/v1/dynamic/products",
   SIZES: "/v1/dynamic/products/get_size",
   PRODUCT: "/v1/dynamic/product",
+  COLLECTION: "/v1/dynamic/home/collections",
   RELATED_PRODUCTS: "/v1/dynamic/product/related_products",
   BEST_SELLER_PRODUCTS: "/v1/dynamic/home/products_best_seller",
   NEW_ARRIVAL_PRODUCTS: "/v1/dynamic/home/products-new-arrival",
@@ -28,4 +29,5 @@ export const API_ENDPOINTS = {
   PROVINCES: "/v1/dynamic/retailer_locator/provinces",
   REGISTERAPI: "/v2/register-client",
   APIKEY: "/v2/api-key",
+  COMPANIES: "/v1/companies/companies",
 };

@@ -1,7 +1,9 @@
 import ProductsBlock from '@containers/products-block';
-import { useNewArrivalProductsQuery } from '@framework/product/get-all-new-arrival-products';
+import { useEffect, useState } from 'react';
 
 interface Props {
+  data: any[],
+  error: any,
   hideProductDescription?: boolean;
   showCategory?: boolean;
   showRating?: boolean;
@@ -11,6 +13,8 @@ interface Props {
 }
 
 export default function NewArrivalsProductFeed({
+  data,
+  error,
   hideProductDescription = false,
   showCategory = false,
   showRating = false,
@@ -18,10 +22,13 @@ export default function NewArrivalsProductFeed({
   disableBorderRadius = false,
   className = 'mb-9 md:mb-10 xl:mb-12',
 }: Props) {
-  const { data, isLoading, error } = useNewArrivalProductsQuery({
-    limit: 10,
-    demoVariant,
-  });
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+  if (!hydrated) {
+    return <p>Loading...</p>; // Tránh UI bị thay đổi sau Hydration
+  }
   return (
     <ProductsBlock
       className={className}
@@ -29,8 +36,8 @@ export default function NewArrivalsProductFeed({
       showCategory={showCategory}
       showRating={showRating}
       sectionHeading="text-new-arrivals"
-      products={data}
-      loading={isLoading}
+      products={data?.length > 0 ? data : []}
+      loading={false}
       error={error?.message}
       uniqueKey="new-arrivals"
       demoVariant={demoVariant}

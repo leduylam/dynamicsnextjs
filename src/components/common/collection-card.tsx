@@ -10,8 +10,8 @@ interface Props {
   variant?: "default" | "modern" | "trendy";
   collection: {
     slug: string;
-    image: string;
-    title: string;
+    representative_image_url: string;
+    name: string;
     description?: string;
   };
 }
@@ -23,10 +23,10 @@ const CollectionCard: React.FC<Props> = ({
   contactClassName = "",
   variant = "default",
 }) => {
-  const { slug, image, title, description } = collection;
+  const { slug, representative_image_url, name, description } = collection;
   return (
     <Link
-      href={slug}
+      href={`/collections/${slug}`}
       className={cn(
         "group text-center flex flex-col sm:last:hidden lg:last:flex border sm:border-0 border-gray-300 overflow-hidden rounded-md pb-4 sm:pb-0",
         {
@@ -38,8 +38,8 @@ const CollectionCard: React.FC<Props> = ({
       <div className="flex mx-auto flex-col relative">
         <div className="flex">
           <Image
-            src={image ?? "/assets/placeholder/collection.svg"}
-            alt={title}
+            src={`${process.env.NEXT_PUBLIC_SITE_URL}/${representative_image_url}` || "/assets/placeholder/collection.svg"}
+            alt={name}
             width={Number(imgWidth)}
             height={Number(imgHeight)}
             className="bg-gray-300 object-cover sm:rounded-md transition duration-200 ease-in-out group-hover:opacity-90"
@@ -73,7 +73,7 @@ const CollectionCard: React.FC<Props> = ({
             variant="mediumHeading"
             className="mb-1.5 lg:mb-2.5 2xl:mb-3 3xl:mb-3.5"
           >
-            {`${title}`}
+            {`${name}`}
           </Text>
           <p className="text-body text-[13px] md:text-sm leading-6 md:leading-7 xl:px-10 3xl:px-20">
             {`${description}`}

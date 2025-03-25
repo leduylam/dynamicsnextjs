@@ -69,7 +69,7 @@ const ProductCard: FC<ProductProps> = ({
       setHoverImage(randomImage);
     }
   }, [product?.image]);
-  
+
   return (
     <div
       className={cn(
@@ -256,9 +256,9 @@ const ProductCard: FC<ProductProps> = ({
           <p className="text-sm sm:text-base xl:text-base md:mb-1.5">{product.sku}</p>
         </div>
 
-        <div className="grid grid-cols-5 gap-2">
-          {product.image && Array.isArray(product.image) && product.image.length > 1 && (
-            product?.image.map((img: any, index: number) => (
+        {product.image && Array.isArray(product.image) && product.image.length > 1 && (
+          <div className="grid grid-cols-5 gap-2">
+            {product?.image.map((img: any, index: number) => (
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`} alt=""
@@ -266,9 +266,9 @@ const ProductCard: FC<ProductProps> = ({
                   onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
                 />
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
         {/* {!hideProductDescription && product?.description && (
           <p className="text-body text-xs lg:text-sm leading-normal xl:leading-relaxed max-w-[250px] truncate">
             {product?.description}

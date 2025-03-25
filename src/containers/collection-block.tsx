@@ -21,7 +21,9 @@ const CollectionBlock: React.FC<Props> = ({
     <div>
       {sectionHeading && <SectionHeader sectionHeading={sectionHeading} />}
       <div
-        className={`${className} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 xl:gap-7`}
+        className={`${className} grid grid-cols-1 ${data.length === 1 || 2
+          ? `sm:grid-cols-1 lg:grid-cols-2`
+          : 'sm:grid-cols-2 lg:grid-cols-3'} gap-5 xl:gap-7`}
       >
         {data?.slice(0, 3)?.map((item: any, index: any) => (
           <CollectionCard

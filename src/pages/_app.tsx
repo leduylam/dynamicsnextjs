@@ -48,14 +48,16 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
     document.documentElement.dir = dir;
   }, [dir]);
   const Layout = (Component as any).Layout || Noop;
-
+  const authData = pageProps.__headers?.["x-auth-data"]
+    ? JSON.parse(pageProps.__headers["x-auth-data"])
+    : null;
   return (
     <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
       <QueryClientProvider client={queryClientRef.current}>
         {/* @ts-ignore */}
         <HydrationBoundary state={pageProps.dehydratedState}>
           {/* @ts-ignore */}
-          <ManagedUIContext>
+          <ManagedUIContext initialAuthData={authData}>
             <Layout pageProps={pageProps}>
               <DefaultSeo />
               <Component {...pageProps} key={router.route} />

@@ -1,20 +1,27 @@
 import { motion } from "framer-motion";
-import { ProductGrid } from "@components/product/product-grid";
+import { useEffect, useState } from "react";
+interface ImageBanner {
+  id: number;
+  src: string;
+}
+const CollectionTopBar = ({ data }: any) => {
+  const [imagesBanner, setImageBanner] = useState<ImageBanner[]>([])
 
-const CollectionTopBar = () => {
-  const imagesBanner = [
-    { id: 1, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img1-884x1000_600x.webp' },
-    { id: 2, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img3-884x752_600x.webp' },
-    { id: 3, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img5-884x1136_600x.webp' },
-    { id: 4, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img2-884x663_600x.jpg' },
-    { id: 5, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img4-884x911_600x.webp' },
-    { id: 6, src: 'https://tatgolf.pumagolfvn.com/wp-content/uploads/2025/03/25SS_Ecom_GO_Apparel_PLP-collage-sm-template-img6_7-426x527_600x.webp' },
-  ]
+  useEffect(() => {
+    if (data && data.images) {
+      const formattedImages = data.images.map((image: { url: string }, index: number) => ({
+        id: index + 1,
+        src: image.url,
+      }));
+      setImageBanner(formattedImages)
+    }
+  }, [data])
+
   return (
     <div className="min-h-screen text-gray-900">
       {/* Header with Logo */}
       <header className="py-6 px-10 bg-white shadow-md flex justify-center">
-        <img src="https://tatgolf.pumagolfvn.com/wp-content/uploads/2024/03/ap_collab_logo-Puma-min_400x.png" alt="Brand Logo" />
+        <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${data.image}`} alt="Brand Logo" />
       </header>
 
       {/* Title */}
@@ -26,7 +33,7 @@ const CollectionTopBar = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            CHEERS TO THE KING
+            {data.title}
           </motion.h2>
           <motion.p
             className="text-base mb-6"
@@ -34,7 +41,7 @@ const CollectionTopBar = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            The Puma x Arnold Palmer collection captures the essence of golfs global icon and pays homage to the Kings iconic style with a contemporary twist.
+            {data.description}
           </motion.p>
         </div>
 
@@ -42,24 +49,26 @@ const CollectionTopBar = () => {
         {/* Image Section */}
         <ul className="grid grid-cols-3 gap-4 mb-10">
           <li>
-            <img src={imagesBanner[0].src} alt="Image 1" className="w-full object-cover rounded-lg shadow-md mb-4" />
-            <img src={imagesBanner[3].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+            <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[0]?.src}` : ''} alt="Image 1" className="w-full object-cover rounded-lg shadow-md mb-4" />
+            {imagesBanner && imagesBanner[3]?.src && (
+              <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[3]?.src}` : ''} alt="Image 1" className="w-full object-cover rounded-lg shadow-md" />
+            )}
           </li>
           <li>
-            <img src={imagesBanner[1].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
-            <img src={imagesBanner[4].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+            <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[1]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
+            {imagesBanner && imagesBanner[4]?.src && (
+              <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[4]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+            )}
           </li>
           <li>
-            <img src={imagesBanner[2].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
-            <img src={imagesBanner[5].src} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+            <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[2]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
+            {imagesBanner && imagesBanner[5]?.src && (
+              <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[5]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+            )}
           </li>
         </ul>
-
         {/* Related Products */}
-        <h3 className="text-2xl font-bold mb-4">BỘ SƯU TẬP ARNOLD PALMER</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <ProductGrid />
-        </div>
+        <h3 className="text-2xl font-bold mb-4">{data.name} COLLECTION</h3>
       </main>
     </div>
   );

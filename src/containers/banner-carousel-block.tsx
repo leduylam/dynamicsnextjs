@@ -20,21 +20,21 @@ const breakpoints = {
 
 interface BannerProps {
   className?: string;
-  bannerData: any;
+  data: any;
 }
 
 const BannerCarouselBlock: React.FC<BannerProps> = ({
   className = 'mb-12 md:mb-12 lg:mb-14 pb-0.5 xl:pb-1.5',
-  bannerData,
+  data,
 }) => {
   return (
     <div className={className}>
       <Carousel breakpoints={breakpoints} autoplay={{ delay: 5000 }}>
-        {bannerData?.map((banner: any) => (
-          <SwiperSlide key={`promotion-banner-key-${banner?.id}`}>
+        {data?.map((colection: any) => (
+          <SwiperSlide key={`promotion-banner-key-${colection?.id}`}>
             <BannerCard
-              banner={banner}
-              href={`${ROUTES.COLLECTIONS}/${banner.slug}`}
+              banner={colection}
+              href={`${ROUTES.COLLECTIONS}/${colection.slug}`}
               effectActive={true}
             />
           </SwiperSlide>

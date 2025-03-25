@@ -310,14 +310,11 @@ export const useUI = () => {
 };
 
 // @ts-ignore
-export const ManagedUIContext: React.FC = ({ children }) => (
-  <AuthProvider>
+export const ManagedUIContext: React.FC = ({ children, initialAuthData }) => (
+  <AuthProvider initialData={initialAuthData}>
     <CartProvider>
       {/* @ts-ignore */}
       <UIProvider>{children}</UIProvider>
     </CartProvider>
   </AuthProvider>
-
-  // @ts-ignore
-
 );

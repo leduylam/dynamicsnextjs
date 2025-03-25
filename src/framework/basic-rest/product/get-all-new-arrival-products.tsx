@@ -5,19 +5,18 @@ import { useQuery } from "@tanstack/react-query";
 
 export const fetchNewArrivalProducts = async () => {
   const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS);
-  return data as Product[];
+  return data;
 };
 
-const fetchNewArrivalAncientProducts = async () => {
+export const fetchNewArrivalAncientProducts = async () => {
   const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT);
-  return data as Product[];
+  return data;
 };
 
 export const useNewArrivalProductsQuery = (options: QueryOptionsType) => {
   return useQuery<Product[], Error>({
     queryKey:
       [API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT, options],
-
     queryFn:
       options.demoVariant === "ancient"
         ? fetchNewArrivalAncientProducts

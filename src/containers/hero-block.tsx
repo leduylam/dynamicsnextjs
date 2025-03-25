@@ -3,7 +3,6 @@ import Carousel from '@components/ui/carousel/carousel';
 import { useWindowSize } from '@utils/use-window-size';
 import { SwiperSlide } from 'swiper/react';
 import { useSsrCompatible } from '@utils/use-ssr-compatible';
-import { useBannersQuery } from '@framework/banner/get-banner';
 import { useEffect, useState } from 'react';
 import { ROUTES } from '@utils/routes';
 interface BannerProps {
@@ -13,6 +12,7 @@ interface BannerProps {
   image: any
 }
 interface Props {
+  data?: any
   hideProductDescription?: boolean;
   showCategory?: boolean;
   showRating?: boolean;
@@ -28,13 +28,16 @@ const breakpoints = {
     slidesPerView: 1,
   },
 };
+interface HeroBlockProps {
+  data: any; // Replace 'any' with a proper type if possible
+}
 
-const HeroBlock: React.FC = ({ demoVariant }: Props) => {
+const HeroBlock: React.FC<HeroBlockProps> = ({ data }: Props) => {
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
-  const { data, isLoading } = useBannersQuery({
-    limit: 10,
-    demoVariant,
-  })
+  const [isLoading, setIsLoading] = useState(!data.length);
+  useEffect(() => {
+    setIsLoading(false)
+  }, [])
   const [banners, setBanners] = useState<BannerProps[]>([])
   useEffect(() => {
     if (!isLoading) {
@@ -64,10 +67,11 @@ const HeroBlock: React.FC = ({ demoVariant }: Props) => {
       }
     }
   }, [data, isLoading])
+  const minSlides = Math.max(...Object.values(breakpoints).map((bp) => bp.slidesPerView), 1);
   return (
     <div className="heroBannerOne relative max-w-[1920px] mb-5 md:mb-12 lg:mb-14 2xl:mb-16 mx-auto overflow-hidden px-4 md:px-8 2xl:px-0">
       <Carousel
-        loop={true}
+        loop={banners.length > minSlides}
         breakpoints={breakpoints}
         centeredSlides={width < 1500 ? false : true}
         autoplay={{
@@ -86,7 +90,10 @@ const HeroBlock: React.FC = ({ demoVariant }: Props) => {
           >
             <BannerCard
               banner={banner}
-              href={`${ROUTES.COLLECTIONS}/${banner.slug}`}
+              href={{
+                pathname: ROUTES.SEARCH,
+                query: { brand: banner.slug },
+              }}
             />
           </SwiperSlide>
         ))}

@@ -3,12 +3,14 @@ import SectionHeader from '@components/common/section-header';
 import Carousel from '@components/ui/carousel/carousel';
 import { SwiperSlide } from 'swiper/react';
 import CardRoundedLoader from '@components/ui/loaders/card-rounded-loader';
-import { useBrandsQuery } from '@framework/brand/get-all-brands';
 import { ROUTES } from '@utils/routes';
 import Alert from '@components/ui/alert';
 import { Brand } from '@framework/types';
+import { useEffect, useState } from 'react';
 
 interface BrandProps {
+  data?: any
+  error?: any
   sectionHeading: string;
   className?: string;
   showName?: boolean;
@@ -17,6 +19,8 @@ interface BrandProps {
 }
 
 const BrandBlock: React.FC<BrandProps> = ({
+  data,
+  error,
   className = 'mb-11 md:mb-11 lg:mb-12 xl:mb-14 lg:pb-1 xl:pb-0',
   sectionHeading,
   showName = true,
@@ -49,16 +53,14 @@ const BrandBlock: React.FC<BrandProps> = ({
       spaceBetween: demoVariant === 'ancient' ? 8 : 12,
     },
   };
-
-  const { data, isLoading, error } = useBrandsQuery({
-    limit: 8,
-    demoVariant,
-  });
+  const [isLoading, setIsLoadding] = useState(!data.brands.length && !error)
+  useEffect(() => {
+    setIsLoadding(false)
+  }, []);
   const brands = data?.brands;
   return (
     <div className={className}>
       <SectionHeader sectionHeading={sectionHeading} />
-
       {error ? (
         <Alert message={error?.message} />
       ) : (
