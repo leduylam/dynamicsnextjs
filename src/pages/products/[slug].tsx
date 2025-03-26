@@ -7,8 +7,9 @@ import Breadcrumb from "@components/common/breadcrumb";
 import BrandBlock from "@containers/brand-block";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
+import { fetchBrands } from "@framework/brand/get-all-brands";
 
-export default function ProductPage() {
+export default function ProductPage({ brands, error }: any) {
 	return (
 		<>
 			<Divider className="mb-0" />
@@ -19,7 +20,7 @@ export default function ProductPage() {
 				<ProductSingleDetails />
 				<RelatedProducts sectionHeading="Related Products" />
 				{/* <Subscription /> */}
-				<BrandBlock sectionHeading="text-brands" />
+				<BrandBlock sectionHeading="text-brands" data={brands} error={error} />
 			</Container>
 		</>
 	);
@@ -28,16 +29,19 @@ export default function ProductPage() {
 ProductPage.Layout = Layout;
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
 	try {
+		const [brands] = await Promise.all([
+			fetchBrands().catch(() => []),
+		]);
 		return {
 			props: {
 				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+				brands
 			},
 		};
 	} catch (error) {
 		return {
 			props: {
 				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-
 			},
 		};
 	}
