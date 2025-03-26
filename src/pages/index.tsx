@@ -35,8 +35,7 @@ interface Banner {
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   try {
     // Gọi API lấy danh sách collections
-    const [collections, brands, banners, oneBanner, newArrivalsProduct, bestsellerProducts] = await Promise.all([
-      fetchCollection().catch(() => []),
+    const [brands, banners, oneBanner, newArrivalsProduct, bestsellerProducts] = await Promise.all([
       fetchBrands().catch(() => []),
       fetchBanners().catch(() => []),
       getSecondBanner().catch(() => { }),
@@ -46,7 +45,6 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     return {
       props: {
         ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-        collections,
         brands,
         banners,
         oneBanner,
@@ -58,7 +56,6 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     return {
       props: {
         ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-        collections: [],
         brands: [],
         banners: [],
         secondBanner: {},
@@ -71,16 +68,16 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
 };
 
 export default function Home({
-  collections,
   brands,
   banners,
   oneBanner,
   newArrivalsProduct,
   bestsellerProducts,
   error }: any) {
+  // const { openModal, setModalView } = useUI();
+  const collections = fetchCollection();
   console.log(collections);
 
-  // const { openModal, setModalView } = useUI();
   const [isLoading, setIsLoading] = useState(!oneBanner)
   const [mainBanner, setMainBanner] = useState<Banner | null>(null)
   const [collectionBanners, setCollectionBanners] = useState<Banner[]>([]);
