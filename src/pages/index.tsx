@@ -78,6 +78,8 @@ export default function Home({
   newArrivalsProduct,
   bestsellerProducts,
   error }: any) {
+  console.log(collections);
+
   // const { openModal, setModalView } = useUI();
   const [isLoading, setIsLoading] = useState(!oneBanner)
   const [mainBanner, setMainBanner] = useState<Banner | null>(null)

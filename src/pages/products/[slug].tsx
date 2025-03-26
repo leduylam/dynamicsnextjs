@@ -24,7 +24,7 @@ export default function ProductPage({ brands, error }: any) {
 			</Container>
 		</>
 	);
-}
+}	
 
 ProductPage.Layout = Layout;
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
