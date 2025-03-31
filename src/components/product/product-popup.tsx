@@ -10,6 +10,7 @@ import { getVariations } from "@framework/utils/get-variations";
 import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
+import { useCheckAccess } from "src/framework/auth/checkAccess";
 export default function ProductPopup() {
   const {
     modalData: { data },
@@ -18,6 +19,7 @@ export default function ProductPopup() {
     isAuthorized
   } = useUI();
   const { price, price_sale, percent } = usePrice(data);
+  const canWholeSalePrice = useCheckAccess(['Admin', 'User'], []);
   // const { addItemToCart } = useCart();
   const { mutate: updateCart } = useCartMutation()
   const [quantity, setQuantity] = useState(1);
@@ -55,8 +57,8 @@ export default function ProductPopup() {
       setViewCartBtn(true);
     }, 600);
     const item = {
-      ...generateCartItem(data!, attributes, activeState, subActive),
-      price: generateCartItem(data!, attributes, activeState, subActive).price ?? 0,
+      ...generateCartItem(data!, attributes, activeState, subActive, canWholeSalePrice),
+      price: generateCartItem(data!, attributes, activeState, subActive, canWholeSalePrice).price ?? 0,
     };
     updateCart({ item, quantity });
   }
@@ -163,38 +165,40 @@ export default function ProductPopup() {
 
             {isAuthorized && (
               <div className="flex items-center justify-between mt-3">
-                <div>
-                  <div className="text-heading font-semibold text-base md:text-xl lg:text-lg flex items-center">
-                    <div>W/S: </div>
-                    {price_sale && (
-                      <div className="h-10 w-[1px] bg-gray-400 mx-2 rotate-12"></div>
-                    )}
-                    <div className="">
+                {canWholeSalePrice && (
+                  <div>
+                    <div className="text-heading font-semibold text-base md:text-xl lg:text-lg flex items-center">
+                      <div>W/S: </div>
                       {price_sale && (
-                        <>
-                          <del
-                            className="font-segoe text-gray-400 text-base lg:text-base ltr:pl-2.5 rtl:pr-2.5 -mt-0.5 md:mt-0"
-                          >
-                            {price}
-                          </del>
-                          <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 ml-2">
-                            <p>
-                              <span>-</span>
-                              {percent} <span className="hidden sm:inline">%</span>
-                            </p>
-                          </span>
-                        </>
+                        <div className="h-10 w-[1px] bg-gray-400 mx-2 rotate-12"></div>
                       )}
-                      {price_sale ? (
-                        <span className="block mx-2">{number_format(price_sale)} </span>
-                      ) : (
-                        <span className="block mx-2">{number_format(price)} </span>
-                      )}
+                      <div className="">
+                        {price_sale && (
+                          <>
+                            <del
+                              className="font-segoe text-gray-400 text-base lg:text-base ltr:pl-2.5 rtl:pr-2.5 -mt-0.5 md:mt-0"
+                            >
+                              {price}
+                            </del>
+                            <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 ml-2">
+                              <p>
+                                <span>-</span>
+                                {percent} <span className="hidden sm:inline">%</span>
+                              </p>
+                            </span>
+                          </>
+                        )}
+                        {price_sale ? (
+                          <span className="block mx-2">{number_format(price_sale)} </span>
+                        ) : (
+                          <span className="block mx-2">{number_format(price)} </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="text-heading font-semibold text-base md:text-xl lg:text-lg">
-                  Retail:<span className="mx-2">{number_format(data.product_retail_price)} </span>
+                  {canWholeSalePrice ? "Retail" : 'Price'}:<span className="mx-2">{number_format(data.product_retail_price)} </span>
                 </div>
               </div>
             )}

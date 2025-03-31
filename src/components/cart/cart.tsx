@@ -10,8 +10,8 @@ import { ROUTES } from '@utils/routes';
 import cn from 'classnames';
 import { useCartQuery } from '@framework/carts/get-all-cart';
 import { number_format } from 'src/helpers/my-helper';
-
 export default function Cart() {
+  
   const { closeCart } = useUI();
   const { data } = useCartQuery()
   return (

@@ -47,7 +47,7 @@ const CollectionTopBar = ({ data }: any) => {
 
 
         {/* Image Section */}
-        <ul className="grid grid-cols-3 gap-4 mb-10">
+        <ul className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           <li>
             <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[0]?.src}` : ''} alt="Image 1" className="w-full object-cover rounded-lg shadow-md mb-4" />
             {imagesBanner && imagesBanner[3]?.src && (
@@ -60,7 +60,7 @@ const CollectionTopBar = ({ data }: any) => {
               <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[4]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
             )}
           </li>
-          <li>
+          <li className="hidden lg:block">
             <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[2]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
             {imagesBanner && imagesBanner[5]?.src && (
               <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[5]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />

@@ -4,6 +4,7 @@ import http from "@framework/utils/http";
 import { GetServerSideProps } from "next";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import ConnectApi from "@components/my-account/connect-api";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export default function ConnectApiPage({ apiKeys }: { apiKeys: any }) {
     return (
@@ -12,7 +13,7 @@ export default function ConnectApiPage({ apiKeys }: { apiKeys: any }) {
         </AccountLayout>
     );
 }
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, locale }) => {
     const response = await http.get(API_ENDPOINTS.APIKEY, {
         headers: {
             Authorization: `Bearer ${req.cookies.access_token}`,
@@ -21,7 +22,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         withCredentials: true,
     });
     return {
-        props: { apiKeys: response.data },
+        props: {
+            ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+            apiKeys: response.data
+        },
     };
 };
 ConnectApiPage.Layout = Layout;

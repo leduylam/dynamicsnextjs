@@ -5,6 +5,8 @@ import RegisterApiForm from '@components/auth/register-api-form';
 import { useUI } from '@contexts/ui.context';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { GetServerSideProps } from 'next';
 
 export default function RegisterApi() {
     const router = useRouter();
@@ -26,3 +28,18 @@ export default function RegisterApi() {
     );
 }
 RegisterApi.Layout = Layout
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  try {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      },
+    };
+  }
+};

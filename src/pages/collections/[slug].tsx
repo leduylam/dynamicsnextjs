@@ -6,6 +6,7 @@ import { findCollecitonBySlug } from "@framework/collecttion/get-all-collection"
 import { useEffect, useState } from "react";
 import { Product } from "@framework/types";
 import ProductCard from "@components/product/product-card";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 export default function Collections({ collection }: any) {
   const [products, setProducts] = useState<Product[]>([])
@@ -42,7 +43,7 @@ export default function Collections({ collection }: any) {
 
 Collections.Layout = Layout;
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ params, locale }) => {
   try {
     const slug = params?.slug as string; // Ép kiểu slug thành string
     if (!slug) {
@@ -62,6 +63,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
     return {
       props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
         collection, // Trả dữ liệu nếu tìm thấy
       },
     };

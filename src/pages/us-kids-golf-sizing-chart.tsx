@@ -3,6 +3,8 @@ import Layout from '@components/layout/layout';
 import PageHeader from '@components/ui/page-header';
 import { usKidSizingChart } from '@settings/us-kid-sizing';
 import { Element } from 'react-scroll';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { GetServerSideProps } from 'next';
 
 export default function UsKidGolfSizingChart() {
   return (
@@ -73,3 +75,18 @@ export default function UsKidGolfSizingChart() {
 }
 
 UsKidGolfSizingChart.Layout = Layout;
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  try {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      },
+    };
+  }
+};

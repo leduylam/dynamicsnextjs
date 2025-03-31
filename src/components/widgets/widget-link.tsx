@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import Link from "next/link";
 import Logo from "@components/ui/logo";
+import { useTranslation } from "next-i18next";
 
 interface Props {
     className?: string;
@@ -22,7 +23,7 @@ interface Props {
 const WidgetLink: FC<Props> = ({ className, data }) => {
     const { widgetTitle, lists } = data;
     const { description } = data;
-
+    const { t } = useTranslation("footer");
     return (
         <div
             className={`${className} ${data?.isCompanyIntroduction && "col-span-2"
@@ -31,7 +32,7 @@ const WidgetLink: FC<Props> = ({ className, data }) => {
             {!data?.isCompanyIntroduction ? (
                 <>
                     <h4 className="mb-5 text-sm font-semibold text-heading md:text-base xl:text-lg 2xl:mb-6 3xl:mb-7">
-                        {`${widgetTitle}`}
+                        {t(`${widgetTitle}`)}
                     </h4>
                     <ul className="text-xs lg:text-sm text-body flex flex-col space-y-3 lg:space-y-3.5">
                         {lists.map((list) => (
@@ -49,10 +50,10 @@ const WidgetLink: FC<Props> = ({ className, data }) => {
                                         href={list.path ? list.path : "#!"}
                                         className="transition-colors duration-200 hover:text-black"
                                     >
-                                        {`${list.title}`}
+                                        {t(`${list.title}`)}
                                     </Link>
                                 ) : (
-                                    <p>{`${list.title}`}</p>
+                                    <p>{t(`${list.title}`)}</p>
                                     // <Link
                                     //     href={list.path ? list.path : "#!"}
                                     //     className="transition-colors duration-200 hover:text-black"

@@ -18,6 +18,7 @@ import { useUI } from "@contexts/ui.context";
 import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
+import { useCheckAccess } from "src/framework/auth/checkAccess";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -32,6 +33,7 @@ const ProductSingleDetails: React.FC = () => {
     query: { slug },
   } = useRouter();
   const router = useRouter()
+  const canWholeSalePrice = useCheckAccess(['Admin', 'User'], []);
   const { isAuthorized } = useUI()
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
   const { data, isLoading } = useProductQuery(slug as string);
@@ -102,8 +104,8 @@ const ProductSingleDetails: React.FC = () => {
       setAddToCartLoader(false);
     }, 600);
     const item = {
-      ...generateCartItem(data!, attributes, activeState, subActive),
-      price: generateCartItem(data!, attributes, activeState, subActive).price ?? 0,
+      ...generateCartItem(data!, attributes, activeState, subActive, canWholeSalePrice),
+      price: generateCartItem(data!, attributes, activeState, subActive, canWholeSalePrice).price ?? 0,
     };
     updateCart({ item, quantity });
   }
@@ -218,34 +220,38 @@ const ProductSingleDetails: React.FC = () => {
             )}
             {isAuthorized && (
               <div className="flex items-center justify-between mt-5">
-                <div>
-                  {price_sale && (
-                    <>
-                      <span className="line-through font-segoe text-gray-400 text-sm md:text-base lg:text-base xl:text-lg ltr:pl-2 rtl:pr-2">
-                        {price}
-                      </span>
-                      {percent && (
-                        <span className="ml-2 bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
-                          <p>
-                            <span>-</span>
-                            {percent} <span className="hidden sm:inline">%</span>
-                          </p>
-                        </span>
+                {
+                  canWholeSalePrice && (
+                    <div>
+                      {price_sale && (
+                        <>
+                          <span className="line-through font-segoe text-gray-400 text-sm md:text-base lg:text-base xl:text-lg ltr:pl-2 rtl:pr-2">
+                            {price}
+                          </span>
+                          {percent && (
+                            <span className="ml-2 bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
+                              <p>
+                                <span>-</span>
+                                {percent} <span className="hidden sm:inline">%</span>
+                              </p>
+                            </span>
+                          )}
+                        </>
                       )}
-                    </>
-                  )}
-                  {price_sale ? (
-                    <div className="text-red-500 font-bold text-base md:text-xl lg:text-lg 2xl:text-2xl ltr:pr-2 rtl:pl-2 ltr:md:pr-0 rtl:md:pl-0 ltr:lg:pr-2 rtl:lg:pl-2 ltr:2xl:pr-0 rtl:2xl:pl-0">
-                      {number_format(price_sale)} <span className="text-base italic">VND</span>
+                      {price_sale ? (
+                        <div className="text-red-500 font-bold text-base md:text-xl lg:text-lg 2xl:text-2xl ltr:pr-2 rtl:pl-2 ltr:md:pr-0 rtl:md:pl-0 ltr:lg:pr-2 rtl:lg:pl-2 ltr:2xl:pr-0 rtl:2xl:pl-0">
+                          {number_format(price_sale)} <span className="text-base italic">VND</span>
+                        </div>
+                      ) : (
+                        <div className="text-red-500 font-bold text-base md:text-xl lg:text-lg 2xl:text-2xl ltr:pr-2 rtl:pl-2 ltr:md:pr-0 rtl:md:pl-0 ltr:lg:pr-2 rtl:lg:pl-2 ltr:2xl:pr-0 rtl:2xl:pl-0">
+                          {number_format(data?.product_price)} <span className="text-base italic">VND</span>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="text-red-500 font-bold text-base md:text-xl lg:text-lg 2xl:text-2xl ltr:pr-2 rtl:pl-2 ltr:md:pr-0 rtl:md:pl-0 ltr:lg:pr-2 rtl:lg:pl-2 ltr:2xl:pr-0 rtl:2xl:pl-0">
-                      {number_format(data?.product_price)} <span className="text-base italic">VND</span>
-                    </div>
-                  )}
-                </div>
+                  )
+                }
                 <div className="text-gray-600 font-semibold text-base md:text-xl lg:text-lg italic underline">
-                  Retail:
+                  {canWholeSalePrice ? "Retail" : 'Price'}:
                   <span className="ml-2">{number_format(data?.product_retail_price)} </span>
                   <span className="text-base">VND</span>
                 </div>

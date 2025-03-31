@@ -8,6 +8,8 @@ import ActiveLink from "@components/ui/active-link";
 import { BreadcrumbItems } from "@components/common/breadcrumb";
 import { ROUTES } from "@utils/routes";
 import { useSearchParams } from "next/navigation";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { GetServerSideProps } from "next";
 
 export default function Shop() {
   const searchParams = useSearchParams()
@@ -56,3 +58,19 @@ export default function Shop() {
 }
 
 Shop.Layout = Layout;
+
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  try {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      },
+    };
+  }
+};

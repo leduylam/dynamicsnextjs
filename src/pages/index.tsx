@@ -35,7 +35,8 @@ interface Banner {
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   try {
     // Gọi API lấy danh sách collections
-    const [brands, banners, oneBanner, newArrivalsProduct, bestsellerProducts] = await Promise.all([
+    const [collections, brands, banners, oneBanner, newArrivalsProduct, bestsellerProducts] = await Promise.all([
+      fetchCollection().catch(() => []),
       fetchBrands().catch(() => []),
       fetchBanners().catch(() => []),
       getSecondBanner().catch(() => { }),
@@ -45,20 +46,22 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     return {
       props: {
         ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-        brands,
-        banners,
-        oneBanner,
-        newArrivalsProduct,
-        bestsellerProducts,
+        collections: collections ?? [], // Thay undefined bằng null nếu cần
+        brands: brands ?? [],
+        banners: banners ?? [],
+        oneBanner: oneBanner ?? null, // Đảm bảo oneBanner không bao giờ là undefined
+        newArrivalsProduct: newArrivalsProduct ?? [],
+        bestsellerProducts: bestsellerProducts ?? [],
       },
     };
   } catch (error) {
     return {
       props: {
         ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+        collections: [],
         brands: [],
         banners: [],
-        secondBanner: {},
+        oneBanner: {},
         newArrivalsProduct: [],
         bestsellerProducts: [],
         error: "Không thể tải dữ liệu từ API",
@@ -68,16 +71,15 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
 };
 
 export default function Home({
+  collections,
   brands,
   banners,
   oneBanner,
   newArrivalsProduct,
   bestsellerProducts,
   error }: any) {
-  // const { openModal, setModalView } = useUI();
-  const collections = fetchCollection();
-  console.log(collections);
 
+  // const { openModal, setModalView } = useUI();
   const [isLoading, setIsLoading] = useState(!oneBanner)
   const [mainBanner, setMainBanner] = useState<Banner | null>(null)
   const [collectionBanners, setCollectionBanners] = useState<Banner[]>([]);
@@ -93,8 +95,14 @@ export default function Home({
           title: collection.title || "No title",
           slug: `${collection.slug}` || "#",
           image: {
-            mobile: { url: images || "", width: 480, height: 275 },
-            desktop: { url: images || "", width: 1800, height: 800 },
+            mobile: {
+              url: images || "", width: 450,
+              height: 150,
+            },
+            desktop: {
+              url: images || "", width: 580,
+              height: 360,
+            },
           },
         };
       });
@@ -123,7 +131,7 @@ export default function Home({
               desktop: {
                 url: images[0], // URL hình ảnh đầu tiên
                 width: 1800,
-                height: 800,
+                height: 360,
               },
             },
           });

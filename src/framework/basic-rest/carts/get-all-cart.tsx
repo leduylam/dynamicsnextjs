@@ -8,7 +8,7 @@ export const fetchCarts = async () => {
     return data
 };
 
-export const useCartQuery = () => {
+export const useCartQuery = (options = {}) => {
     return useQuery<State, Error>({
         queryKey: [API_ENDPOINTS.CARTS],
         queryFn: async () => {
@@ -25,5 +25,6 @@ export const useCartQuery = () => {
             }
         },
         staleTime: 1000 * 60 * 10,
+        ...options,
     });
 };

@@ -8,10 +8,12 @@ import {
   UpdateUserType,
 } from '@framework/customer/use-update-customer';
 import { useAuth } from '@contexts/auth/auth-context';
+import { useTranslation } from 'next-i18next';
 const defaultValues = {};
 
 
 const AccountDetails: React.FC = () => {
+  const { t } = useTranslation()
   const authContext = useAuth();
   const user = authContext ? authContext.user : null;
   const { mutate: updateUser, isPending } = useUpdateUserMutation();
@@ -36,7 +38,7 @@ const AccountDetails: React.FC = () => {
       className={`w-full flex flex-col`}
     >
       <h2 className="text-lg md:text-xl xl:text-2xl font-bold text-heading mb-6 xl:mb-8">
-        Account Details
+        {t('common:text-account-details')}
       </h2>
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -45,7 +47,7 @@ const AccountDetails: React.FC = () => {
       >
         <div className="flex flex-col space-y-4 sm:space-y-5">
           <Input
-            labelKey="Name"
+            labelKey={t('forms:label-name')}
             value={user?.name! ?? ''}
             {...register('name', {
               required: 'forms:display-name-required',
@@ -56,7 +58,7 @@ const AccountDetails: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:gap-x-3 space-y-4 sm:space-y-0">
             <Input
               type="tel"
-              labelKey="Phone"
+              labelKey={t('forms:label-phone')}
               value={user?.phone! ?? ''}
               {...register('phone', {
                 required: 'forms:phone-required',
@@ -85,7 +87,7 @@ const AccountDetails: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:gap-x-3 space-y-4 sm:space-y-0">
             <Input
               type="text"
-              labelKey="Address"
+              labelKey={t('forms:label-address')}
               value={user?.address! ?? ''}
               {...register('address', {
                 required: 'forms:address-required',

@@ -9,44 +9,44 @@ export const footer = {
   widgets: [
     {
       id: 2,
-      widgetTitle: 'Office',
+      widgetTitle: 'widget-title-office',
       lists: [
         {
           id: 1,
-          title: 'Hanoi Office',
+          title: 'link-about-office-hn',
           // path: '/contact-us',
         },
         {
           id: 2,
-          title: '253 Au Co street, Quang An ward, Tay Ho district, Hanoi city, Vietnam',
+          title: 'link-about-address-hn',
           // path: 'to:leduylam@gmail.com',
         },
         {
           id: 3,
-          title: 'Ho Chi Minh Office',
+          title: 'link-about-office-hcm',
           // path: '/contact-us',
         },
         {
           id: 4,
-          title: '5th floor Green Pax building, no. 216 Tran Nao street, quarter 2, An Khanh ward, Thu Duc city, Ho Chi Minh city, Vietnam',
+          title: 'link-about-address-hcm',
           // path: 'to:leduylam@gmail.com',
         },
       ],
     },
     {
       id: 4,
-      widgetTitle: 'About Us',
+      widgetTitle: 'link-about-us',
       lists: [
         {
           id: 1,
-          title: 'Dynamic Sports Company LTD is the exclusive distributor in Vietnam and Cambodia for some of the biggest brands in the golfing world today. Cobra Puma Golf, US Kids Golf, Greg Norman Apparel, PRG Accessories, Blue Tees and Sundog eyewear. For a full list of retailers stocking our brands, please click on the \"Retailer Locator\" tab.',
+          title: 'link-about-us-content',
           // path: '/faq',
         },
       ],
     },
     {
       id: 5,
-      widgetTitle: 'Tools',
+      widgetTitle: 'link-tools',
       lists: [
         // {
         //   id: 1,
@@ -55,39 +55,39 @@ export const footer = {
         // },
         {
           id: 2,
-          title: 'Puma Apparel Sizing chart',
+          title: 'link-puma-apparel-sizing',
           path: '/puma-apparel-sizing-chart',
         },
         {
           id: 3,
-          title: 'Puma Shoe Sizing chart',
+          title: 'link-puma-shoes-sizing',
           path: '/puma-shoe-sizing-chart',
         },
         {
           id: 4,
-          title: 'Greg Norman Apparel Sizing chart',
+          title: 'link-gn-apparel-sizing',
           path: 'greg-norman-apparel-sizing-chart',
         },
         {
           id: 5,
-          title: 'US Kids Golf Sizing chart',
+          title: 'link-us-kid-sizing',
           path: '/us-kids-golf-sizing-chart',
         },
         {
           id: 6,
-          title: 'Custom Product',
-          path: 'https://wildsidevn.com/',
+          title: 'link-custom-product',
+          path: 'https://wildside.dynamicsportsvn.com/',
         },
         {
           id: 7,
-          title: 'Register as a Retailer',
+          title: 'link-register-retailer',
           path: '/register-as-a-retailer',
         },
       ],
     },
     {
       id: 1,
-      widgetTitle: 'Socials',
+      widgetTitle: 'widget-title-social',
       lists: [
         {
           id: 1,

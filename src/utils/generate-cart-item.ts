@@ -1,6 +1,5 @@
 import { isEmpty } from "lodash";
 
-
 interface Item {
   id: string | number;
   name: string;
@@ -26,15 +25,14 @@ export function generateCartItem(
   item: Item,
   attributes: Record<string, string>,
   activeState: number | undefined,
-  subActive: number | undefined
+  subActive: number | undefined,
+  canWholeSalePrice: boolean
 ) {
   const { id, name, slug, product_price, product_retail_price } = item;
   const attribute = item.attributes?.find(
     (attr: any) => attr.id === activeState
   );
-
   const image = attribute ? attribute.image : "";
-
   const subAttribute = attribute.sub_attribute.find(
     (subAttr: any) => subAttr.id === subActive
   );
@@ -56,7 +54,11 @@ export function generateCartItem(
     product_retail_price,
     sku: itemSku,
     image: image ?? item.image,
-    price: promotion_price ? promotion_price : product_price,
+    price: canWholeSalePrice
+      ? promotion_price
+        ? promotion_price
+        : product_price
+      : product_retail_price,
     attributes,
   };
 }

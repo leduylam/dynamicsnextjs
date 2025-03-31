@@ -35,6 +35,7 @@ export default function BannerCard({
 
   const { title, image } = banner;
   const selectedImage = getImage(width, image);
+  
   return (
     <div className={cn("mx-auto", className)}>
       <Link

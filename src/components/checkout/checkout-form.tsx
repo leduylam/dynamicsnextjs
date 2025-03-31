@@ -23,11 +23,9 @@ interface CheckoutInputType {
   orderItem: []
 }
 
-interface CheckoutFormProps {
-  companies: any;
-}
 
-const CheckoutForm: React.FC<CheckoutFormProps> = () => {
+
+const CheckoutForm: React.FC = () => {
   const router = useRouter()
   const { mutate: updateUser, isPending } = useCheckoutMutation();
   const {

@@ -2,6 +2,8 @@ import Layout from '@components/layout/layout';
 import Container from '@components/ui/container';
 import PageHeader from '@components/ui/page-header';
 import { gregNormanSizingChart } from '@settings/greg-norman-sizing';
+import { GetServerSideProps } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Link, Element } from 'react-scroll';
 
 function makeTitleToDOMId(title: string) {
@@ -98,3 +100,18 @@ export default function GregNomanApparelSizingChart() {
 }
 
 GregNomanApparelSizingChart.Layout = Layout;
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  try {
+	return {
+	  props: {
+		...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+	  },
+	};
+  } catch (error) {
+	return {
+	  props: {
+		...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+	  },
+	};
+  }
+};

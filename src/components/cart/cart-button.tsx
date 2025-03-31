@@ -3,8 +3,10 @@ import { useUI } from '@contexts/ui.context';
 import { useCartQuery } from '@framework/carts/get-all-cart';
 
 export default function CartButton() {
-  const { openCart } = useUI();
-  const { data } = useCartQuery()
+  const { openCart, isAuthorized } = useUI();
+  const { data } = useCartQuery({
+    enabled: isAuthorized,
+  });
   const totalItems = data?.totalItems
   function handleCartOpen() {
     return openCart();

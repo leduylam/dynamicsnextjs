@@ -8,6 +8,7 @@ import ProductWishIcon from "@components/icons/product-wish-icon";
 import ProductCompareIcon from "@components/icons/product-compare-icon";
 import RatingDisplay from "@components/common/rating-display";
 import { number_format } from "src/helpers/my-helper";
+import { useCheckAccess } from "src/framework/auth/checkAccess";
 
 interface ProductProps {
   product: Product;
@@ -53,7 +54,7 @@ const ProductCard: FC<ProductProps> = ({
   disableBorderRadius = false,
 }) => {
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
-
+  const canWholeSalePrice = useCheckAccess(['Admin', 'User'], []);
   function handlePopupView() {
     setModalData({ data: product });
     setModalView("PRODUCT_VIEW");
@@ -69,7 +70,7 @@ const ProductCard: FC<ProductProps> = ({
       setHoverImage(randomImage);
     }
   }, [product?.image]);
-
+  
   return (
     <div
       className={cn(
@@ -148,7 +149,7 @@ const ProductCard: FC<ProductProps> = ({
         />
 
         <div className="absolute top-3.5 md:top-5 3xl:top-7 ltr:left-3.5 rtl:right-3.5 ltr:md:left-5 rtl:md:right-5 ltr:3xl:left-7 rtl:3xl:right-7 flex flex-col gap-y-1 items-start">
-          {isAuthorized && percent && (
+          {canWholeSalePrice && isAuthorized && percent && (
             <span className="bg-yellow-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
               <p>
                 <span>-</span>
@@ -288,37 +289,41 @@ const ProductCard: FC<ProductProps> = ({
               } ${bgTransparent ? "text-white" : "text-heading"}`}
           >
             <span
-              className={`block text-red-500 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
+              className={`block ${canWholeSalePrice ? 'text-red-500' : 'text-balance'} ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
                 }`}
             >
-              <span>Retail: </span>
+              <span>{canWholeSalePrice ? 'Retail' : 'Price'}: </span>
               <span className="float-right">{number_format(product.product_retail_price ?? 0)}</span>
             </span>
-            {price_sale && (
-              <del
-                className={`block text-sm italic text-gray-400 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                  }`}
-              >
-                <span>W/S: </span>
-                <del className="float-right">{number_format(product.product_price ?? 0)}</del>
-              </del>
-            )}
-            {price_sale ? (
-              <span
-                className={`block text-sm italic text-gray-900 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                  }`}
-              >
-                <span>W/S: </span>
-                <span className="float-right">{number_format(price_sale ?? 0)}</span>
-              </span>
-            ) : (
-              <span
-                className={`block text-sm italic text-gray-900 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                  }`}
-              >
-                <span>W/S: </span>
-                <span className="float-right">{number_format(product.product_price ?? 0)}</span>
-              </span>
+            {canWholeSalePrice && (
+              <>
+                {price_sale && (
+                  <del
+                    className={`block text-sm italic text-gray-400 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
+                      }`}
+                  >
+                    <span>W/S: </span>
+                    <del className="float-right">{number_format(product.product_price ?? 0)}</del>
+                  </del>
+                )}
+                {price_sale ? (
+                  <span
+                    className={`block text-sm italic text-gray-900 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
+                      }`}
+                  >
+                    <span>W/S: </span>
+                    <span className="float-right">{number_format(price_sale ?? 0)}</span>
+                  </span>
+                ) : (
+                  <span
+                    className={`block text-sm italic text-gray-900 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
+                      }`}
+                  >
+                    <span>W/S: </span>
+                    <span className="float-right">{number_format(product.product_price ?? 0)}</span>
+                  </span>
+                )}
+              </>
             )}
           </div>
         )}
