@@ -12,12 +12,8 @@ export default function ListBox({ options }: { options: Option[] }) {
   const { pathname, query, isReady } = router;
   const selectedItem = useMemo(() => {
     if (!isReady) return null;
-    const decodedSortBy = query.sort_by
-      ? decodeURIComponent(query.sort_by as string)
-      : localStorage.getItem("sort_by");
-
-    return decodedSortBy
-      ? options.find((o) => o.value === decodedSortBy) || options[0]
+    return query.sort_by
+      ? options.find((o) => o.value === query.sort_by) || options[0]
       : options[0];
   }, [query.sort_by, isReady, options]);
 
