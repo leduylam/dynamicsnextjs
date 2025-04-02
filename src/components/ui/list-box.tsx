@@ -9,15 +9,15 @@ type Option = {
 
 export default function ListBox({ options }: { options: Option[] }) {
   const router = useRouter();
-  const { pathname, query } = router;
-  const currentSelectedItem = query?.sort_by
-    ? options.find((o) => o.value === query.sort_by)!
-    : options[0];
-  const [selectedItem, setSelectedItem] = useState<Option>(currentSelectedItem);
+  const { pathname, query, isReady } = router;
+  const [selectedItem, setSelectedItem] = useState<Option | null>(null);
+
   useEffect(() => {
+    if (!isReady || !query?.sort_by) return;// Chỉ chạy khi query.sort_by đã có
+    const currentSelectedItem = options.find((o) => o.value === query.sort_by) || options[0];
     setSelectedItem(currentSelectedItem);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query?.sort_by]);
+  }, [query, isReady]);
+
   function handleItemClick(values: Option) {
     setSelectedItem(values);
     const { sort_by, ...restQuery } = query;
@@ -40,7 +40,7 @@ export default function ListBox({ options }: { options: Option[] }) {
       {({ open }) => (
         <div className="relative ltr:ml-2 rtl:mr-2 ltr:lg:ml-0 rtl:lg:mr-0 z-10 min-w-[180px]">
           <Listbox.Button className="border border-gray-300  text-heading text-[13px] md:text-sm font-semibold  relative w-full py-2 ltr:pl-3 rtl:pr-3 ltr:pr-10 rtl:pl-10 ltr:text-left rtl:text-right bg-white rounded-lg shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-orange-300 focus-visible:ring-offset-2 focus-visible:border-indigo-500 sm:text-sm cursor-pointer">
-            <span className="block truncate">{selectedItem.name ?? ""}</span>
+            <span className="block truncate">{selectedItem ? selectedItem.name : ""}</span>
             <span className="absolute inset-y-0 ltr:right-0 rtl:left-0 flex items-center ltr:pr-2 rtl:pl-2 pointer-events-none">
               <HiOutlineSelector
                 className="w-5 h-5 text-gray-400"

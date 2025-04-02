@@ -2,7 +2,23 @@ import Layout from "@components/layout/layout";
 import RetailerTable from "@components/retailer-locator/retailer-table";
 import Container from "@components/ui/container";
 import PageHeader from "@components/ui/page-header";
-
+import { GetServerSideProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+    try {
+        return {
+            props: {
+                ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+            },
+        };
+    } catch (error) {
+        return {
+            props: {
+                ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+            },
+        };
+    }
+};
 export default function ShopsPage() {
     return (
         <>

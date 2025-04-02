@@ -28,8 +28,8 @@ const RetailerTable: React.FC = () => {
                 const response = await getProvinces(); // Chờ API trả về
                 const provinceData = response.data
                 const provinceOptions = provinceData.provinces.map((province: any) => ({
-                    name: province.province_id, // Hiển thị tên tỉnh
-                    value: province.province_id, // Giá trị unique
+                    name: province?.provinces?.name,
+                    value: province?.provinces?.name_en,
                 }));
                 setOptions((prev) => [...prev, ...provinceOptions])
             } catch (error) {
