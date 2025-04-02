@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useMemo } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { HiOutlineSelector, HiCheck } from "react-icons/hi";
 import { useRouter } from "next/router";
@@ -10,16 +10,18 @@ type Option = {
 export default function ListBox({ options }: { options: Option[] }) {
   const router = useRouter();
   const { pathname, query, isReady } = router;
-  const [selectedItem, setSelectedItem] = useState<Option | null>(null);
+  const selectedItem = useMemo(() => {
+    if (!isReady) return null;
+    const decodedSortBy = query.sort_by
+      ? decodeURIComponent(query.sort_by as string)
+      : localStorage.getItem("sort_by");
 
-  useEffect(() => {
-    if (!isReady || !query?.sort_by) return;// Chỉ chạy khi query.sort_by đã có
-    const currentSelectedItem = options.find((o) => o.value === query.sort_by) || options[0];
-    setSelectedItem(currentSelectedItem);
-  }, [query, isReady]);
+    return decodedSortBy
+      ? options.find((o) => o.value === decodedSortBy) || options[0]
+      : options[0];
+  }, [query.sort_by, isReady, options]);
 
   function handleItemClick(values: Option) {
-    setSelectedItem(values);
     const { sort_by, ...restQuery } = query;
     router.push(
       {
