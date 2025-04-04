@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 interface ImageBanner {
   id: number;
@@ -21,7 +22,12 @@ const CollectionTopBar = ({ data }: any) => {
     <div className="min-h-screen text-gray-900">
       {/* Header with Logo */}
       <header className="py-6 px-10 bg-white shadow-md flex justify-center">
-        <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${data.image}`} alt="Brand Logo" />
+        <Image
+          src={`${process.env.NEXT_PUBLIC_SITE_URL}/${data.image}`}
+          alt="Brand Logo"
+          width={150}
+          height={50}
+        />
       </header>
 
       {/* Title */}
@@ -49,21 +55,63 @@ const CollectionTopBar = ({ data }: any) => {
         {/* Image Section */}
         <ul className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           <li>
-            <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[0]?.src}` : ''} alt="Image 1" className="w-full object-cover rounded-lg shadow-md mb-4" />
+            {imagesBanner && imagesBanner[0]?.src && (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[0].src}`}
+                alt="Image 1"
+                width={500} // Thay bằng kích thước thực tế
+                height={300} // Thay bằng kích thước thực tế
+                className="w-full object-cover rounded-lg shadow-md mb-4"
+              />
+            )}
             {imagesBanner && imagesBanner[3]?.src && (
-              <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[3]?.src}` : ''} alt="Image 1" className="w-full object-cover rounded-lg shadow-md" />
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[3].src}`}
+                alt="Image 1"
+                width={500} // Thay bằng kích thước thực tế
+                height={300} // Thay bằng kích thước thực tế
+                className="w-full object-cover rounded-lg shadow-md"
+              />
             )}
           </li>
           <li>
-            <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[1]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
+            {imagesBanner && imagesBanner[1]?.src && (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[1].src}`}
+                alt="Image 1"
+                width={500} // Thay bằng kích thước thực tế
+                height={300} // Thay bằng kích thước thực tế
+                className="w-full object-cover rounded-lg shadow-md mb-4"
+              />
+            )}
             {imagesBanner && imagesBanner[4]?.src && (
-              <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[4]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[4].src}`}
+                alt="Image 1"
+                width={500} // Thay bằng kích thước thực tế
+                height={300} // Thay bằng kích thước thực tế
+                className="w-full object-cover rounded-lg shadow-md"
+              />
             )}
           </li>
           <li className="hidden lg:block">
-            <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[2]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md mb-4" />
+            {imagesBanner && imagesBanner[2]?.src && (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[2].src}`}
+                alt="Image 1"
+                width={500} // Thay bằng kích thước thực tế
+                height={300} // Thay bằng kích thước thực tế
+                className="w-full object-cover rounded-lg shadow-md mb-4"
+              />
+            )}
             {imagesBanner && imagesBanner[5]?.src && (
-              <img src={imagesBanner ? `${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[5]?.src}` : ''} alt="Image 1" className="w-full  object-cover rounded-lg shadow-md" />
+              <Image
+                src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imagesBanner[5].src}`}
+                alt="Image 1"
+                width={500} // Thay bằng kích thước thực tế
+                height={300} // Thay bằng kích thước thực tế
+                className="w-full object-cover rounded-lg shadow-md"
+              />
             )}
           </li>
         </ul>

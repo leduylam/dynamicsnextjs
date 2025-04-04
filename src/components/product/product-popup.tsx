@@ -10,7 +10,8 @@ import { getVariations } from "@framework/utils/get-variations";
 import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
-import { useCheckAccess } from "src/framework/auth/checkAccess";
+import Image from "next/image";
+import { useAuth } from "@contexts/auth/auth-context";
 export default function ProductPopup() {
   const {
     modalData: { data },
@@ -18,8 +19,9 @@ export default function ProductPopup() {
     openCart,
     isAuthorized
   } = useUI();
+  const { accessRights } = useAuth();
   const { price, price_sale, percent } = usePrice(data);
-  const canWholeSalePrice = useCheckAccess(['Admin', 'User'], []);
+  const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   // const { addItemToCart } = useCart();
   const { mutate: updateCart } = useCartMutation()
   const [quantity, setQuantity] = useState(1);
@@ -86,7 +88,7 @@ export default function ProductPopup() {
       })
       setChooseQuantity(foundAttribute.quantity);
     }
-  }, [activeState])
+  }, [activeState, allAttribute])
 
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
@@ -131,13 +133,21 @@ export default function ProductPopup() {
       <div className="flex flex-col lg:flex-row w-full md:w-[650px] lg:w-[960px] mx-auto overflow-hidden">
         <div className="flex-shrink-0 flex items-center justify-center w-full lg:w-430px max-h-430px lg:max-h-full overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={
-              `${process.env.NEXT_PUBLIC_SITE_URL}/${image}` ||
-              "/assets/placeholder/products/product-thumbnail.svg"
+              image
+                ? `${process.env.NEXT_PUBLIC_SITE_URL}/${image}`
+                : '/assets/placeholder/products/product-thumbnail.svg'
             }
             alt={data.name}
-            className="lg:object-contain lg:w-full lg:h-full"
+            width={300}
+            height={300}
+            style={{
+              width: 'auto',
+              height: 'auto',
+            }}
+            className="object-contain lg:w-full lg:h-full"
+            priority={false}
           />
         </div>
         <div className="flex flex-col p-5 md:p-8 w-full">

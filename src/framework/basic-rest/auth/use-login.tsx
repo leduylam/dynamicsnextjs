@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
-import { useLogoutMutation } from './use-logout';
+import { useAuth } from '@contexts/auth/auth-context';
 export interface LoginInputType {
   email: string;
   password: string;
@@ -20,7 +20,7 @@ export async function me(): Promise<any> {
 }
 export const useLoginMutation = () => {
   const { authorize, closeModal } = useUI();
-  
+  const { login: authLogin } = useAuth();
   return useMutation({
     mutationFn: (input: LoginInputType) => login(input),
     onSuccess: async (data) => {
@@ -30,6 +30,7 @@ export const useLoginMutation = () => {
       Cookies.set('refresh_token', refresh_token, { expires });
       try {
         const user = await me()
+        authLogin(user, access_token, refresh_token, expires_in);
         authorize(user);
       } catch (error) {
         console.error("Failed to fetch user data:", error);

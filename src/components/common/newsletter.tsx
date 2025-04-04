@@ -21,7 +21,12 @@ export default function Newsletter() {
           {/* <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40"></div> */}
           <div className="absolute flex flex-col items-center justify-center text-center px-5 sm:px-10 w-full">
             <div className="w-[150px] md:w-[220px] mb-2 sm:mb-3 md:mb-9 hidden lg:block">
-              <img src="/assets/images/gn-main-logo.webp" alt="" />
+              <Image
+                src="/assets/images/gn-main-logo.webp"
+                alt="Thumbnail"
+                width={655}
+                height={655}
+              />
             </div>
             <h2 className="text-red-600 text-lg sm:text-xl md:text-3xl leading-8 font-bold mb-2 sm:mb-3 md:mb-5 uppercase">
               Clearence Sale

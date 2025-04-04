@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { ReactNode } from "react";
 import http from "@framework/utils/http";
@@ -27,11 +27,11 @@ interface AuthContextType {
     login: (userData: UserData, accessToken: string, refreshToken: string, expiresIn: number) => void;
     logout: () => void;
     loading: boolean;
+    accessRights: Record<string, boolean>; // Add accessRights to the interface
+    setAccessRight: (key: string, requiredRoles?: string[], requiredPermissions?: string[]) => void; // Hàm để check quyền
 }
-
 // Tạo context
 const AuthContext = createContext<AuthContextType | null>(null);
-
 // AuthProvider
 interface AuthProviderProps {
     children: ReactNode;
@@ -43,8 +43,21 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     const [roles, setRoles] = useState<string[]>(initialData?.roles || []);
     const [permissions, setPermissions] = useState<string[]>(initialData?.permissions || []);
     const [loading, setLoading] = useState<boolean>(!initialData); // Chỉ loading nếu không có initialData
+    const [accessRights, setAccessRights] = useState<Record<string, boolean>>({})
 
-    // Fetch user từ API /me nếu không có initialData
+    const setAccessRight = useCallback((key: string, requiredRoles: string[] = [], requiredPermissions: string[] = [], checkRoles: string[] = roles, checkPermissions: string[] = permissions) => {
+        const hasRole = requiredRoles.some((role) => checkRoles?.includes(role) ?? false);
+        const hasPermission = requiredPermissions.some((perm) => checkPermissions?.includes(perm) ?? false);
+        setAccessRights((prev) => {
+            const newAccessRights = { ...prev, [key]: hasRole || hasPermission };
+            return newAccessRights;
+        });
+    }, [roles, permissions]);
+
+    const checkAllAccessRights = useCallback((checkRoles: string[], checkPermissions: string[]) => {
+        setAccessRight("canWholeSalePrice", ["Admin", "User"], [], checkRoles, checkPermissions);
+        setAccessRight("canEdit", ["Admin"], ["edit"], checkRoles, checkPermissions);
+    }, [setAccessRight]);
     useEffect(() => {
         const fetchUser = async () => {
             const token = Cookies.get("access_token");
@@ -63,18 +76,19 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
                 setUser(data.user);
                 setRoles(data.roles);
                 setPermissions(data.permissions);
+                checkAllAccessRights(data.roles, data.permissions);
             } catch (error) {
                 console.error("Lỗi khi fetch user:", error);
                 setUser(null);
                 setRoles([]);
                 setPermissions([]);
+                setAccessRights({});
             } finally {
                 setLoading(false);
             }
         };
-
         fetchUser();
-    }, [initialData]); // Chỉ chạy lại nếu initialData thay đổi
+    }, [initialData, checkAllAccessRights]); // Chỉ chạy lại nếu initialData thay đổi
 
     // Hàm đăng nhập
     const login = (userData: UserData, accessToken: string, refreshToken: string, expiresIn: number) => {
@@ -85,6 +99,7 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         setUser(userData.user);
         setRoles(userData.roles);
         setPermissions(userData.permissions);
+        checkAllAccessRights(userData.roles, userData.permissions);
     };
 
     // Hàm đăng xuất
@@ -94,10 +109,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         setUser(null);
         setRoles([]);
         setPermissions([]);
+        setAccessRights({});
     };
 
     return (
-        <AuthContext.Provider value={{ user, roles, permissions, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, roles, permissions, login, logout, loading, accessRights, setAccessRight }}>
             {children}
         </AuthContext.Provider>
     );

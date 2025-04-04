@@ -18,7 +18,8 @@ import { useUI } from "@contexts/ui.context";
 import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
-import { useCheckAccess } from "src/framework/auth/checkAccess";
+import Image from "next/image";
+import { useAuth } from "@contexts/auth/auth-context";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -33,7 +34,8 @@ const ProductSingleDetails: React.FC = () => {
     query: { slug },
   } = useRouter();
   const router = useRouter()
-  const canWholeSalePrice = useCheckAccess(['Admin', 'User'], []);
+  const { accessRights } = useAuth()
+  const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   const { isAuthorized } = useUI()
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
   const { data, isLoading } = useProductQuery(slug as string);
@@ -176,14 +178,17 @@ const ProductSingleDetails: React.FC = () => {
             {productImages.gallery.map((item: any, index: number) => (
               <SwiperSlide key={`product-gallery-key-${index}`}>
                 <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={
-                      `${process.env.NEXT_PUBLIC_SITE_URL}/${item}` ||
-                      "/assets/placeholder/products/product-gallery.svg"
+                      item
+                        ? `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
+                        : '/assets/placeholder/products/product-gallery.svg'
                     }
                     alt={`${data?.name}--${index}`}
+                    width={500} // 🎯 Update theo chiều rộng thật
+                    height={500} // 🎯 hoặc chiều cao thực tế
                     className="object-cover w-full mix-blend-multiply"
+                    unoptimized // ⚠️ Nếu ảnh từ domain không cấu hình được
                   />
                 </div>
               </SwiperSlide>
@@ -196,13 +201,17 @@ const ProductSingleDetails: React.FC = () => {
                 key={index}
                 className="col-span-1 transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={
-                    `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
+                    item
+                      ? `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
+                      : '/assets/placeholder/products/product-gallery.svg'
                   }
                   alt={`${data?.name}--${index}`}
+                  width={500} // 🎯 Update theo chiều rộng thật
+                  height={500} // 🎯 hoặc chiều cao thực tế
                   className="object-cover w-full mix-blend-multiply"
+                  unoptimized // ⚠️ Nếu ảnh từ domain không cấu hình được
                 />
               </div>
             ))}
@@ -214,7 +223,7 @@ const ProductSingleDetails: React.FC = () => {
               {data?.name}
             </h2>
             {data?.description && data.description !== 'undefined' && (
-              <p className="text-body text-sm lg:text-sm leading-6 lg:leading-8 indent-8"
+              <p className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
                 dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
               ></p>
             )}

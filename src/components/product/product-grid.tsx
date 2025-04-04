@@ -72,7 +72,6 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "", params }) =>
           text="This product is not available yet. Check back later!"
         />
       )}
-
     </>
   );
 };

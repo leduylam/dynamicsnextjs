@@ -1,5 +1,6 @@
 
 import cn from 'classnames';
+import Image from 'next/image';
 interface Props {
   className?: string;
   title: string;
@@ -52,7 +53,19 @@ export const ProductAttributes: React.FC<Props> = ({
                         className="block w-full h-full rounded"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image}`} alt="" className='object-cover w-full h-[35px]' />
+
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image}`}
+                          alt=""
+                          width={100} // 👈 tùy chọn chiều rộng thực tế
+                          height={35}
+                          className="object-cover w-full h-[35px]"
+                          style={{
+                            width: 'auto',
+                            height: 'auto',
+                          }}
+                          priority={false}
+                        />
                       </span>
                     </li>
                   ) : (

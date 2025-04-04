@@ -14,5 +14,6 @@ export default withPWA({
   },
   images: {
     unoptimized: true,
+    formats: ['image/avif', 'image/webp'],
   },
 });

@@ -8,7 +8,8 @@ import ProductWishIcon from "@components/icons/product-wish-icon";
 import ProductCompareIcon from "@components/icons/product-compare-icon";
 import RatingDisplay from "@components/common/rating-display";
 import { number_format } from "src/helpers/my-helper";
-import { useCheckAccess } from "src/framework/auth/checkAccess";
+import { useAuth } from "@contexts/auth/auth-context";
+import Image from "next/image";
 
 interface ProductProps {
   product: Product;
@@ -53,8 +54,9 @@ const ProductCard: FC<ProductProps> = ({
   demoVariant,
   disableBorderRadius = false,
 }) => {
+  const { accessRights } = useAuth();
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
-  const canWholeSalePrice = useCheckAccess(['Admin', 'User'], []);
+  const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   function handlePopupView() {
     setModalData({ data: product });
     setModalView("PRODUCT_VIEW");
@@ -70,7 +72,7 @@ const ProductCard: FC<ProductProps> = ({
       setHoverImage(randomImage);
     }
   }, [product?.image]);
-  
+
   return (
     <div
       className={cn(
@@ -120,15 +122,16 @@ const ProductCard: FC<ProductProps> = ({
         )}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={hoverImage || `${process.env.NEXT_PUBLIC_SITE_URL}/${product?.image}`}
           width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
           height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
-          loading={imgLoading}
           alt={product?.name || "Product Image"}
+          loading={imgLoading === "lazy" ? "lazy" : "eager"} // Chuyển đổi loading
+          priority
+          style={{ height: "auto", width: "auto" }}
           className={cn(
-            `bg-white ${!disableBorderRadius && "rounded-s-md object-contain"
-            }`,
+            `bg-white ${!disableBorderRadius && "rounded-s-md object-contain"}`,
             {
               "w-full transition duration-200 ease-in":
                 variant === "grid" ||
@@ -261,10 +264,15 @@ const ProductCard: FC<ProductProps> = ({
           <div className="grid grid-cols-5 gap-2">
             {product?.image.map((img: any, index: number) => (
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`} alt=""
-                  className='object-cover w-full h-[35px]'
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`}
+                  alt="Your Image"
+                  width={500} // Điều chỉnh theo nhu cầu
+                  height={35} // Điều chỉnh theo nhu cầu
+                  className="object-cover w-full"
+                  style={{ height: "auto", width: "auto" }}
                   onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
+                  priority // Nếu ảnh quan trọng, load trước
                 />
               </div>
             ))}
