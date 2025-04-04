@@ -1,5 +1,5 @@
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { ReactNode } from "react";
 import http from "@framework/utils/http";
@@ -45,19 +45,20 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     const [loading, setLoading] = useState<boolean>(!initialData); // Chỉ loading nếu không có initialData
     const [accessRights, setAccessRights] = useState<Record<string, boolean>>({})
 
-    const setAccessRight = useCallback((key: string, requiredRoles: string[] = [], requiredPermissions: string[] = [], checkRoles: string[] = roles, checkPermissions: string[] = permissions) => {
+    const setAccessRight = (key: string, requiredRoles: string[] = [], requiredPermissions: string[] = [], checkRoles: string[] = roles, checkPermissions: string[] = permissions) => {
         const hasRole = requiredRoles.some((role) => checkRoles?.includes(role) ?? false);
         const hasPermission = requiredPermissions.some((perm) => checkPermissions?.includes(perm) ?? false);
         setAccessRights((prev) => {
             const newAccessRights = { ...prev, [key]: hasRole || hasPermission };
             return newAccessRights;
         });
-    }, [roles, permissions]);
+    };
 
-    const checkAllAccessRights = useCallback((checkRoles: string[], checkPermissions: string[]) => {
+    const checkAllAccessRights = (checkRoles: string[], checkPermissions: string[]) => {
         setAccessRight("canWholeSalePrice", ["Admin", "User"], [], checkRoles, checkPermissions);
         setAccessRight("canEdit", ["Admin"], ["edit"], checkRoles, checkPermissions);
-    }, [setAccessRight]);
+    };
+    // Fetch user từ API /me nếu không có initialData
     useEffect(() => {
         const fetchUser = async () => {
             const token = Cookies.get("access_token");
@@ -87,8 +88,9 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
                 setLoading(false);
             }
         };
+
         fetchUser();
-    }, [initialData, checkAllAccessRights]); // Chỉ chạy lại nếu initialData thay đổi
+    }, [initialData]); // Chỉ chạy lại nếu initialData thay đổi
 
     // Hàm đăng nhập
     const login = (userData: UserData, accessToken: string, refreshToken: string, expiresIn: number) => {
