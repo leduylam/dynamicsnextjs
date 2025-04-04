@@ -88,8 +88,7 @@ export default function ProductPopup() {
       })
       setChooseQuantity(foundAttribute.quantity);
     }
-  }, [activeState, allAttribute])
-
+  }, [activeState])
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
     ? (activeAttributes.image || data.image)
@@ -108,7 +107,6 @@ export default function ProductPopup() {
 
   // Lấy giá trị số lượng khi cần sử dụng
   const productQuantity = getProductQuantity();
-
   function handleAttributeChildren(attribute: any, attributeId: number) {
     const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
     setAttributes((prev) => ({
