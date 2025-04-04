@@ -1,14 +1,18 @@
 import Container from "@components/ui/container";
 import Layout from "@components/layout/layout";
 import ProductSingleDetails from "@components/product/product-single-details";
-import RelatedProducts from "@containers/related-products";
 import Divider from "@components/ui/divider";
 import Breadcrumb from "@components/common/breadcrumb";
-import BrandBlock from "@containers/brand-block";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
 import { fetchBrands } from "@framework/brand/get-all-brands";
-
+import dynamic from "next/dynamic";
+const RelatedProducts = dynamic(() => import("@containers/related-products"), {
+	ssr: false,
+});
+const BrandBlock = dynamic(() => import("@containers/brand-block"), {
+	ssr: false,
+});
 export default function ProductPage({ brands, error }: any) {
 	return (
 		<>
@@ -24,7 +28,7 @@ export default function ProductPage({ brands, error }: any) {
 			</Container>
 		</>
 	);
-}	
+}
 
 ProductPage.Layout = Layout;
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {

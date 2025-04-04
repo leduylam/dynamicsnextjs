@@ -4,8 +4,7 @@ import { ProductGrid } from "@components/product/product-grid";
 import CategoryBanner from "@containers/category-banner";
 import { ShopFilters } from "@components/shop/filters";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { GetServerSideProps } from "next";
-
+import { GetStaticProps } from "next";
 export default function Category() {
 	return (
 		<div className="border-t-2 border-borderBottom">
@@ -21,18 +20,18 @@ export default function Category() {
 }
 
 Category.Layout = Layout;
-export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
-  try {
-	return {
-	  props: {
-		...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-	  },
-	};
-  } catch (error) {
-	return {
-	  props: {
-		...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-	  },
-	};
-  }
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+	try {
+		return {
+			props: {
+				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+			},
+		};
+	} catch (error) {
+		return {
+			props: {
+				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+			},
+		};
+	}
 };
