@@ -132,11 +132,27 @@ const ProductSingleDetails: React.FC = () => {
     }
   }
   const activeAttributes = data?.attributes.find((attr: any) => attr.id === activeState) || null
+  const parseAlbum = (album: any): any[] => {
+    if (!album) return []
+    if (typeof album === 'string') {
+      try {
+        return JSON.parse(album)
+      } catch {
+        return []
+      }
+    }
+    return album
+  }
+
   const productImages = {
     gallery: activeState
-      ? activeAttributes ? activeAttributes.album : []
-      : data?.attributes.flatMap((attribute: any) => attribute.album)
+      ? activeAttributes?.album && activeAttributes.album !== 'null'
+        ? parseAlbum(activeAttributes.album)
+        : parseAlbum(data?.album)
+      : data?.attributes?.flatMap((attr: any) => attr.album) || parseAlbum(data?.album)
   }
+  console.log(productImages);
+
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;
@@ -161,7 +177,6 @@ const ProductSingleDetails: React.FC = () => {
       setSubActive(attributeId)
     }
   }
-
 
   return (
     <>
