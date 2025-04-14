@@ -1,6 +1,16 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { prepareTableHTML } from "@utils/prepareHTML";
+import { useEffect, useState } from "react";
 
 export default function ProductDetailTab({ data }: any) {
+    const [processedContent, setProcessedContent] = useState(data?.content)
+
+    useEffect(() => {
+        // Chỉ chạy ở client vì DOMParser không chạy trên server
+        const html = prepareTableHTML(data?.content)
+        setProcessedContent(html)
+    }, [data])
+
     return (
         <div className="mb-12 md:mb-14 xl:mb-16">
             <TabGroup as="div">
@@ -27,8 +37,9 @@ export default function ProductDetailTab({ data }: any) {
                 </TabList>
                 <TabPanels className='md:px-20'>
                     <TabPanel>
-                        <div className="product-detail text-body text-sm lg:text-sm leading-6 lg:leading-8"
-                            dangerouslySetInnerHTML={{ __html: data?.content ?? "" }}
+                        <div
+                            className="product-detail text-body text-sm leading-6"
+                            dangerouslySetInnerHTML={{ __html: processedContent ?? "" }}
                         />
                     </TabPanel>
                     <TabPanel>

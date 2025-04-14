@@ -151,8 +151,6 @@ const ProductSingleDetails: React.FC = () => {
         : parseAlbum(data?.album)
       : data?.attributes?.flatMap((attr: any) => attr.album) || parseAlbum(data?.album)
   }
-  console.log(productImages);
-
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;

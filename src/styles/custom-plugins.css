@@ -146,3 +146,31 @@
 .product-detail ul {
   @apply list-disc
 }
+
+.product-detail .table-striped {
+  @apply table-fixed w-max border-collapse border border-gray-300;
+}
+
+.product-detail .table-striped tr:nth-child(even) {
+  @apply bg-gray-200;
+}
+
+.product-detail .table-inner {
+  @apply table-fixed min-w-[1000px] border-collapse border border-gray-300;
+}
+
+.product-detail .table-inner th,
+.product-detail .table-inner td {
+  @apply px-4 py-2 border border-gray-200 text-center align-top;
+}
+
+.product-detail table table tr>th,
+.product-detail table table tr>td {
+  width: 10%;
+}
+
+.product-detail .table-striped th,
+.product-detail .table-striped td {
+  @apply px-4 py-2 border border-gray-200 align-top;
+  vertical-align: middle;
+}
