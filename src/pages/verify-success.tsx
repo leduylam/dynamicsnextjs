@@ -1,7 +1,10 @@
 import Layout from '@components/layout/layout';
 import { GetServerSideProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useRouter } from 'next/router';
 export default function VerifySuccessPage() {
+    const router = useRouter();
+    const { status } = router.query;
     const getMessage = () => {
         switch (status) {
             case 'success':
