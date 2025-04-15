@@ -123,6 +123,10 @@
   @apply inline-block text-[42px] font-extrabold ml-2 leading-normal
 }
 
+.product-detail h3 {
+  @apply inline-block text-[22px] font-extrabold ml-2 leading-normal
+}
+
 .product-detail p {
   @apply mb-2 leading-8
 }

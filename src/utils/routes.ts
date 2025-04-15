@@ -20,4 +20,5 @@ export const ROUTES = {
   CATEGORY: "/category",
   ORDER: "/order",
   REGISTER_API: "register-api",
+  REGISTER: "register-dynamics-access",
 };
