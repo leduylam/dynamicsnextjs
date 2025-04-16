@@ -20,6 +20,7 @@ import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
 import Image from "next/image";
 import { useAuth } from "@contexts/auth/auth-context";
+import Lightbox from "./lightbox/Lightbox";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -47,6 +48,14 @@ const ProductSingleDetails: React.FC = () => {
   const [subActive, setSubActive] = useState<number>()
   const [chooseQuantity, setChooseQuantity] = useState<number>()
   const { price, price_sale, percent } = usePrice(data);
+
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const openLightbox = (index: number) => {
+    setSelectedIndex(index);
+    setLightboxOpen(true);
+  };
   const mergeAttributes = (attributes: any) => {
     return attributes?.flatMap((attribute: { sub_attribute: any; }) => [
       attribute, // Thêm attribute gốc
@@ -132,8 +141,6 @@ const ProductSingleDetails: React.FC = () => {
     }
   }
   const activeAttributes = data?.attributes.find((attr: any) => attr.id === activeState) || null
-  console.log(activeAttributes);
-
   const parseAlbum = (album: any): any[] => {
     if (!album) return []
     if (typeof album === 'string') {
@@ -153,10 +160,6 @@ const ProductSingleDetails: React.FC = () => {
         : parseAlbum(data?.album)
       : data?.attributes?.flatMap((attr: any) => attr.album) || parseAlbum(data?.album)
   }
-
-  console.log(productImages);
-
-
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;
@@ -167,6 +170,13 @@ const ProductSingleDetails: React.FC = () => {
     }
     return 0;
   };
+
+  const images = productImages?.gallery.map((item: any) =>
+    item
+      ? `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
+      : '/assets/placeholder/products/product-gallery.svg'
+  ) || [];
+
 
   // Lấy giá trị số lượng khi cần sử dụng
   const productQuantity = getProductQuantity();
@@ -194,15 +204,11 @@ const ProductSingleDetails: React.FC = () => {
             className="product-gallery"
             buttonGroupClassName="hidden"
           >
-            {productImages && productImages.gallery.map((item: any, index: number) => (
+            {images && images.map((img: any, index: number) => (
               <SwiperSlide key={`product-gallery-key-${index}`}>
                 <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
                   <Image
-                    src={
-                      item
-                        ? `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
-                        : '/assets/placeholder/products/product-gallery.svg'
-                    }
+                    src={img}
                     alt={`${data?.name}--${index}`}
                     width={500} // 🎯 Update theo chiều rộng thật
                     height={500} // 🎯 hoặc chiều cao thực tế
@@ -214,17 +220,16 @@ const ProductSingleDetails: React.FC = () => {
             ))}
           </Carousel>
         ) : (
-          <div className={`col-span-5 grid ${productImages.gallery.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-2.5`}>
-            {productImages && productImages.gallery.map((item: any, index: number) => (
+          <div className={`col-span-5 grid ${images.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-2.5`}>
+            {images && images.map((img: any, index: number) => (
               <div
                 key={index}
                 className="col-span-1 transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md"
+                onClick={() => openLightbox(index)}
               >
                 <Image
                   src={
-                    item
-                      ? `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
-                      : '/assets/placeholder/products/product-gallery.svg'
+                    img
                   }
                   alt={`${data?.name}--${index}`}
                   width={500} // 🎯 Update theo chiều rộng thật
@@ -234,6 +239,13 @@ const ProductSingleDetails: React.FC = () => {
                 />
               </div>
             ))}
+            {lightboxOpen && (
+              <Lightbox
+                images={images}
+                initialIndex={selectedIndex}
+                onClose={() => setLightboxOpen(false)}
+              />
+            )}
           </div>
         )}
         <div className="col-span-4 pt-8 lg:pt-0">

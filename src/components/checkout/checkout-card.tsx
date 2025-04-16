@@ -8,8 +8,6 @@ const CheckoutCard: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const { data } = useCartQuery()
   const items = data?.items
-
-
   const checkoutFooter = [
     {
       id: 1,
