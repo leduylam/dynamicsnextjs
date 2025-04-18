@@ -120,17 +120,18 @@
 }
 
 .product-detail h2 {
-  @apply inline-block text-[42px] font-extrabold ml-2 leading-normal
+  @apply text-[42px]  font-extrabold ml-2 leading-normal
 }
 
 .product-detail h3 {
-  @apply inline-block text-[22px] font-extrabold ml-2 leading-normal
+  @apply text-[30px] font-extrabold ml-2 leading-normal
 }
 
 .product-detail p {
   @apply mb-2 leading-8
 }
 
+.product-detail ul,
 .product-detail ol {
   @apply list-disc ml-10
 }
@@ -147,9 +148,7 @@
   @apply float-left my-6 inline-block
 }
 
-.product-detail ul {
-  @apply list-disc
-}
+
 
 .product-detail .table-striped {
   @apply table-fixed w-max border-collapse border border-gray-300;
@@ -177,4 +176,16 @@
 .product-detail .table-striped td {
   @apply px-4 py-2 border border-gray-200 align-top;
   vertical-align: middle;
+}
+
+.product-detail::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.product-detail img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
