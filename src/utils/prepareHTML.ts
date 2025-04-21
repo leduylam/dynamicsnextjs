@@ -13,7 +13,7 @@ export function prepareTableHTML(html: string): string {
     const isNested = [...doc.querySelectorAll("table")].some(
       (outerTable) => outerTable !== table && outerTable.contains(table)
     );
-    table.classList.add(isNested ? "table-inner" : "table-striped");
+    table.classList.add(`w-full ${isNested ? "table-inner" : "table-striped"}`);
     table.parentNode?.insertBefore(wrapper, table);
     wrapper.appendChild(table);
   });
