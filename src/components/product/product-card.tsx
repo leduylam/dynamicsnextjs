@@ -10,7 +10,6 @@ import RatingDisplay from "@components/common/rating-display";
 import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
-import { getProductDetail } from "@framework/product/get-all-products";
 
 interface ProductProps {
   product: Product;
@@ -58,16 +57,10 @@ const ProductCard: FC<ProductProps> = ({
   const { accessRights } = useAuth();
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
   const canWholeSalePrice = accessRights.canWholeSalePrice || false;
-  async function handlePopupView(id: number) {
-    try {
-      const response = await getProductDetail(id); // gọi API
-      setModalData({ data: response });
-      setModalView("PRODUCT_VIEW");
-      openModal();
-    } catch (error) {
-      console.error("❌ Lỗi khi tải sản phẩm:", error);
-      // có thể show toast lỗi ở đây nếu cần
-    }
+  function handlePopupView() {
+    setModalData({ data: product });
+    setModalView("PRODUCT_VIEW");
+    return openModal();
   }
   const isNewArrival = product.new === 1
   const { price_sale, percent } = usePrice(product);
@@ -109,7 +102,7 @@ const ProductCard: FC<ProductProps> = ({
         },
         className
       )}
-      onClick={() => handlePopupView(Number(product.id))}
+      onClick={handlePopupView}
       role="button"
       title={product?.name}
     >
@@ -279,7 +272,7 @@ const ProductCard: FC<ProductProps> = ({
                   style={{ height: "auto", width: "auto" }}
                   onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
                   loading="lazy"
-                  priority={false} // Chuyển đổi loading
+                  priority={false}
                 />
               </div>
             ))}
