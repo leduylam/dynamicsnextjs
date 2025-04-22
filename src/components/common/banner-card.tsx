@@ -1,5 +1,5 @@
 import Link from "@components/ui/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { useWindowSize } from "@utils/use-window-size";
 import cn from "classnames";
 import { LinkProps } from "next/link";
@@ -35,7 +35,7 @@ export default function BannerCard({
 
   const { title, image } = banner;
   const selectedImage = getImage(width, image);
-  
+
   return (
     <div className={cn("mx-auto", className)}>
       <Link
@@ -51,7 +51,8 @@ export default function BannerCard({
           className={cn("bg-gray-300 object-cover", {
             "rounded-md": variant === "rounded" && !disableBorderRadius,
           })}
-          priority={true}
+          loading="lazy"
+          priority={false}
         />
         {effectActive && (
           <div className="absolute top-0 ltr:-left-[100%] rtl:-right-[100%] h-full w-1/2 z-5 block transform ltr:-skew-x-12 rtl:skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 ltr:group-hover:animate-shine rtl:group-hover:animate-shineRTL" />

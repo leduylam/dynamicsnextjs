@@ -62,17 +62,29 @@ const ProductCard: FC<ProductProps> = ({
     setModalView("PRODUCT_VIEW");
     return openModal();
   }
+  const isNewArrival = product.new === 1
   const { price_sale, percent } = usePrice(product);
   const [hoverImage, setHoverImage] = useState<string>('')
-  const isNewArrival = product.new === 1
+
   useEffect(() => {
     if (Array.isArray(product.image) && product?.image?.length > 0) {
-      const randomImage =
-        `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image[Math.floor(Math.random() * product.image.length)]}`;
-      setHoverImage(randomImage);
+      const i = Math.floor(Math.random() * product.image.length);
+      const randomImage = `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image[i]}`;
+      if (randomImage !== hoverImage) {
+        setHoverImage(randomImage);
+      }
     }
   }, [product?.image]);
+  const getValidImage = () => {
+    if (hoverImage) return hoverImage;
 
+    if (Array.isArray(product.image) && product?.image?.length > 0) {
+      return `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image}`;
+    }
+
+    // Fallback cuối cùng
+    return 'assets/images/placeholder/product.svg';
+  };
   return (
     <div
       className={cn(
@@ -123,13 +135,11 @@ const ProductCard: FC<ProductProps> = ({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <Image
-          src={hoverImage || `${process.env.NEXT_PUBLIC_SITE_URL}/${product?.image}`}
+          src={getValidImage()}
           width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
           height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
           alt={product?.name || "Product Image"}
           loading={imgLoading === "lazy" ? "lazy" : "eager"} // Chuyển đổi loading
-          priority
-          style={{ height: "auto", width: "auto" }}
           className={cn(
             `bg-white ${!disableBorderRadius && "rounded-s-md object-contain"}`,
             {
