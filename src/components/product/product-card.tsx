@@ -75,21 +75,12 @@ const ProductCard: FC<ProductProps> = ({
 
   useEffect(() => {
     if (Array.isArray(product.image) && product?.image?.length > 0) {
-      const i = Math.floor(Math.random() * product.image.length);
-      const randomImage = `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image[i]}`;
-      if (randomImage !== hoverImage) {
-        setHoverImage(randomImage);
-      }
+      const randomImage =
+        `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image[Math.floor(Math.random() * product.image.length)]}`;
+      setHoverImage(randomImage);
     }
   }, [product?.image]);
-  const getValidImage = () => {
-    if (hoverImage) return hoverImage;
-    if (Array.isArray(product.image) && product?.image?.length > 0) {
-      return `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image}`;
-    }
-    // Fallback cuối cùng
-    return 'assets/images/placeholder/product.svg';
-  };
+
   return (
     <div
       className={cn(
@@ -140,7 +131,7 @@ const ProductCard: FC<ProductProps> = ({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <Image
-          src={getValidImage()}
+          src={hoverImage || `${process.env.NEXT_PUBLIC_SITE_URL}/${product?.image}`}
           width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
           height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
           alt={product?.name || "Product Image"}
@@ -287,7 +278,8 @@ const ProductCard: FC<ProductProps> = ({
                   className="object-cover w-full"
                   style={{ height: "auto", width: "auto" }}
                   onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
-                  priority // Nếu ảnh quan trọng, load trước
+                  loading="lazy"
+                  priority={false} // Chuyển đổi loading
                 />
               </div>
             ))}
