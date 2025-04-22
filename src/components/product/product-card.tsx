@@ -10,6 +10,7 @@ import RatingDisplay from "@components/common/rating-display";
 import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
+import { getProductDetail } from "@framework/product/get-all-products";
 
 interface ProductProps {
   product: Product;
@@ -57,10 +58,16 @@ const ProductCard: FC<ProductProps> = ({
   const { accessRights } = useAuth();
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
   const canWholeSalePrice = accessRights.canWholeSalePrice || false;
-  function handlePopupView() {
-    setModalData({ data: product });
-    setModalView("PRODUCT_VIEW");
-    return openModal();
+  async function handlePopupView(id: number) {
+    try {
+      const response = await getProductDetail(id); // gọi API
+      setModalData({ data: response });
+      setModalView("PRODUCT_VIEW");
+      openModal();
+    } catch (error) {
+      console.error("❌ Lỗi khi tải sản phẩm:", error);
+      // có thể show toast lỗi ở đây nếu cần
+    }
   }
   const isNewArrival = product.new === 1
   const { price_sale, percent } = usePrice(product);
@@ -77,11 +84,9 @@ const ProductCard: FC<ProductProps> = ({
   }, [product?.image]);
   const getValidImage = () => {
     if (hoverImage) return hoverImage;
-
     if (Array.isArray(product.image) && product?.image?.length > 0) {
       return `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image}`;
     }
-
     // Fallback cuối cùng
     return 'assets/images/placeholder/product.svg';
   };
@@ -113,7 +118,7 @@ const ProductCard: FC<ProductProps> = ({
         },
         className
       )}
-      onClick={handlePopupView}
+      onClick={() => handlePopupView(Number(product.id))}
       role="button"
       title={product?.name}
     >

@@ -40,3 +40,7 @@ const useProductsQuery = (options: QueryOptionsType) => {
 };
 
 export { useProductsQuery, fetchProducts };
+export const getProductDetail = async (id: number) => {
+	const { data } = await http.get(`${API_ENDPOINTS.PRODUCTS}/${id}/preview`);
+	return data;
+}

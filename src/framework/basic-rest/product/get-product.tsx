@@ -13,3 +13,4 @@ export const useProductQuery = (slug: string) => {
 		queryFn: () => fetchProduct(slug)
 	});
 };
+

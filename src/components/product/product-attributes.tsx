@@ -62,7 +62,7 @@ export const ProductAttributes: React.FC<Props> = ({
                           className="object-cover w-full h-[35px]"
                           style={{
                             width: 'auto',
-                            height: 'auto',
+                            height: '100%',
                           }}
                           priority={false}
                         />
