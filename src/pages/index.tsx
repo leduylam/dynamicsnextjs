@@ -116,14 +116,13 @@ export default function Home({
   const { ref: newArrivalRef, visible: showNewArrival } = useLazyRender("50px");
   const { ref: brandRef, visible: showBrand } = useLazyRender("50px");
   const { ref: oneBannerRef, visible: showOneBanner } = useLazyRender("50px");
-
   return (
     <>
       <HeroBlock data={banners as any} />
       <Container>
         {collections.length > 0 && <BannerCarouselBlock data={collections} />}
         <div ref={brandRef}>
-          {showBrand && brands.length > 0 && <BrandBlock sectionHeading="text-brands" data={brands} error={error} />}
+          {showBrand && brands && <BrandBlock sectionHeading="text-brands" data={brands} error={error} />}
         </div>
         <Divider />
         <div ref={newArrivalRef}>

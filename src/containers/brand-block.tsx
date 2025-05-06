@@ -27,6 +27,8 @@ const BrandBlock: React.FC<BrandProps> = ({
   demoVariant,
   disableBorderRadius = false,
 }) => {
+  console.log(data);
+  
   const breakpoints = {
     '1720': {
       slidesPerView: 8,

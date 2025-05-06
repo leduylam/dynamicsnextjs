@@ -34,7 +34,7 @@ const Card: React.FC<Props> = ({
       >
         <div className="flex">
           <Image
-            src={`${process.env.NEXT_PUBLIC_SITE_URL}/storage/${item.image}`}
+            src={`${process.env.NEXT_PUBLIC_SITE_URL}/${item.image.default}`}
             alt={item.name || 'image'}
             width={imageSize}
             height={imageSize}
