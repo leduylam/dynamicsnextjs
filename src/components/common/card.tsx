@@ -39,6 +39,8 @@ const Card: React.FC<Props> = ({
             width={imageSize}
             height={imageSize}
             quality={100}
+            loading='lazy'
+            fetchPriority="low"
             className={`object-cover bg-white ${!disableBorderRadius && (variant === 'rounded' ? 'rounded-md' : 'rounded-full')}`}
           />
         </div>

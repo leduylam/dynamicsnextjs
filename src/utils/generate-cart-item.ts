@@ -11,6 +11,7 @@ interface Item {
     thumbnail: string;
     [key: string]: unknown;
   };
+  album?: Array<{ tiny: string; [key: string]: unknown }>;
   promotions?: {
     discount: number;
   };
@@ -32,8 +33,15 @@ export function generateCartItem(
   const attribute = item.attributes?.find(
     (attr: any) => attr.id === activeState
   );
-  const image = attribute ? attribute.image : "";
-  const subAttribute = attribute.sub_attribute.find(
+  const image =
+    attribute?.image &&
+    typeof attribute.image === "object" &&
+    attribute.image.tiny
+      ? attribute.image.tiny
+      : item.album?.[0]?.tiny ?? "";
+  console.log(image);
+
+  const subAttribute = attribute?.sub_attribute.find(
     (subAttr: any) => subAttr.id === subActive
   );
   const itemSku = subAttribute
@@ -53,7 +61,7 @@ export function generateCartItem(
     product_price,
     product_retail_price,
     sku: itemSku,
-    image: image ?? item.image,
+    image: image ?? item.image.tiny,
     price: canWholeSalePrice
       ? promotion_price
         ? promotion_price

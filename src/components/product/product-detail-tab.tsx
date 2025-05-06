@@ -33,7 +33,7 @@ export default function ProductDetailTab({ data }: any) {
                             }
                         >Description</Tab>
                     )}
-                    {data.includes && (
+                    {data?.includes && (
                         <Tab
                             key="includes"
                             as='li'
@@ -44,7 +44,7 @@ export default function ProductDetailTab({ data }: any) {
                             }
                         >{data.includes ? "Includes" : ""}</Tab>
                     )}
-                    {data.features && (
+                    {data?.features && (
                         <Tab
                             key="features"
                             as='li'
@@ -65,7 +65,7 @@ export default function ProductDetailTab({ data }: any) {
                             />
                         </TabPanel>
                     )}
-                    {data.includes && (
+                    {data?.includes && (
                         <TabPanel key="includes">
                             <p className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
                                 dangerouslySetInnerHTML={{ __html: data?.includes ?? "" }}

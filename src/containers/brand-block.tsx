@@ -53,7 +53,7 @@ const BrandBlock: React.FC<BrandProps> = ({
       spaceBetween: demoVariant === 'ancient' ? 8 : 12,
     },
   };
-  const [isLoading, setIsLoadding] = useState(!data.brands.length && !error)
+  const [isLoading, setIsLoadding] = useState(!data?.brands.length && !error)
   useEffect(() => {
     setIsLoadding(false)
   }, []);

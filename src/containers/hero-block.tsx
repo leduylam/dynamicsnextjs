@@ -42,21 +42,22 @@ const HeroBlock: React.FC<HeroBlockProps> = ({ data }: Props) => {
   useEffect(() => {
     if (!isLoading) {
       if (data && data?.item) {
-        const dataItem = JSON.parse(data?.item)
+        const dataItem = data?.item
         const updateBanner = dataItem.map((banner: any) => {
-          const images = JSON.parse(banner.album).map((img: any) => `${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)
+          // const images = banner.album.map((img: any) => `${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)
+          const ratio = 800 / 1800;
           return {
             id: banner.id,
             title: banner.title,
             slug: banner.url,
             image: {
               mobile: {
-                url: images.toString(),
-                width: 480,
-                height: 275,
+                url: `${process.env.NEXT_PUBLIC_SITE_URL}/${banner.album.mobile.toString()}`,
+                width: 768,
+                height: Math.round(768 * ratio),
               },
               desktop: {
-                url: images.toString(),
+                url: `${process.env.NEXT_PUBLIC_SITE_URL}/${banner.album.desktop.toString()}`,
                 width: 1800,
                 height: 800,
               },

@@ -7,6 +7,7 @@ type PaginatedProduct = {
 	paginatorInfo: any;
 };
 const fetchProducts = async ({ queryKey, pageParam = 0 }: any) => {
+	
 	const [_key, options] = queryKey;
 	const { data } = await http.get(API_ENDPOINTS.PRODUCTS, {
 		params: {

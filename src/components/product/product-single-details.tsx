@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { useRouter } from "next/router";
-import { useProductQuery } from "@framework/product/get-product";
 import { getVariations } from "@framework/utils/get-variations";
 import usePrice from "@framework/product/use-price";
 import { generateCartItem } from "@utils/generate-cart-item";
@@ -18,9 +17,9 @@ import { useUI } from "@contexts/ui.context";
 import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
-import Image from "next/image";
 import { useAuth } from "@contexts/auth/auth-context";
 import Lightbox from "./lightbox/Lightbox";
+import { motion } from "framer-motion";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -30,16 +29,19 @@ const productGalleryCarouselResponsive = {
     slidesPerView: 1,
   },
 };
-const ProductSingleDetails: React.FC = () => {
-  const {
-    query: { slug },
-  } = useRouter();
+interface ProductSingleDetailsProps {
+  data: any; // Replace 'any' with the appropriate type for the product data
+}
+
+const ProductSingleDetails: React.FC<ProductSingleDetailsProps> = ({ data }) => {
+  const [isLoading] = useState(false)
+  const [imagesLoaded, setImagesLoaded] = useState(0);
   const router = useRouter()
   const { accessRights } = useAuth()
   const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   const { isAuthorized } = useUI()
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
-  const { data, isLoading } = useProductQuery(slug as string);
+  // const { data, isLoading } = useProductQuery(slug as string);
   const { mutate: updateCart } = useCartMutation()
   const [attributes, setAttributes] = useState<{ [key: string]: string }>({});
   const [quantity, setQuantity] = useState(1);
@@ -48,7 +50,6 @@ const ProductSingleDetails: React.FC = () => {
   const [subActive, setSubActive] = useState<number>()
   const [chooseQuantity, setChooseQuantity] = useState<number>()
   const { price, price_sale, percent } = usePrice(data);
-
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -62,7 +63,6 @@ const ProductSingleDetails: React.FC = () => {
       ...attribute.sub_attribute, // Thêm tất cả sub_attribute
     ]);
   };
-
   const allAttribute = mergeAttributes(data?.attributes)
   const variations = getVariations(allAttribute);
   useEffect(() => {
@@ -152,14 +152,22 @@ const ProductSingleDetails: React.FC = () => {
     }
     return album
   }
-
+  const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
   const productImages = {
     gallery: activeState
-      ? activeAttributes?.album && activeAttributes.album !== 'null'
+      ? (Array.isArray(activeAttributes?.album) && activeAttributes.album.some(Boolean)
         ? parseAlbum(activeAttributes.album)
-        : parseAlbum(data?.album)
-      : data?.attributes?.flatMap((attr: any) => attr.album) || parseAlbum(data?.album)
-  }
+        : parseAlbum(data?.album))
+      : (Array.isArray(data?.attributes)
+        ? data.attributes.flatMap((attr: any) => attr.album || [])
+        : parseAlbum(data?.album))
+  };
+  const images = productImages?.gallery.map((item: any) =>
+    item
+      ? `${imagePath}/${item.medium}`
+      : '/assets/placeholder/products/product-gallery.svg'
+  ) || [];
+
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;
@@ -171,11 +179,6 @@ const ProductSingleDetails: React.FC = () => {
     return 0;
   };
 
-  const images = productImages?.gallery.map((item: any) =>
-    item
-      ? `${process.env.NEXT_PUBLIC_SITE_URL}/${item}`
-      : '/assets/placeholder/products/product-gallery.svg'
-  ) || [];
 
 
   // Lấy giá trị số lượng khi cần sử dụng
@@ -204,40 +207,57 @@ const ProductSingleDetails: React.FC = () => {
             className="product-gallery"
             buttonGroupClassName="hidden"
           >
-            {images && images.map((img: any, index: number) => (
+            {productImages.gallery && productImages.gallery.map((img: any, index: number) => (
               <SwiperSlide key={`product-gallery-key-${index}`}>
                 <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
-                  <Image
-                    src={img}
+                  <img
+                    src={`${imagePath}/${img.medium}`}
+                    srcSet={`
+                      ${imagePath}/${img.tiny} 352w,
+                      ${imagePath}/${img.small} 540w,
+                      ${imagePath}/${img.medium} 720w,
+                      ${imagePath}/${img.original} 1000w
+                  `}
+                    sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
                     alt={`${data?.name}--${index}`}
-                    width={500} // 🎯 Update theo chiều rộng thật
-                    height={500} // 🎯 hoặc chiều cao thực tế
+                    width={500}
+                    height={500}
                     className="object-cover w-full mix-blend-multiply"
-                    unoptimized // ⚠️ Nếu ảnh từ domain không cấu hình được
+                    loading="eager"
                   />
                 </div>
               </SwiperSlide>
             ))}
           </Carousel>
         ) : (
-          <div className={`col-span-5 grid ${images.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-2.5`}>
-            {images && images.map((img: any, index: number) => (
-              <div
+          <div
+            className={`col-span-5 grid ${productImages.gallery.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-2.5`}>
+            {productImages.gallery && productImages.gallery.map((img: any, index: number) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={imagesLoaded > index ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
                 key={index}
                 className="col-span-1 transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md"
                 onClick={() => openLightbox(index)}
               >
-                <Image
-                  src={
-                    img
-                  }
+                <img
+                  src={`${imagePath}/${img.medium}`}
+                  srcSet={`
+                    ${imagePath}/${img.tiny} 352w,
+                    ${imagePath}/${img.small} 540w,
+                    ${imagePath}/${img.medium} 720w,
+                    ${imagePath}/${img.original} 1000w
+                `}
+                  sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
                   alt={`${data?.name}--${index}`}
-                  width={500} // 🎯 Update theo chiều rộng thật
-                  height={500} // 🎯 hoặc chiều cao thực tế
+                  onLoad={() => setImagesLoaded((prev) => prev + 1)}
+                  width={500}
+                  height={500}
                   className="object-cover w-full mix-blend-multiply"
-                  unoptimized // ⚠️ Nếu ảnh từ domain không cấu hình được
+                  loading="lazy"
                 />
-              </div>
+              </motion.div>
             ))}
             {lightboxOpen && (
               <Lightbox
@@ -372,7 +392,7 @@ const ProductSingleDetails: React.FC = () => {
                   <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
                     Tags:
                   </span>
-                  {data.tags.map((tag) => (
+                  {data.tags.map((tag: { id: number; slug: string; name: string }) => (
                     <Link
                       key={tag.id}
                       href={tag.slug}

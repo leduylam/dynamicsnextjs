@@ -10,9 +10,11 @@ import RatingDisplay from "@components/common/rating-display";
 import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 interface ProductProps {
   product: Product;
+  index: number;
   className?: string;
   contactClassName?: string;
   imageContentClassName?: string;
@@ -40,13 +42,13 @@ interface ProductProps {
 
 const ProductCard: FC<ProductProps> = ({
   product,
+  index,
   className = "",
   contactClassName = "",
   imageContentClassName = "",
   variant = "list",
   imgWidth = 340,
   imgHeight = 340,
-  imgLoading,
   showCategory = false,
   showRating = false,
   bgTransparent = false,
@@ -64,16 +66,29 @@ const ProductCard: FC<ProductProps> = ({
   }
   const isNewArrival = product.new === 1
   const { price_sale, percent } = usePrice(product);
-  const [hoverImage, setHoverImage] = useState<string>('')
-
+  const [attrImage, setAttrImage] = useState<string[]>([])
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [hoverImage, setHoverImage] = useState<string>("");
+  const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
+  const handleImageHover = (imageUrl: string) => {
+    const folder = imageUrl.includes('tiny') ? 'medium' : imageUrl.includes('medium') ? 'large' : 'tiny';
+    return imageUrl.replace('tiny', folder).replace('_tiny', `_${folder}`).replace('_medium', `_${folder}`).replace('_large', `_${folder}`);
+  }
   useEffect(() => {
-    if (Array.isArray(product.image) && product?.image?.length > 0) {
-      const randomImage =
-        `${process.env.NEXT_PUBLIC_SITE_URL}/${product.image[Math.floor(Math.random() * product.image.length)]}`;
-      setHoverImage(randomImage);
+    if (product?.image) {
+      const imageUrl = `${imagePath}/${product.image.small}`;
+      setHoverImage(imageUrl);
     }
   }, [product?.image]);
-
+  useEffect(() => {
+    if (product?.attributes && product?.attributes.length > 0) {
+      const imageUrls = product.attributes.map((attr: any) => {
+        const imageUrl = `${imagePath}/${attr.image.tiny}`;
+        return imageUrl;
+      });
+      setAttrImage(imageUrls);
+    }
+  }, [product?.attributes]);
   return (
     <div
       className={cn(
@@ -123,32 +138,48 @@ const ProductCard: FC<ProductProps> = ({
         )}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <Image
-          src={hoverImage || `${process.env.NEXT_PUBLIC_SITE_URL}/${product?.image}`}
-          width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
-          height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
-          alt={product?.name || "Product Image"}
-          loading={imgLoading === "lazy" ? "lazy" : "eager"} // Chuyển đổi loading
-          className={cn(
-            `bg-white ${!disableBorderRadius && "rounded-s-md object-contain"}`,
-            {
-              "w-full transition duration-200 ease-in":
-                variant === "grid" ||
-                variant === "gridModern" ||
-                variant === "gridModernWide" ||
-                variant === "gridTrendy",
-              "rounded-md group-hover:rounded-b-none":
-                (variant === "grid" && !disableBorderRadius) ||
-                (variant === "gridModern" && !disableBorderRadius) ||
-                (variant === "gridModernWide" && !disableBorderRadius) ||
-                (variant === "gridTrendy" && !disableBorderRadius),
-              "rounded-md transition duration-150 ease-linear transform group-hover:scale-105":
-                variant === "gridSlim",
-              "rounded-s-md transition duration-200 ease-linear transform group-hover:scale-105":
-                variant === "list",
-            }
-          )}
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isImageLoaded ? 1 : 0.3 }}
+          transition={{ duration: 0.5 }} // 👈 tốc độ fade 0.5s
+          className="w-full h-full"
+        >
+          <img
+            src={hoverImage}
+            srcSet={`
+            ${imagePath}/${product?.image.tiny} 352px,
+            ${imagePath}/${product?.image.small} 540px,
+            ${imagePath}/${product?.image.medium} 720px,
+          `}
+            sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
+            width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
+            height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
+            alt={product?.name || "Product Image"}
+            loading={index < 4 ? "eager" : "lazy"} // Chuyển đổi loading
+            onLoad={() => setIsImageLoaded(true)}
+            className={cn(
+              `bg-white ${!disableBorderRadius && "rounded-s-md"}`,
+              {
+                "w-full h-full object-contain ": true,
+                "transition duration-200 ease-in":
+                  variant === "grid" ||
+                  variant === "gridModern" ||
+                  variant === "gridModernWide" ||
+                  variant === "gridTrendy",
+                "rounded-md group-hover:rounded-b-none":
+                  (variant === "grid" && !disableBorderRadius) ||
+                  (variant === "gridModern" && !disableBorderRadius) ||
+                  (variant === "gridModernWide" && !disableBorderRadius) ||
+                  (variant === "gridTrendy" && !disableBorderRadius),
+                "rounded-md transition duration-150 ease-linear transform group-hover:scale-105":
+                  variant === "gridSlim",
+                "rounded-s-md transition duration-200 ease-linear transform group-hover:scale-105":
+                  variant === "list",
+              }
+            )}
+          />
+        </motion.div>
+
 
         <div className="absolute top-3.5 md:top-5 3xl:top-7 ltr:left-3.5 rtl:right-3.5 ltr:md:left-5 rtl:md:right-5 ltr:3xl:left-7 rtl:3xl:right-7 flex flex-col gap-y-1 items-start">
           {canWholeSalePrice && isAuthorized && percent && (
@@ -259,18 +290,18 @@ const ProductCard: FC<ProductProps> = ({
           <p className="text-sm sm:text-base xl:text-base md:mb-1.5">{product.sku}</p>
         </div>
 
-        {product.image && Array.isArray(product.image) && product.image.length > 1 && (
+        {attrImage && Array.isArray(attrImage) && attrImage.length > 1 && (
           <div className="grid grid-cols-5 gap-2">
-            {product?.image.map((img: any, index: number) => (
+            {attrImage.map((img: any, index: number) => (
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`}
+                  src={`${img}`}
                   alt="Your Image"
-                  width={500} // Điều chỉnh theo nhu cầu
-                  height={35} // Điều chỉnh theo nhu cầu
+                  width={500}
+                  height={35}
                   className="object-cover w-full"
                   style={{ height: "auto", width: "auto" }}
-                  onMouseOver={() => setHoverImage(`${process.env.NEXT_PUBLIC_SITE_URL}/${img}`)}
+                  onMouseOver={() => setHoverImage(handleImageHover(img))}
                   loading="lazy"
                   priority={false}
                 />

@@ -9,7 +9,7 @@ const ProductMetaReview: React.FC<Props> = ({ data }) => {
 	const [metas, setMetas] = useState<any[]>([]);
 	const [expanded, setExpanded] = useState<number>(0);
 	useEffect(() => {
-		const specs = data.spec ? JSON.parse(data.spec) : [];
+		const specs = data?.spec ? JSON.parse(data.spec) : [];
 		setMetas([
 			{
 				id: 1,

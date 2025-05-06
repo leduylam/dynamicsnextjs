@@ -33,15 +33,15 @@ export default function ProductPopup() {
   )
   const [subActive, setSubActive] = useState<number>()
   const [chooseQuantity, setChooseQuantity] = useState<number>()
-
+  const [loading, setLoading] = useState(false);
   const mergeAttributes = (attributes: any) => {
     return attributes.flatMap((attribute: { sub_attribute: any; }) => [
       attribute, // Thêm attribute gốc
       ...attribute.sub_attribute, // Thêm tất cả sub_attribute
     ]);
   };
-
   const allAttribute = mergeAttributes(data.attributes)
+
   const variations = getVariations(allAttribute);
   const isSelected = !isEmpty(variations)
     ? !isEmpty(attributes) &&
@@ -89,11 +89,20 @@ export default function ProductPopup() {
       setChooseQuantity(foundAttribute.quantity);
     }
   }, [activeState])
+  const [delayedImage, setDelayedImage] = useState<any>(null);
   const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
   const image = activeState
-    ? (activeAttributes.image || data.image)
-    : (Array.isArray(data.image) ? data.image[0] : data.image)
+    ? (Object.keys(activeAttributes.image).length > 0 ? activeAttributes.image : data.image)
+    : data.image
 
+  useEffect(() => {
+    if (!image) return
+    setLoading(true);
+    const timeout = setTimeout(() => {
+      setDelayedImage(image);
+    }, 150); // delay 150ms, mày chỉnh theo ý mày, 100-200ms đều ổn
+    return () => clearTimeout(timeout); // clear timeout để tránh memory leak
+  }, [image]);
   const productSku = activeAttributes?.sub_attribute.length > 0
     ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
     : activeAttributes?.product_attribute_sku;
@@ -125,28 +134,35 @@ export default function ProductPopup() {
       openCart();
     }, 300);
   }
-
+  const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
   return (
     <div className="rounded-lg bg-white">
       <div className="flex flex-col lg:flex-row w-full md:w-[650px] lg:w-[960px] mx-auto overflow-hidden">
         <div className="flex-shrink-0 flex items-center justify-center w-full lg:w-430px max-h-430px lg:max-h-full overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <Image
-            src={
-              image
-                ? `${process.env.NEXT_PUBLIC_SITE_URL}/${image}`
-                : '/assets/placeholder/products/product-thumbnail.svg'
-            }
-            alt={data.name}
-            width={300}
-            height={300}
-            style={{
-              width: 'auto',
-              height: 'auto',
-            }}
-            className="object-contain lg:w-full lg:h-full"
-            priority={false}
-          />
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+              <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+            </div>
+          )}
+          {delayedImage && (
+            <img
+              src={`${imagePath}/${delayedImage?.original}`} // fallback nếu delayedImage là 1 string
+              srcSet={`
+                ${imagePath}/${delayedImage?.tiny || ''} 150w,
+                ${imagePath}/${delayedImage?.small || ''} 400w,
+                ${imagePath}/${delayedImage?.medium || ''} 800w,
+                ${imagePath}/${delayedImage?.original || ''} 1200w,
+              `}
+              sizes="(max-width: 768px) 100vw, 800px"
+              alt={data.name}
+              onLoad={() => setLoading(false)}
+              onError={() => setLoading(false)}
+              className={`object-contain w-full h-auto transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'
+                }`}
+            />
+          )}
+
         </div>
         <div className="flex flex-col p-5 md:p-8 w-full">
           <div className="pb-5">

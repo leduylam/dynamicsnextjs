@@ -7,7 +7,7 @@ interface Props {
   attributes: {
     id: number;
     value: string;
-    image: string;
+    image: { tiny: string;[key: string]: any } | string;
     parent_id: number;
     quantity: number
   }[];
@@ -36,11 +36,14 @@ export const ProductAttributes: React.FC<Props> = ({
       </h3>
       <ul className="flex flex-wrap colors ltr:-mr-3 rtl:-ml-3">
         {attributes?.map(({ id, value, image, parent_id, quantity }) => {
+          const imageAttr = (image !== null && typeof image === 'object' && 'tiny' in image)
+            ? image.tiny
+            : image;
           return (
             <div key={id}>
               {
                 parent_id === 0 && (
-                  image ? (
+                  image && typeof image === 'object' && image.tiny ? (
                     <li
                       key={`${value}-${id}`}
                       className={cn(
@@ -55,7 +58,7 @@ export const ProductAttributes: React.FC<Props> = ({
                         {/* eslint-disable-next-line @next/next/no-img-element */}
 
                         <Image
-                          src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image}`}
+                          src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imageAttr}`}
                           alt=""
                           width={100} // 👈 tùy chọn chiều rộng thực tế
                           height={35}
