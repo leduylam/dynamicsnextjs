@@ -194,7 +194,6 @@ const ProductSingleDetails: React.FC<ProductSingleDetailsProps> = ({ data }) => 
       setSubActive(attributeId)
     }
   }
-
   return (
     <>
       <div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">

@@ -1,11 +1,12 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { prepareTableHTML } from "@utils/prepareHTML";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function ProductDetailTab({ data }: any) {
     const [processedContent, setProcessedContent] = useState(data?.content)
     const [features, setFeatures] = useState<any[]>([])
-
+    const allContent = features.flatMap((feature: any) => feature.content);
     useEffect(() => {
         const featured = data?.features ? JSON.parse(data?.features) : []
         const html = prepareTableHTML(data?.content)
@@ -18,6 +19,8 @@ export default function ProductDetailTab({ data }: any) {
             }
         ])
     }, [data])
+    const half = Math.ceil(allContent.length / 2);
+    const columns = [allContent.slice(0, half), allContent.slice(half)];
     return (
         <div className="mb-12 md:mb-14 xl:mb-16">
             <TabGroup as="div">
@@ -74,13 +77,24 @@ export default function ProductDetailTab({ data }: any) {
                     )}
                     {features && (
                         <TabPanel key="features">
-                            {features.map((item: any, index: number) => (
-                                <ul className="" key={index}>
-                                    {item.content.map((content: any) => (
-                                        <li key={content.featuredValue}>{content.featuredValue}</li>
+                            <motion.div
+                                key={JSON.stringify(allContent)} // Đổi key mỗi khi content thay đổi
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.5  }}
+                            >
+                                <div className="grid grid-cols-2 gap-4">
+                                    {columns.map((column, colIndex) => (
+                                        <ul key={colIndex} className="list-disc">
+                                            {column.map((content: string, index: number) => (
+                                                <li key={index}>{content}</li>
+                                            ))}
+                                        </ul>
                                     ))}
-                                </ul>
-                            ))}
+                                </div>
+                            </motion.div>
+
                         </TabPanel>
                     )}
 
