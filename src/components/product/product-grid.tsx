@@ -100,7 +100,6 @@ export const ProductGrid: FC<ProductGridProps> = ({
                       variant="grid"
                     />
                   </motion.div>
-
                 );
               })
             )}

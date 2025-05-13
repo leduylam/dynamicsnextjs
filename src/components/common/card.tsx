@@ -24,7 +24,6 @@ const Card: React.FC<Props> = ({
   disableBorderRadius = false,
 }) => {
   const imageSize: any = (imgSize === 'large' && 375) || (size === 'small' && 180) || (size === 'medium' && 198);
-
   return (
     <Link href={href} className="group flex justify-center text-center flex-col">
       {/* disableBorderRadius===false && (variant === 'rounded' ? 'rounded-md' : 'rounded-full') */}

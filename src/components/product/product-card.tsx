@@ -10,7 +10,7 @@ import RatingDisplay from "@components/common/rating-display";
 import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface ProductProps {
   product: Product;
@@ -82,10 +82,9 @@ const ProductCard: FC<ProductProps> = ({
   }, [product?.image]);
   useEffect(() => {
     if (product?.attributes && product?.attributes.length > 0) {
-      const imageUrls = product.attributes.map((attr: any) => {
-        const imageUrl = `${imagePath}/${attr.image.tiny}`;
-        return imageUrl;
-      });
+      const imageUrls = product.attributes
+        .filter((attr: any) => attr?.image?.tiny) // chỉ giữ attribute có ảnh
+        .map((attr: any) => `${imagePath}/${attr.image.tiny}`);
       setAttrImage(imageUrls);
     }
   }, [product?.attributes]);
@@ -144,43 +143,49 @@ const ProductCard: FC<ProductProps> = ({
           transition={{ duration: 0.5 }} // 👈 tốc độ fade 0.5s
           className="w-full h-full"
         >
-          <img
-            src={hoverImage}
-            srcSet={`
-            ${imagePath}/${product?.image.tiny} 352px,
-            ${imagePath}/${product?.image.small} 540px,
-            ${imagePath}/${product?.image.medium} 720px,
-          `}
-            sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
-            width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
-            height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
-            alt={product?.name || "Product Image"}
-            loading={index < 4 ? "eager" : "lazy"} // Chuyển đổi loading
-            onLoad={() => setIsImageLoaded(true)}
-            className={cn(
-              `bg-white ${!disableBorderRadius && "rounded-s-md"}`,
-              {
-                "w-full h-full object-contain ": true,
-                "transition duration-200 ease-in":
-                  variant === "grid" ||
-                  variant === "gridModern" ||
-                  variant === "gridModernWide" ||
-                  variant === "gridTrendy",
-                "rounded-md group-hover:rounded-b-none":
-                  (variant === "grid" && !disableBorderRadius) ||
-                  (variant === "gridModern" && !disableBorderRadius) ||
-                  (variant === "gridModernWide" && !disableBorderRadius) ||
-                  (variant === "gridTrendy" && !disableBorderRadius),
-                "rounded-md transition duration-150 ease-linear transform group-hover:scale-105":
-                  variant === "gridSlim",
-                "rounded-s-md transition duration-200 ease-linear transform group-hover:scale-105":
-                  variant === "list",
-              }
-            )}
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={hoverImage}
+              src={hoverImage}
+              srcSet={`
+                ${imagePath}/${product?.image.tiny} 352px,
+                ${imagePath}/${product?.image.small} 540px,
+                ${imagePath}/${product?.image.medium} 720px,
+              `}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
+              width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
+              height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
+              alt={product?.name || "Product Image"}
+              loading={index < 4 ? "eager" : "lazy"} // Chuyển đổi loading
+              onLoad={() => setIsImageLoaded(true)}
+              className={cn(
+                `bg-white ${!disableBorderRadius && "rounded-s-md"}`,
+                {
+                  "w-full h-full object-contain ": true,
+                  "transition duration-200 ease-in":
+                    variant === "grid" ||
+                    variant === "gridModern" ||
+                    variant === "gridModernWide" ||
+                    variant === "gridTrendy",
+                  "rounded-md group-hover:rounded-b-none":
+                    (variant === "grid" && !disableBorderRadius) ||
+                    (variant === "gridModern" && !disableBorderRadius) ||
+                    (variant === "gridModernWide" && !disableBorderRadius) ||
+                    (variant === "gridTrendy" && !disableBorderRadius),
+                  "rounded-md transition duration-150 ease-linear transform group-hover:scale-105":
+                    variant === "gridSlim",
+                  "rounded-s-md transition duration-200 ease-linear transform group-hover:scale-105":
+                    variant === "list",
+                }
+              )}
+            />
+          </AnimatePresence>
+
         </motion.div>
-
-
         <div className="absolute top-3.5 md:top-5 3xl:top-7 ltr:left-3.5 rtl:right-3.5 ltr:md:left-5 rtl:md:right-5 ltr:3xl:left-7 rtl:3xl:right-7 flex flex-col gap-y-1 items-start">
           {canWholeSalePrice && isAuthorized && percent && (
             <span className="bg-yellow-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
@@ -190,7 +195,6 @@ const ProductCard: FC<ProductProps> = ({
               </p>
             </span>
           )}
-
           {isNewArrival &&
             (
               <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1.5 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
@@ -200,7 +204,6 @@ const ProductCard: FC<ProductProps> = ({
               </span>
             )}
         </div>
-
         {variant === "gridModernWide" && (
           <div className="absolute ltr:right-2 rtl:left-2 ltr:sm:right-3 rtl:sm:left-3 bottom-6 space-y-2 w-[32px] sm:w-[42px] lg:w-[52px]">
             <ProductViewIcon className="w-full transition duration-300 ease-in delay-100 bg-white rounded-md sm:opacity-0 group-hover:opacity-100" />
@@ -290,12 +293,12 @@ const ProductCard: FC<ProductProps> = ({
           <p className="text-sm sm:text-base xl:text-base md:mb-1.5">{product.sku}</p>
         </div>
 
-        {attrImage && Array.isArray(attrImage) && attrImage.length > 1 && (
+        {Array.isArray(attrImage) && attrImage.filter(Boolean).length > 1 && (
           <div className="grid grid-cols-5 gap-2">
-            {attrImage.map((img: any, index: number) => (
+            {attrImage.filter(Boolean).map((img: any, index: number) => (
               <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
                 <Image
-                  src={`${img}`}
+                  src={img}
                   alt="Your Image"
                   width={500}
                   height={35}

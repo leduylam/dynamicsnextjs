@@ -1,6 +1,5 @@
 import Container from "@components/ui/container";
 import Layout from "@components/layout/layout";
-
 import Divider from "@components/ui/divider";
 import Breadcrumb from "@components/common/breadcrumb";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -56,38 +55,45 @@ export default function ProductPage({ brands, product, relatedProducts, error }:
 
 ProductPage.Layout = Layout;
 export const getStaticProps: GetStaticProps = async ({ locale, params }) => {
-	try {
-		const { slug } = params as { slug: string };
-		const [brands, product, relatedProducts] = await Promise.all([
-			fetchBrands().catch(() => []),
-			fetchProduct(slug),
-			fetchRelatedProducts(slug)
-		]);
-		return {
-			props: {
-				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-				brands,
-				product,
-				relatedProducts
-			},
-		};
-	} catch (error) {
-		return {
-			props: {
-				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-			},
-		};
+	const { slug } = params as { slug: string };
+
+	async function safeFetch<T>(fetcher: Promise<T>, fallback: T): Promise<T> {
+		try {
+			return await fetcher;
+		} catch {
+			return fallback;
+		}
 	}
+
+	const [brands, product, relatedProducts] = await Promise.all([
+		safeFetch(fetchBrands(), []),
+		safeFetch(fetchProduct(slug), null),
+		safeFetch(fetchRelatedProducts(slug), []),
+	]);
+
+	if (!product) {
+		return { notFound: true };
+	}
+
+	return {
+		props: {
+			...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+			brands,
+			product,
+			relatedProducts,
+		},
+		revalidate: 60,
+	};
 };
 export const getStaticPaths: GetStaticPaths = async () => {
 	try {
-		const products = await fetchAllProductSlugs(); // [{ slug: "ao-thun-1" }, { slug: "giay-2" }, ...]
+		const products = await fetchAllProductSlugs();
 		const paths = products.map((item: { slug: string }): { params: { slug: string } } => ({
 			params: { slug: item.slug },
 		}));
 
 		return {
-			paths,
+			paths: [],
 			fallback: "blocking", // 👈 nếu chưa có slug nào đó thì build ngay lần đầu user truy cập
 		};
 	} catch (error) {
