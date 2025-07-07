@@ -7,47 +7,48 @@ import Counter from "@components/common/counter";
 import { ProductAttributes } from "@components/product/product-attributes";
 import { generateCartItem } from "@utils/generate-cart-item";
 import { getVariations } from "@framework/utils/get-variations";
-import { calculateTotalQuantity, cleanSku, number_format } from "src/helpers/my-helper";
+import {
+  calculateTotalQuantity,
+  cleanSku,
+  number_format,
+} from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
-import Image from "next/image";
 import { useAuth } from "@contexts/auth/auth-context";
 export default function ProductPopup() {
   const {
     modalData: { data },
     closeModal,
     openCart,
-    isAuthorized
+    isAuthorized,
   } = useUI();
   const { accessRights } = useAuth();
   const { price, price_sale, percent } = usePrice(data);
   const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   // const { addItemToCart } = useCart();
-  const { mutate: updateCart } = useCartMutation()
+  const { mutate: updateCart } = useCartMutation();
   const [quantity, setQuantity] = useState(1);
   const [attributes, setAttributes] = useState<{ [key: string]: string }>({});
   const [viewCartBtn, setViewCartBtn] = useState<boolean>(false);
   const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
-  const [activeState, setActiveState] = useState(
-    data.attributes[0].id
-  )
-  const [subActive, setSubActive] = useState<number>()
-  const [chooseQuantity, setChooseQuantity] = useState<number>()
+  const [activeState, setActiveState] = useState(data.attributes[0].id);
+  const [subActive, setSubActive] = useState<number>();
+  const [chooseQuantity, setChooseQuantity] = useState<number>();
   const [loading, setLoading] = useState(false);
   const mergeAttributes = (attributes: any) => {
-    return attributes.flatMap((attribute: { sub_attribute: any; }) => [
+    return attributes.flatMap((attribute: { sub_attribute: any }) => [
       attribute, // Thêm attribute gốc
       ...attribute.sub_attribute, // Thêm tất cả sub_attribute
     ]);
   };
-  const allAttribute = mergeAttributes(data.attributes)
+  const allAttribute = mergeAttributes(data.attributes);
 
   const variations = getVariations(allAttribute);
   const isSelected = !isEmpty(variations)
     ? !isEmpty(attributes) &&
-    Object.keys(variations).every((variation) =>
-      attributes.hasOwnProperty(variation)
-    )
+      Object.keys(variations).every((variation) =>
+        attributes.hasOwnProperty(variation)
+      )
     : true;
 
   function addToCart() {
@@ -59,8 +60,21 @@ export default function ProductPopup() {
       setViewCartBtn(true);
     }, 600);
     const item = {
-      ...generateCartItem(data!, attributes, activeState, subActive, canWholeSalePrice),
-      price: generateCartItem(data!, attributes, activeState, subActive, canWholeSalePrice).price ?? 0,
+      ...generateCartItem(
+        data!,
+        attributes,
+        activeState,
+        subActive,
+        canWholeSalePrice
+      ),
+      price:
+        generateCartItem(
+          data!,
+          attributes,
+          activeState,
+          subActive,
+          canWholeSalePrice
+        ).price ?? 0,
     };
     updateCart({ item, quantity });
   }
@@ -70,42 +84,51 @@ export default function ProductPopup() {
     window.location.href = `${ROUTES.PRODUCT}/${data.slug}`;
   }
   function handleAttributeParent(attribute: any, attributeId: number) {
-    const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
+    const quantities = allAttribute.find(
+      (attr: any) => attr.id === attributeId
+    );
     setAttributes((prev) => ({
       ...prev,
       ...attribute,
     }));
     if (attributeId) {
-      setChooseQuantity(quantities.quantity)
-      setActiveState(attributeId)
+      setChooseQuantity(quantities.quantity);
+      setActiveState(attributeId);
     }
   }
   useEffect(() => {
     if (activeState) {
-      const foundAttribute = allAttribute.find((attr: any) => attr.id === activeState)
+      const foundAttribute = allAttribute.find(
+        (attr: any) => attr.id === activeState
+      );
       setAttributes({
-        [foundAttribute.name]: foundAttribute.value
-      })
+        [foundAttribute.name]: foundAttribute.value,
+      });
       setChooseQuantity(foundAttribute.quantity);
     }
-  }, [activeState])
+  }, [activeState]);
   const [delayedImage, setDelayedImage] = useState<any>(null);
-  const activeAttributes = data ? data?.attributes.find((attr: any) => attr.id === activeState) : []
+  const activeAttributes = data
+    ? data?.attributes.find((attr: any) => attr.id === activeState)
+    : [];
   const image = activeState
-    ? (Object.keys(activeAttributes.image).length > 0 ? activeAttributes.image : data.image)
-    : data.image
+    ? Object.keys(activeAttributes.image).length > 0
+      ? activeAttributes.image
+      : data.image
+    : data.image;
 
   useEffect(() => {
-    if (!image) return
+    if (!image) return;
     setLoading(true);
     const timeout = setTimeout(() => {
       setDelayedImage(image);
     }, 150); // delay 150ms, mày chỉnh theo ý mày, 100-200ms đều ổn
     return () => clearTimeout(timeout); // clear timeout để tránh memory leak
   }, [image]);
-  const productSku = activeAttributes?.sub_attribute.length > 0
-    ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
-    : activeAttributes?.product_attribute_sku;
+  const productSku =
+    activeAttributes?.sub_attribute.length > 0
+      ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
+      : activeAttributes?.product_attribute_sku;
 
   const getProductQuantity = () => {
     if (activeAttributes) {
@@ -117,14 +140,16 @@ export default function ProductPopup() {
   // Lấy giá trị số lượng khi cần sử dụng
   const productQuantity = getProductQuantity();
   function handleAttributeChildren(attribute: any, attributeId: number) {
-    const quantities = allAttribute.find((attr: any) => attr.id === attributeId)
+    const quantities = allAttribute.find(
+      (attr: any) => attr.id === attributeId
+    );
     setAttributes((prev) => ({
       ...prev,
       ...attribute,
     }));
     if (attributeId) {
-      setChooseQuantity(quantities.quantity)
-      setSubActive(attributeId)
+      setChooseQuantity(quantities.quantity);
+      setSubActive(attributeId);
     }
   }
 
@@ -149,20 +174,20 @@ export default function ProductPopup() {
             <img
               src={`${imagePath}/${delayedImage?.original}`} // fallback nếu delayedImage là 1 string
               srcSet={`
-                ${imagePath}/${delayedImage?.tiny || ''} 150w,
-                ${imagePath}/${delayedImage?.small || ''} 400w,
-                ${imagePath}/${delayedImage?.medium || ''} 800w,
-                ${imagePath}/${delayedImage?.original || ''} 1200w,
+                ${imagePath}/${delayedImage?.tiny || ""} 150w,
+                ${imagePath}/${delayedImage?.small || ""} 400w,
+                ${imagePath}/${delayedImage?.medium || ""} 800w,
+                ${imagePath}/${delayedImage?.original || ""} 1200w,
               `}
               sizes="(max-width: 768px) 100vw, 800px"
               alt={data.name}
               onLoad={() => setLoading(false)}
               onError={() => setLoading(false)}
-              className={`object-contain w-full h-auto transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'
-                }`}
+              className={`object-contain w-full h-auto transition-opacity duration-300 ${
+                loading ? "opacity-0" : "opacity-100"
+              }`}
             />
           )}
-
         </div>
         <div className="flex flex-col p-5 md:p-8 w-full">
           <div className="pb-5">
@@ -175,8 +200,9 @@ export default function ProductPopup() {
                 {data.name}
               </h2>
             </div>
-            {data.description && data.description !== 'undefined' && (
-              <p className="text-sm leading-6 md:text-body md:leading-7"
+            {data.description && data.description !== "undefined" && (
+              <p
+                className="text-sm leading-6 md:text-body md:leading-7"
                 dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
               ></p>
             )}
@@ -199,30 +225,36 @@ export default function ProductPopup() {
                       <div className="">
                         {price_sale && (
                           <>
-                            <del
-                              className="font-segoe text-gray-400 text-base lg:text-base ltr:pl-2.5 rtl:pr-2.5 -mt-0.5 md:mt-0"
-                            >
+                            <del className="font-segoe text-gray-400 text-base lg:text-base ltr:pl-2.5 rtl:pr-2.5 -mt-0.5 md:mt-0">
                               {price}
                             </del>
                             <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 ml-2">
                               <p>
                                 <span>-</span>
-                                {percent} <span className="hidden sm:inline">%</span>
+                                {percent}{" "}
+                                <span className="hidden sm:inline">%</span>
                               </p>
                             </span>
                           </>
                         )}
                         {price_sale ? (
-                          <span className="block mx-2">{number_format(price_sale)} </span>
+                          <span className="block mx-2">
+                            {number_format(price_sale)}{" "}
+                          </span>
                         ) : (
-                          <span className="block mx-2">{number_format(price)} </span>
+                          <span className="block mx-2">
+                            {number_format(price)}{" "}
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
                 )}
                 <div className="text-heading font-semibold text-base md:text-xl lg:text-lg">
-                  {canWholeSalePrice ? "Retail" : 'Price'}:<span className="mx-2">{number_format(data.product_retail_price)} </span>
+                  {canWholeSalePrice ? "Retail" : "Price"}:
+                  <span className="mx-2">
+                    {number_format(data.product_retail_price)}{" "}
+                  </span>
                 </div>
               </div>
             )}
@@ -242,19 +274,23 @@ export default function ProductPopup() {
               />
             );
           })}
-          {isAuthorized && chooseQuantity && (
-            productQuantity === 0 ? (
+          {isAuthorized &&
+            chooseQuantity &&
+            (productQuantity === 0 ? (
               <div className="text-red-600">Out of stock</div>
             ) : (
               <div>Quantity avaiable: {chooseQuantity}</div>
-            )
-          )}
+            ))}
           <div className="pt-2 md:pt-4">
             {isAuthorized && (
               <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
                 <Counter
                   quantity={quantity}
-                  onIncrement={() => setQuantity((prev) => prev < (chooseQuantity ?? 0) ? prev + 1 : prev)}
+                  onIncrement={() =>
+                    setQuantity((prev) =>
+                      prev < (chooseQuantity ?? 0) ? prev + 1 : prev
+                    )
+                  }
                   onDecrement={() =>
                     setQuantity((prev) => (prev !== 1 ? prev - 1 : 1))
                   }
@@ -263,8 +299,9 @@ export default function ProductPopup() {
                 <Button
                   onClick={addToCart}
                   variant="flat"
-                  className={`w-full h-11 md:h-12 px-1.5 ${!isSelected && "bg-gray-400 hover:bg-gray-400"
-                    }`}
+                  className={`w-full h-11 md:h-12 px-1.5 ${
+                    !isSelected && "bg-gray-400 hover:bg-gray-400"
+                  }`}
                   disabled={!isSelected || Number(productQuantity) <= 0}
                   loading={addToCartLoader}
                 >

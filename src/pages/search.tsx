@@ -43,6 +43,25 @@ export default function Shop({
   useEffect(() => {
     setHasMounted(true);
   }, []);
+  useEffect(() => {
+    let idleTimer: NodeJS.Timeout;
+    const resetIdleTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        setPreloadProducts([]); // 👉 Chỉ clear preload thôi, không reload trang
+      }, 60 * 1000); // 1 phút không đụng gì thì clear
+    };
+    window.addEventListener("scroll", resetIdleTimer);
+    window.addEventListener("mousemove", resetIdleTimer);
+    window.addEventListener("keydown", resetIdleTimer);
+    resetIdleTimer();
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener("scroll", resetIdleTimer);
+      window.removeEventListener("mousemove", resetIdleTimer);
+      window.removeEventListener("keydown", resetIdleTimer);
+    };
+  }, []);
 
   useEffect(() => {
     if (!hasMounted) return;
@@ -60,7 +79,7 @@ export default function Shop({
     const fetchInitialProducts = async () => {
       try {
         const result = await fetchProducts({
-          queryKey: ["/products", { ...params, limit: 4 }],
+          queryKey: ["/products", { ...params, limit: 12, force: true }],
           pageParam: 1,
         });
         if (isMounted) {
@@ -85,7 +104,7 @@ export default function Shop({
       setLoadingMore(true);
       setIsPreloading(true);
       const result = await fetchProducts({
-        queryKey: ["/products", { ...params, limit: 4 }],
+        queryKey: ["/products", { ...params, limit: 12 }],
         pageParam: page + 1,
       });
       const preProducts = result?.data ?? [];
@@ -157,7 +176,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query, locale }) 
       params[key] = Array.isArray(query[key]) ? query[key][0] : (query[key] || "");
     });
     const page1Result = await fetchProducts({
-      queryKey: [API_ENDPOINTS.PRODUCTS, { ...params, limit: 4 }],
+      queryKey: ['search', { ...params, limit: 12 }],
       pageParam: 1,
     });
 

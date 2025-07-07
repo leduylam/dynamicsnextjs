@@ -7,6 +7,7 @@ export const fetchBanners = async () => {
     const { data } = await http.get(API_ENDPOINTS.BANNERS);
     return data;
 };
+
 export const getSecondBanner = async () => {
     const response = await http.get(API_ENDPOINTS.SECOND_BANNER);
     return response.data;

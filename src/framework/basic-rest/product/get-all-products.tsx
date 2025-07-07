@@ -2,17 +2,19 @@ import { QueryOptionsType, Product } from "@framework/types";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import http from "@framework/utils/http";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import axios from "axios";
 type PaginatedProduct = {
 	data: Product[];
 	paginatorInfo: any;
 };
 const fetchProducts = async ({ queryKey, pageParam = 0 }: any) => {
-	
 	const [_key, options] = queryKey;
-	const { data } = await http.get(API_ENDPOINTS.PRODUCTS, {
+	const { force, ...restOptions } = options || {};
+	const { data } = await axios.get('http://localhost:3000/search', {
 		params: {
-			...options, // Gửi options làm params
+			...restOptions, // Gửi options làm params
 			page: pageParam, // Gửi thông tin trang hiện tại
+			force: force || false,
 		},
 	});
 	const nextPageLink = data.links.find((link: any) => link.label === "Next &raquo;");
