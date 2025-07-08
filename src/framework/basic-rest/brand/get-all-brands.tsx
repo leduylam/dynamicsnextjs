@@ -13,10 +13,8 @@ export const useBrandsQuery = (options: QueryOptionsType) => {
     { brands: Brand[]; brandsGrid: Brand[]; brandsTimer: Brand[] },
     Error
   >({
-    queryKey:
-      [API_ENDPOINTS.BRANDS, options],
-    queryFn:
-      fetchBrands,
+    queryKey: [API_ENDPOINTS.BRANDS, options],
+    queryFn: fetchBrands,
     staleTime: 1000 * 60 * 10,
   });
 };

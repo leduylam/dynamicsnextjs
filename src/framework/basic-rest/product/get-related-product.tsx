@@ -1,15 +1,21 @@
 import { QueryOptionsType, Product } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
-import { useQuery } from "@tanstack/react-query";
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 
-export const fetchRelatedProducts = async (_slug: string) => {
-	const { data } = await http.get(`${API_ENDPOINTS.RELATED_PRODUCTS}/${_slug}`);
-	return data;
+export const fetchRelatedProducts = async ({
+  queryKey,
+}: QueryFunctionContext): Promise<Product[]> => {
+  const [_key, options] = queryKey as [string, QueryOptionsType];
+  if (!options?.text) return [];
+  const { data } = await http.get(API_ENDPOINTS.RELATED_PRODUCTS, {
+    params: options, // đúng chuẩn rồi nè
+  });
+  return data;
 };
-export const useRelatedProductsQuery = (slug: string, options: QueryOptionsType) => {
-	return useQuery<Product[], Error>({
-		queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, slug, options],
-		queryFn: () => fetchRelatedProducts(slug)
-	});
+export const useRelatedProductsQuery = (options: QueryOptionsType) => {
+  return useQuery<Product[], Error>({
+    queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, options],
+    queryFn: fetchRelatedProducts,
+  });
 };

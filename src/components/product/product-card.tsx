@@ -14,20 +14,19 @@ import { AnimatePresence, motion } from "framer-motion";
 
 interface ProductProps {
   product: Product;
-  index: number;
   className?: string;
   contactClassName?: string;
   imageContentClassName?: string;
   variant?:
-  | "grid"
-  | "gridSlim"
-  | "list"
-  | "listSmall"
-  | "gridModern"
-  | "gridModernWide"
-  | "gridTrendy"
-  | "rounded"
-  | "circle";
+    | "grid"
+    | "gridSlim"
+    | "list"
+    | "listSmall"
+    | "gridModern"
+    | "gridModernWide"
+    | "gridTrendy"
+    | "rounded"
+    | "circle";
   imgWidth?: number | string;
   imgHeight?: number | string;
   imgLoading?: "eager" | "lazy";
@@ -42,7 +41,6 @@ interface ProductProps {
 
 const ProductCard: FC<ProductProps> = ({
   product,
-  index,
   className = "",
   contactClassName = "",
   imageContentClassName = "",
@@ -64,16 +62,24 @@ const ProductCard: FC<ProductProps> = ({
     setModalView("PRODUCT_VIEW");
     return openModal();
   }
-  const isNewArrival = product.new === 1
+  const isNewArrival = product.new === 1;
   const { price_sale, percent } = usePrice(product);
-  const [attrImage, setAttrImage] = useState<string[]>([])
+  const [attrImage, setAttrImage] = useState<string[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hoverImage, setHoverImage] = useState<string>("");
   const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
   const handleImageHover = (imageUrl: string) => {
-    const folder = imageUrl.includes('tiny') ? 'medium' : imageUrl.includes('medium') ? 'large' : 'tiny';
-    return imageUrl.replace('tiny', folder).replace('_tiny', `_${folder}`).replace('_medium', `_${folder}`).replace('_large', `_${folder}`);
-  }
+    const folder = imageUrl.includes("tiny")
+      ? "medium"
+      : imageUrl.includes("medium")
+      ? "large"
+      : "tiny";
+    return imageUrl
+      .replace("tiny", folder)
+      .replace("_tiny", `_${folder}`)
+      .replace("_medium", `_${folder}`)
+      .replace("_large", `_${folder}`);
+  };
   useEffect(() => {
     if (product?.image) {
       const imageUrl = `${imagePath}/${product.image.small}`;
@@ -91,7 +97,8 @@ const ProductCard: FC<ProductProps> = ({
   return (
     <div
       className={cn(
-        `group box-border overflow-hidden flex ${!disableBorderRadius && "rounded-md"
+        `group box-border overflow-hidden flex ${
+          !disableBorderRadius && "rounded-md"
         } cursor-pointer`,
         {
           "ltr:pr-0 rtl:pl-0 pb-2 lg:pb-3 flex-col items-start transition duration-200 ease-in-out transform hover:-translate-y-1 md:hover:-translate-y-1.5 hover:shadow-product":
@@ -160,7 +167,7 @@ const ProductCard: FC<ProductProps> = ({
               width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
               height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
               alt={product?.name || "Product Image"}
-              loading={index < 4 ? "eager" : "lazy"} // Chuyển đổi loading
+              loading="eager" // Chuyển đổi loading
               onLoad={() => setIsImageLoaded(true)}
               className={cn(
                 `bg-white ${!disableBorderRadius && "rounded-s-md"}`,
@@ -184,7 +191,6 @@ const ProductCard: FC<ProductProps> = ({
               )}
             />
           </AnimatePresence>
-
         </motion.div>
         <div className="absolute top-3.5 md:top-5 3xl:top-7 ltr:left-3.5 rtl:right-3.5 ltr:md:left-5 rtl:md:right-5 ltr:3xl:left-7 rtl:3xl:right-7 flex flex-col gap-y-1 items-start">
           {canWholeSalePrice && isAuthorized && percent && (
@@ -195,14 +201,13 @@ const ProductCard: FC<ProductProps> = ({
               </p>
             </span>
           )}
-          {isNewArrival &&
-            (
-              <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1.5 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
-                <p>
-                  New <span className="hidden sm:inline">Arrival</span>
-                </p>
-              </span>
-            )}
+          {isNewArrival && (
+            <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1.5 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
+              <p>
+                New <span className="hidden sm:inline">Arrival</span>
+              </p>
+            </span>
+          )}
         </div>
         {variant === "gridModernWide" && (
           <div className="absolute ltr:right-2 rtl:left-2 ltr:sm:right-3 rtl:sm:left-3 bottom-6 space-y-2 w-[32px] sm:w-[42px] lg:w-[52px]">
@@ -232,25 +237,25 @@ const ProductCard: FC<ProductProps> = ({
         {(variant === "gridModern" ||
           variant === "gridModernWide" ||
           variant === "gridTrendy") && (
-            <div className="flex items-center py-2 gap-x-2">
-              <svg
-                className="w-4 h-4 sm:w-6 sm:h-6 text-[#FBD103]"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-              </svg>
-              <span className="text-xs font-semibold truncate sm:text-sm text-heading">
-                4.5
+          <div className="flex items-center py-2 gap-x-2">
+            <svg
+              className="w-4 h-4 sm:w-6 sm:h-6 text-[#FBD103]"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
+            <span className="text-xs font-semibold truncate sm:text-sm text-heading">
+              4.5
+            </span>
+            {product.quantity === 0 && (
+              <span className="text-xs sm:text-sm leading-5 ltr:pl-3 rtl:pr-3 font-semibold text-[#EF4444]">
+                Out of stock
               </span>
-              {product.quantity === 0 && (
-                <span className="text-xs sm:text-sm leading-5 ltr:pl-3 rtl:pr-3 font-semibold text-[#EF4444]">
-                  Out of stock
-                </span>
-              )}
-            </div>
-          )}
+            )}
+          </div>
+        )}
         {!!(showCategory || showRating) && (
           <div className="flex flex-col md:flex-row md:items-center lg:flex-row xl:flex-row 2xl:flex-row  mb-0.5 items-start">
             {!!showCategory && (
@@ -290,13 +295,18 @@ const ProductCard: FC<ProductProps> = ({
           >
             {product?.name}
           </h2>
-          <p className="text-sm sm:text-base xl:text-base md:mb-1.5">{product.sku}</p>
+          <p className="text-sm sm:text-base xl:text-base md:mb-1.5">
+            {product.sku}
+          </p>
         </div>
 
         {Array.isArray(attrImage) && attrImage.filter(Boolean).length > 1 && (
           <div className="grid grid-cols-5 gap-2">
             {attrImage.filter(Boolean).map((img: any, index: number) => (
-              <div key={index} className="w-auto shadow-product hover:border hover:border-gray-400">
+              <div
+                key={index}
+                className="w-auto shadow-product hover:border hover:border-gray-400"
+              >
                 <Image
                   src={img}
                   alt="Your Image"
@@ -319,50 +329,69 @@ const ProductCard: FC<ProductProps> = ({
         )} */}
         {isAuthorized && (
           <div
-            className={`font-semibold text-sm sm:text-base mt-1.5 ${variant === "grid"
-              ? "lg:text-base lg:mt-2.5"
-              : "sm:text-xl md:text-base lg:text-xl md:mt-2.5 2xl:mt-3"
-              }
-          ${variant === "gridModern" ||
-                variant === "gridModernWide" ||
-                variant === "gridTrendy"
-                ? "flex flex-col-reverse !gap-x-0 !mt-auto"
-                : ""
-              } ${bgTransparent ? "text-white" : "text-heading"}`}
+            className={`font-semibold text-sm sm:text-base mt-1.5 ${
+              variant === "grid"
+                ? "lg:text-base lg:mt-2.5"
+                : "sm:text-xl md:text-base lg:text-xl md:mt-2.5 2xl:mt-3"
+            }
+          ${
+            variant === "gridModern" ||
+            variant === "gridModernWide" ||
+            variant === "gridTrendy"
+              ? "flex flex-col-reverse !gap-x-0 !mt-auto"
+              : ""
+          } ${bgTransparent ? "text-white" : "text-heading"}`}
           >
             <span
-              className={`block ${canWholeSalePrice ? 'text-red-500' : 'text-balance'} ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                }`}
+              className={`block ${
+                canWholeSalePrice ? "text-red-500" : "text-balance"
+              } ${
+                demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
+              }`}
             >
-              <span>{canWholeSalePrice ? 'Retail' : 'Price'}: </span>
-              <span className="float-right">{number_format(product.product_retail_price ?? 0)}</span>
+              <span>{canWholeSalePrice ? "Retail" : "Price"}: </span>
+              <span className="float-right">
+                {number_format(product.product_retail_price ?? 0)}
+              </span>
             </span>
             {canWholeSalePrice && (
               <>
                 {price_sale && (
                   <del
-                    className={`block text-sm italic text-gray-400 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                      }`}
+                    className={`block text-sm italic text-gray-400 ${
+                      demoVariant === "ancient" &&
+                      "font-bold text-gray-900 text-lg"
+                    }`}
                   >
                     <span>W/S: </span>
-                    <del className="float-right">{number_format(product.product_price ?? 0)}</del>
+                    <del className="float-right">
+                      {number_format(product.product_price ?? 0)}
+                    </del>
                   </del>
                 )}
                 {price_sale ? (
                   <span
-                    className={`block text-sm italic text-gray-900 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                      }`}
+                    className={`block text-sm italic text-gray-900 ${
+                      demoVariant === "ancient" &&
+                      "font-bold text-gray-900 text-lg"
+                    }`}
                   >
                     <span>W/S: </span>
-                    <span className="float-right">{number_format(price_sale ?? 0)}</span>
+                    <span className="float-right">
+                      {number_format(price_sale ?? 0)}
+                    </span>
                   </span>
                 ) : (
                   <span
-                    className={`block text-sm italic text-gray-900 ${demoVariant === "ancient" && "font-bold text-gray-900 text-lg"
-                      }`}
+                    className={`block text-sm italic text-gray-900 ${
+                      demoVariant === "ancient" &&
+                      "font-bold text-gray-900 text-lg"
+                    }`}
                   >
                     <span>W/S: </span>
-                    <span className="float-right">{number_format(product.product_price ?? 0)}</span>
+                    <span className="float-right">
+                      {number_format(product.product_price ?? 0)}
+                    </span>
                   </span>
                 )}
               </>

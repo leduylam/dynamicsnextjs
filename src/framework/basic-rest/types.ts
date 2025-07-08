@@ -23,9 +23,11 @@ export type ProductsQueryOptionsType = {
 };
 export type QueryOptionsType = {
   text?: string;
+  slug?: string | string[];
   category?: string;
   status?: string;
   limit?: number;
+  page?: number;
   demoVariant?: "ancient";
   params?: { [anyProps: string]: string };
 };

@@ -16,10 +16,6 @@ interface BannerProps {
   disableBorderRadius?: boolean;
 }
 
-function getImage(deviceWidth: number, imgObj: any) {
-  return deviceWidth < 768 ? imgObj.mobile : imgObj.desktop;
-}
-
 export default function BannerCard({
   banner,
   className,
@@ -33,15 +29,16 @@ export default function BannerCard({
     width: 0,
     height: 0,
   });
-  
   const { title, image } = banner;
-  const selectedImage = getImage(width, image);
   const [loaded, setLoaded] = useState(false);
   return (
     <div className={cn("mx-auto", className)}>
       <Link
         href={href}
-        className={cn("h-full group flex justify-center relative overflow-hidden", classNameInner)}
+        className={cn(
+          "h-full group flex justify-center relative overflow-hidden",
+          classNameInner
+        )}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
@@ -52,9 +49,9 @@ export default function BannerCard({
           })}
         >
           <Image
-            src={selectedImage.url}
-            width={selectedImage.width}
-            height={selectedImage.height}
+            src={width < 768 ? image.mobile.url : image.desktop.url}
+            width={width < 768 ? image.mobile.width : image.desktop.width}
+            height={width < 768 ? image.mobile.height : image.desktop.height}
             alt={title}
             quality={100}
             className="w-full h-auto object-cover"

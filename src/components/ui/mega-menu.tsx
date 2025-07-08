@@ -1,5 +1,5 @@
-import React from 'react';
-import Link from '@components/ui/link';
+import React from "react";
+import Link from "@components/ui/link";
 
 interface MenuItem {
   id: number | string;
@@ -10,8 +10,8 @@ interface MenuItem {
 type MegaMenuProps = {
   columns: {
     id: number | string;
-    slug: string,
-    name: string,
+    slug: string;
+    name: string;
     sub_category: MenuItem[];
   }[];
 };
@@ -27,7 +27,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ columns }) => {
             <React.Fragment>
               <li className="mb-1.5">
                 <Link
-                  href={'/search?category=' + column.slug}
+                  href={`/categories/${column.slug}`}
                   className="block text-sm py-1.5 text-heading font-semibold px-5 xl:px-8 2xl:px-10 hover:text-heading hover:bg-gray-300"
                 >
                   {column.name}
@@ -36,14 +36,14 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ columns }) => {
               {column?.sub_category?.map((item: any) => (
                 <li
                   key={item.id}
-                // className={
-                //   column?.sub_category?.length === item.id
-                //     ? 'border-b border-gray-300 pb-3.5 mb-3'
-                //     : ''
-                // }
+                  // className={
+                  //   column?.sub_category?.length === item.id
+                  //     ? 'border-b border-gray-300 pb-3.5 mb-3'
+                  //     : ''
+                  // }
                 >
                   <Link
-                    href={'/search?category=' + item.slug}
+                    href={`/categories/${item.slug}`}
                     className="text-body text-sm block py-1.5 px-5 xl:px-8 2xl:px-10 hover:text-heading hover:bg-gray-300"
                   >
                     {item.name}
