@@ -4,12 +4,14 @@ import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { useQuery } from "@tanstack/react-query";
 
 export const fetchSearchedProducts = async (options: QueryOptionsType) => {
-  if (options.text === '') {
-    return null
+  if (options.text === "") {
+    return null;
   }
-  const queryParams = new URLSearchParams(options as Record<string, string>).toString();
+  const queryParams = new URLSearchParams(
+    options as Record<string, string>
+  ).toString();
   const { data } = await http.get(`${API_ENDPOINTS.SEARCH}?${queryParams}`);
-  return data;
+  return data.data;
 };
 export const useSearchQuery = (options: QueryOptionsType) => {
   return useQuery<Product[], Error>({
