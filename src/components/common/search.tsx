@@ -12,21 +12,30 @@ import {
 import Scrollbar from "@components/common/scrollbar";
 import SearchProduct from "@components/common/search-product";
 import { useRouter } from "next/router";
+import { useDebounce } from "react-use";
 
 export default function Search() {
   const { displaySearch, closeSearch } = useUI();
   const [searchText, setSearchText] = React.useState("");
   const router = useRouter();
+  const [debouncedSearchText, setDebouncedSearchText] =
+    React.useState(searchText);
+  useDebounce(
+    () => {
+      setDebouncedSearchText(searchText);
+    },
+    200,
+    [searchText]
+  );
   const { data, isLoading } = useSearchQuery({
-    text: searchText,
+    text: debouncedSearchText,
   });
-
   function handleSearch(e: React.SyntheticEvent) {
     e.preventDefault();
     if (searchText) {
-      closeSearch()
-      clear()
-      router.push('/search?text=' + searchText)
+      closeSearch();
+      clear();
+      router.push("/search?text=" + searchText);
     }
   }
   function handleAutoSearch(e: React.FormEvent<HTMLInputElement>) {
