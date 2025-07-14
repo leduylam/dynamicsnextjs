@@ -1,89 +1,106 @@
-# ChawkBazar Documentation
+# ⚡ Dự án `dynamicsportsvn`
 
-## Introduction
+### Website chính thức của **CÔNG TY TNHH THỂ THAO NĂNG ĐỘNG**
 
-Fastest E-commerce template built with `React`, `NextJS`, `TypeScript`, `@tanstack/react-query` and `Tailwind CSS`. Its very easy to use, we used `@tanstack/react-query` for data fetching . You can setup your api endpoint's very easily and your frontend team will love using it.
+---
 
-## Requirements
+## 🧾 Giới thiệu
 
-- node(20.16.0 or later)
-- pnpm(version 9.7.0)
-- editor: Visual Studio Code(recommended)
+`dynamicsportsvn` là nền tảng thương mại điện tử được phát triển riêng cho Công ty TNHH Thể Thao Năng Động, sử dụng các công nghệ hiện đại như `Next.js`, `React`, `TypeScript`, `Tailwind CSS` và `@tanstack/react-query`.  
+Hệ thống được tối ưu cho tốc độ, trải nghiệm người dùng và khả năng mở rộng về sau.
 
-## Tech We Have Used
+---
 
-Tech specification for this template is given below
+## ✅ Yêu cầu hệ thống
 
-- [React](https://reactjs.org/)
-- [NextJs](https://nextjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [React Query](https://@tanstack/react-query.tanstack.com/)
-- [Axios](https://axios-http.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
+- **Node.js** `>= 20.16.0`
+- **pnpm** `>= 9.7.0`
+- **Trình soạn thảo đề xuất**: Visual Studio Code
 
-## Getting Started & Installation
+---
 
-For getting started with the template you have to follow the below procedure. First navigate to the `chawkbazar` directory.
+## 🛠 Công nghệ sử dụng
 
-### Step 1 : Configure your env file
+| Công nghệ                                           | Vai trò                             |
+| --------------------------------------------------- | ----------------------------------- |
+| [React](https://reactjs.org/)                       | Thư viện xây dựng giao diện         |
+| [Next.js](https://nextjs.org/)                      | Framework React hỗ trợ SSR, SSG     |
+| [TypeScript](https://www.typescriptlang.org/)       | Kiểu dữ liệu tĩnh giúp code ổn định |
+| [@tanstack/react-query](https://tanstack.com/query) | Quản lý data fetching               |
+| [Axios](https://axios-http.com/)                    | Thư viện gọi API                    |
+| [Tailwind CSS](https://tailwindcss.com/)            | Framework CSS tiện lợi              |
 
-Within the project directory you'll find a `.env.local.template` file just rename it as `.env.local`.
+---
 
-** NOTE : ** This file contain `env values` for local development but when you wanna use this template for your needs you need to replace this value with `your own real API endpoint`.
+## 🚀 Cài đặt & Chạy dự án
 
-### Step 2 : Running the project
-
-Run below command for getting started with this template.
+### Bước 1: Tạo file `.env.local`
 
 ```bash
-# on chawkbazar directory
-$ pnpm install
-$ pnpm dev # which will running the template for development
+cp .env.local.template .env.local
 ```
 
-If you want to test your production build in local environment then run the below commands.
+Cập nhật các biến môi trường cho đúng API backend.
+
+### Bước 2: Cài đặt thư viện
 
 ```bash
-# build for production
-pnpm build
+pnpm install
+```
 
-#start template in production mode
+### Bước 3: Chạy dev
+
+```bash
+pnpm dev
+```
+
+### Bước 4: Build & start production
+
+```bash
+pnpm build
 pnpm start
 ```
 
-## Folder Structure & Customization
+---
 
-- To setup you site's basic information like **[Logo,Site title,Description, Menus,etc]** go to -> `src/settings/site-settings.ts` file
-- To customize tailwind configuration go to -> `tailwind.config.js` file .
-- `/public`: To change your `api data, favicon, multi-language assets (images, placeholder)` etc here .
-- `/src/components`: This folder contains all the template related ui components .
-- `/src/containers`: This folder contains all the common sections related components.
-- `/src/contexts`: This folder contains all necessary context for this template . Like `cart, ui` etc.
-- `/src/framework`: It's contain all the data fetching related codes. see below for more info.
-- `/src/pages`: All the pages created here which is used by nextjs routing mechanism .
-- `/src/settings`: To setup your site basic setting like `privacy page, terms page, faq settings page` etc.
-- `/src/styles`: Overwrites some third party packages CSS files and our custom CSS in the tailwind.css file.
-- `/src/utils` : This folder contains `hooks, routes, motion effect` etc.
+## 🗂 Cấu trúc thư mục
 
-## Multi-Language
+```
+.
+├── public/
+├── src/
+│   ├── components/
+│   ├── containers/
+│   ├── contexts/
+│   ├── framework/
+│   ├── pages/
+│   ├── settings/
+│   ├── styles/
+│   └── utils/
+├── .env.local
+├── tailwind.config.js
+├── tsconfig.json
+└── next.config.js
+```
 
-We have used next-i18next(https://github.com/isaachinman/next-i18next) package for supporting multi-language.
+---
 
-- `/public/locales`: This folder contains all languages files. If you want to add more languages, please add your language specific folder.
+## 🌍 Đa ngôn ngữ
 
-## RTL
+- Dùng `next-i18next`
+- Thư mục `public/locales/` chứa các tệp ngôn ngữ.
 
-- `/src/utils/get-direction.ts`: This file contains all RTL related codes. Change it according to your need.
+---
 
-## Data Fetching
+## 🔁 RTL
 
-For this template we didn't provide any actual rest api integration. We have used `@tanstack/react-query` ~~ hook pattern ~~ and fetched data from public json. You will need to edit those hook to integrate your actual API end point. Please go to `framework/basic-rest/` folder for those hooks.
+Tuỳ chỉnh trong `src/utils/get-direction.ts`
 
-- Creating the hook.
-  - We have imported the `Product` type from `@framework/types` = `framework/basic-rest/types` (We have used typescript path aliasing for this. For more info please see our `tsconfig.json` file). Customize it according to your product type.
-  - We have built an `axios instance` which called `http`.
-  - We have put all ours endpoint at `@framework/utils/api-endpoints` file using constant value. Customize it according to your api endpoints.
-  - We have built our `product hook` using `@tanstack/react-query `.
+---
+
+## 🔌 Data fetching
+
+Ví dụ hook gọi sản phẩm:
 
 ```tsx
 import { Product } from "@framework/types";
@@ -95,6 +112,7 @@ export const fetchProduct = async (_slug: string) => {
   const { data } = await http.get(`${API_ENDPOINTS.PRODUCT}`);
   return data;
 };
+
 export const useProductQuery = (slug: string) => {
   return useQuery<Product, Error>({
     queryKey: [API_ENDPOINTS.PRODUCT, slug],
@@ -103,32 +121,30 @@ export const useProductQuery = (slug: string) => {
 };
 ```
 
-For more information about `@tanstack/react-query` please visit [React Query](https://tanstack.com/query/latest).
+---
 
-** NOTE : ** We didn't provide all the endpoints to avoid some unnecessary boiler plate. You will need to customize or build according to your need.
+## ⚙️ Tuỳ chỉnh cấu hình
 
-- Using the hook
+| File / thư mục       | Vai trò                    |
+| -------------------- | -------------------------- |
+| `tailwind.config.js` | Tuỳ chỉnh Tailwind         |
+| `site-settings.ts`   | Logo, menu,...             |
+| `tsconfig.json`      | Cấu hình TypeScript        |
+| `public/`            | Ảnh, favicon, dữ liệu tĩnh |
 
-```tsx
-const { data, isLoading, error } = useProductQuery(slug as string);
-```
+---
 
-## Configuration & Deployment
+## 🚚 Triển khai
 
-## [vercel.com](https://vercel.com/)
+Chạy production qua VPS, Nginx hoặc Docker.
 
-If you want to host the template in vercel.com then please follow the below procedure
+---
 
-- Navigate to `chawkbazar`
-- Put your api endpoint at `vercel.json` file.
-- Now run below command
+## 🔐 Ghi chú
 
-```bash
-vercel
-```
+> Dự án thuộc sở hữu và phát triển bởi **Công ty TNHH Thể Thao Năng Động**.
 
-### NOTE: for deploying to `vercel` using terminal you need to install `vercel-cli` on your machine for more information please visit [here](https://vercel.com/docs/cli?query=cli#introduction/vercel-cli-reference)
+## 💬 Liên hệ
 
-### for other hosting provider please follow below url
-
-[NextJs Application Deployment](https://nextjs.org/docs/deployment)
+- Email: duylam@dynamicsportsvn.com
+- Website: [https://dynamicsportsvn.com]
