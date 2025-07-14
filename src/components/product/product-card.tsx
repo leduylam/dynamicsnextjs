@@ -85,7 +85,7 @@ const ProductCard: FC<ProductProps> = ({
       const imageUrl = `${imagePath}/${product.image.small}`;
       setHoverImage(imageUrl);
     }
-  }, [product?.image]);
+  }, [product?.image, imagePath]);
   useEffect(() => {
     if (product?.attributes && product?.attributes.length > 0) {
       const imageUrls = product.attributes
@@ -93,7 +93,7 @@ const ProductCard: FC<ProductProps> = ({
         .map((attr: any) => `${imagePath}/${attr.image.tiny}`);
       setAttrImage(imageUrls);
     }
-  }, [product?.attributes]);
+  }, [product?.attributes, imagePath]);
   return (
     <div
       className={cn(

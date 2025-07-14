@@ -15,7 +15,7 @@ const SearchProduct: React.FC<SearchProductProps> = ({ item }) => {
       const imageUrl = `${imagePath}/${item.image.small}`;
       setHoverImage(imageUrl);
     }
-  }, [item?.image]);
+  }, [item?.image, imagePath]);
   return (
     <Link
       href={`${ROUTES.PRODUCT}/${item?.slug}`}

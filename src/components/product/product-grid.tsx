@@ -22,7 +22,7 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
     error,
   } = useProductsQuery({ limit: 8, ...query });
   const { ref, inView } = useInView();
-  if (error) return <p>{error.message}</p>;
+
   useEffect(() => {
     if (inView && !isFetchingNextPage && hasNextPage) {
       fetchNextPage();
@@ -30,7 +30,7 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
   }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
   const allProducts: Product[] =
     data?.pages?.flatMap((page) => page?.data ?? []) ?? [];
-
+  if (error) return <p>{error.message}</p>;
   return (
     <>
       <div
