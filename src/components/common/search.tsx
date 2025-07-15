@@ -65,7 +65,6 @@ export default function Search() {
       clearAllBodyScrollLocks();
     };
   }, [displaySearch]);
-
   return (
     <div ref={ref}>
       <div

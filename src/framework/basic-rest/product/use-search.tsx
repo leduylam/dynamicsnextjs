@@ -10,8 +10,8 @@ export const fetchSearchedProducts = async (options: QueryOptionsType) => {
   const queryParams = new URLSearchParams(
     options as Record<string, string>
   ).toString();
-  const { data } = await http.get(`${API_ENDPOINTS.SEARCH}?${queryParams}`);
-  return data;
+  const resource = await http.get(`${API_ENDPOINTS.SEARCH}?${queryParams}`);
+  return resource.data.data;
 };
 export const useSearchQuery = (options: QueryOptionsType) => {
   const text = options.text || "";

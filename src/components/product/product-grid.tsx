@@ -41,9 +41,9 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
         {isFetching && !data?.pages?.length ? (
           <ProductFeedLoader limit={20} uniqueKey="search-product" />
         ) : (
-          allProducts.map((product) => (
+          allProducts.map((product, index) => (
             <ProductCard
-              key={`product--key${product.id}`}
+              key={`product--key${product.id}-${index}`}
               product={product}
               variant="grid"
             />
