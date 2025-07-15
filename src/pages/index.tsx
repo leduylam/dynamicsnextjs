@@ -6,7 +6,6 @@ import Layout from "@components/layout/layout";
 import { fetchBanners, getSecondBanner } from "@framework/banner/get-banner";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
-import { fetchCollection } from "@framework/collecttion/get-all-collection";
 import { fetchBrands } from "@framework/brand/get-all-brands";
 import { fetchNewArrivalAncientProducts } from "@framework/product/get-all-new-arrival-products";
 import BrandBlock from "@containers/brand-block";
@@ -27,22 +26,20 @@ export default function Home() {
       const dataItem = data?.item;
       const updateBanner = dataItem.map((banner: any) => {
         const ratio = 800 / 1800;
+        const siteUrl =
+          process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com";
         return {
           id: banner.id,
           title: banner.title,
           slug: banner.url,
           image: {
             mobile: {
-              url: `${
-                process.env.NEXT_PUBLIC_SITE_URL
-              }/${banner?.album?.mobile?.toString()}`,
+              url: `${siteUrl}/${banner?.album?.mobile?.toString()}`,
               width: 768,
               height: Math.round(768 * ratio),
             },
             desktop: {
-              url: `${
-                process.env.NEXT_PUBLIC_SITE_URL
-              }/${banner?.album?.desktop?.toString()}`,
+              url: `${siteUrl}/${banner?.album?.desktop?.toString()}`,
               width: 1800,
               height: 800,
             },
@@ -96,92 +93,14 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     queryKey: [API_ENDPOINTS.BRANDS, { limit: 0 }],
     queryFn: fetchBrands,
   });
-  await queryClient.prefetchQuery({
-    queryKey: [API_ENDPOINTS.COLLECTION],
-    queryFn: fetchCollection,
-  });
+  // await queryClient.prefetchQuery({
+  //   queryKey: [API_ENDPOINTS.COLLECTION],
+  //   queryFn: fetchCollection,
+  // });
   return {
     props: {
       ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
       dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
     },
   };
-  // try {
-  //   // Gọi API lấy danh sách collections
-  //   const [collections, brands, banners, oneBanner] = await Promise.all([
-  //     fetchCollection().catch(() => []),
-  //     fetchBrands().catch(() => []),
-  //     fetchBanners().catch(() => []),
-  //     getSecondBanner().catch(() => {}),
-  //   ]);
-  //   // Format collections for banner display
-  //   const formattedCollections = collections.map((collection: any) => {
-  //     const imageUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${collection.representative_image_url}`;
-  //     return {
-  //       id: collection.id,
-  //       title: collection.title || "No title",
-  //       slug: collection.slug || "#",
-  //       image: {
-  //         mobile: { url: imageUrl, width: 450, height: 150 },
-  //         desktop: { url: imageUrl, width: 580, height: 360 },
-  //       },
-  //     };
-  //   });
-  //   // Format main banner
-  //   let formattedBanner = null;
-  //   if (oneBanner?.item) {
-  //     const parsed = oneBanner.item;
-  //     if (parsed.length > 0) {
-  //       const first = parsed[0];
-  //       // const images = JSON.parse(first.album || "[]").map((img: string) => `${process.env.NEXT_PUBLIC_SITE_URL}/${img}`);
-  //       formattedBanner = {
-  //         id: first.id,
-  //         title: first.title,
-  //         slug: first.url,
-  //         image: {
-  //           mobile: {
-  //             url: `${process.env.NEXT_PUBLIC_SITE_URL}/${first.album.mobile}`,
-  //             width: 768,
-  //             height: 275,
-  //           },
-  //           desktop: {
-  //             url: `${process.env.NEXT_PUBLIC_SITE_URL}/${first.album.desktop}`,
-  //             width: 1800,
-  //             height: 800,
-  //           },
-  //         },
-  //       };
-  //     }
-  //   }
-  //   return {
-  //     props: {
-  //       ...(await serverSideTranslations(locale!, [
-  //         "common",
-  //         "forms",
-  //         "footer",
-  //       ])),
-  //       collections: formattedCollections ?? [], // Thay undefined bằng null nếu cần
-  //       brands: brands ?? [],
-  //       banners: banners ?? [],
-  //       oneBanner: formattedBanner ?? null, // Đảm bảo oneBanner không bao giờ là undefined
-  //     },
-  //     revalidate: 60,
-  //   };
-  // } catch (error) {
-  //   return {
-  //     props: {
-  //       ...(await serverSideTranslations(locale!, [
-  //         "common",
-  //         "forms",
-  //         "footer",
-  //       ])),
-  //       collections: [],
-  //       brands: [],
-  //       banners: [],
-  //       oneBanner: {},
-  //       error: "Không thể tải dữ liệu từ API",
-  //     },
-  //     revalidate: 60,
-  //   };
-  // }
 };

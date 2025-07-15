@@ -42,7 +42,7 @@ const Card: React.FC<Props> = ({
       >
         <div className="flex">
           <Image
-            src={`${process.env.NEXT_PUBLIC_SITE_URL}/${image.default}`}
+            src={item.image ?? "/images/brand-placeholder.jpg"}
             alt={name || "image"}
             width={imageSize}
             height={imageSize}

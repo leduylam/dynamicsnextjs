@@ -54,16 +54,19 @@ const BrandBlock: React.FC<BrandProps> = ({
     demoVariant,
   });
   const safeParseImage = (image: any) => {
+    if (!image || image === "undefined") return null;
+
     if (typeof image === "string") {
       try {
-        const parsed = image;
+        const parsed = JSON.parse(image); // nếu backend trả JSON string
         return parsed;
       } catch (err) {
-        console.error("Error parsing image:", err);
-        return null;
+        // Nếu không phải JSON string, giả định là URL chuỗi bình thường
+        return image;
       }
     }
-    return image ?? null;
+
+    return image;
   };
   const mapBrandByLocale = (brand: any): Brand => {
     let logoObj = safeParseImage(brand.image);
