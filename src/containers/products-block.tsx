@@ -87,7 +87,7 @@ const ProductsBlock: React.FC<ProductsProps> = ({
           {loading && !products?.length ? (
             <ProductFeedLoader limit={limit} uniqueKey={uniqueKey} />
           ) : (
-            products?.map((product: Product, index: number) => (
+            products?.map((product: Product) => (
               <ProductCard
                 showCategory={showCategory}
                 showRating={showRating}

@@ -28,8 +28,10 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
       fetchNextPage();
     }
   }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   const allProducts: Product[] =
-    data?.pages?.flatMap((page) => page?.data ?? []) ?? [];
+    data?.pages?.flatMap((page) => page.products.data ?? []) ?? [];
+
   if (error) return <p>{error.message}</p>;
   return (
     <>

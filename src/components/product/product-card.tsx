@@ -155,9 +155,9 @@ const ProductCard: FC<ProductProps> = ({
               key={hoverImage}
               src={hoverImage}
               srcSet={`
-                ${imagePath}/${product?.image.tiny} 352px,
-                ${imagePath}/${product?.image.small} 540px,
-                ${imagePath}/${product?.image.medium} 720px,
+                ${imagePath}/${product?.image?.tiny} 352px,
+                ${imagePath}/${product?.image?.small} 540px,
+                ${imagePath}/${product?.image?.medium} 720px,
               `}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
