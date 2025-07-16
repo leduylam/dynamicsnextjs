@@ -40,20 +40,12 @@ export default function ProductPopup() {
   const [loading, setLoading] = useState(false);
   const allAttribute = mergeAttributes(data.attributes);
   const variations = getVariations(allAttribute);
-  const variationOrder = allAttribute
-    .map((attr: any) => attr.name)
-    .filter((v: string, i: number, self: string[]) => self.indexOf(v) === i);
-  const isSelected =
-    variationOrder.length > 0
-      ? !isEmpty(attributes) &&
-        variationOrder.every((variation) => {
-          const options = variations[variation];
-          const availableOptions =
-            options?.filter((opt: any) => !opt.disabled) ?? [];
-          if (availableOptions.length === 0) return true;
-          return attributes.hasOwnProperty(variation);
-        })
-      : true;
+  const isSelected = !isEmpty(variations)
+    ? !isEmpty(attributes) &&
+      Object.keys(variations).every((variation) =>
+        attributes.hasOwnProperty(variation)
+      )
+    : true;
 
   function addToCart() {
     if (!isSelected) return;
@@ -101,16 +93,29 @@ export default function ProductPopup() {
     }
   }
   useEffect(() => {
-    if (activeState) {
-      const foundAttribute = allAttribute.find(
-        (attr: any) => attr.id === activeState
-      );
-      setAttributes({
-        [foundAttribute.name]: foundAttribute.value,
+    if (!activeState && allAttribute?.length > 0) {
+      const firstInStockAttr = allAttribute.find((attr: any) => {
+        const hasSub =
+          Array.isArray(attr.sub_attribute) && attr.sub_attribute.length > 0;
+
+        if (hasSub) {
+          return attr.sub_attribute.some(
+            (sub: any) => Number(sub.quantity) > 0
+          );
+        }
+        return Number(attr.quantity) > 0;
       });
-      setChooseQuantity(foundAttribute.quantity);
+
+      if (firstInStockAttr) {
+        handleAttributeParent(
+          {
+            [firstInStockAttr.name]: firstInStockAttr.value,
+          },
+          firstInStockAttr.id
+        );
+      }
     }
-  }, [activeState]);
+  }, [allAttribute, activeState]);
   const [delayedImage, setDelayedImage] = useState<any>(null);
   const activeAttributes = data
     ? data?.attributes.find((attr: any) => attr.id === activeState)
