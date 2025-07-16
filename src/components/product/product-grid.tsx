@@ -11,6 +11,15 @@ interface ProductGridProps {
   slug?: string;
 }
 
+interface SubAttribute {
+  quantity?: number | string;
+}
+
+interface Attribute {
+  quantity?: number | string;
+  sub_attribute?: SubAttribute[];
+}
+
 export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
   const { query } = useRouter();
   const {
@@ -31,29 +40,23 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
   const allProducts: Product[] =
     data?.pages
       ?.flatMap((page) => page.products.data ?? [])
-      ?.filter((product) => {
-        return product.attributes?.some(
-          (attr: {
-            quantity?: number | string;
-            sub_attribute?: Array<{
-              quantity?: number | string;
-            }>;
-          }) => {
-            if (
-              Array.isArray(attr.sub_attribute) &&
-              attr.sub_attribute.length > 0
-            ) {
-              return attr.sub_attribute.some(
-                (sub: { quantity?: number | string }) =>
-                  Number(sub.quantity) > 0
-              );
-            } else {
-              return Number(attr.quantity) > 0;
-            }
-          }
-        );
-      }) ?? [];
+      ?.filter((product) =>
+        product.attributes?.some((attr: Attribute) => {
+          const attrQty = Number(attr.quantity || 0);
 
+          if (
+            Array.isArray(attr.sub_attribute) &&
+            attr.sub_attribute.length > 0
+          ) {
+            const hasSubStock: boolean = (
+              attr.sub_attribute as SubAttribute[]
+            ).some((sub: SubAttribute) => Number(sub.quantity || 0) > 0);
+            return hasSubStock || attrQty > 0; // ✅ CHỖ QUAN TRỌNG
+          }
+
+          return attrQty > 0;
+        })
+      ) ?? [];
   if (error) return <p>{error.message}</p>;
   return (
     <>
