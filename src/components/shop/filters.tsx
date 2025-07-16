@@ -9,7 +9,7 @@ type Props = { slug?: string };
 export const ShopFilters: React.FC<Props> = ({ slug }) => {
   const router = useRouter();
   const { pathname, query } = router;
-  const { data } = useSizeQuery(slug ? { slug } : {});
+  const { data } = useSizeQuery({ ...(slug ? { slug } : {}), ...query });
   const variations = getVariations(data);
   return (
     <div className="pt-1">
