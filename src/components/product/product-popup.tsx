@@ -39,14 +39,21 @@ export default function ProductPopup() {
   const [chooseQuantity, setChooseQuantity] = useState<number>();
   const [loading, setLoading] = useState(false);
   const allAttribute = mergeAttributes(data.attributes);
-
   const variations = getVariations(allAttribute);
-  const isSelected = !isEmpty(variations)
-    ? !isEmpty(attributes) &&
-      Object.keys(variations).every((variation) =>
-        attributes.hasOwnProperty(variation)
-      )
-    : true;
+  const variationOrder = allAttribute
+    .map((attr: any) => attr.name)
+    .filter((v: string, i: number, self: string[]) => self.indexOf(v) === i);
+  const isSelected =
+    variationOrder.length > 0
+      ? !isEmpty(attributes) &&
+        variationOrder.every((variation) => {
+          const options = variations[variation];
+          const availableOptions =
+            options?.filter((opt: any) => !opt.disabled) ?? [];
+          if (availableOptions.length === 0) return true;
+          return attributes.hasOwnProperty(variation);
+        })
+      : true;
 
   function addToCart() {
     if (!isSelected) return;
