@@ -34,9 +34,9 @@ export default function ProductPopup() {
   const [attributes, setAttributes] = useState<{ [key: string]: string }>({});
   const [viewCartBtn, setViewCartBtn] = useState<boolean>(false);
   const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
-  const [activeState, setActiveState] = useState(data.attributes[0].id);
-  const [subActive, setSubActive] = useState<number>();
-  const [chooseQuantity, setChooseQuantity] = useState<number>();
+  const [activeState, setActiveState] = useState<number | null>(null);
+  const [subActive, setSubActive] = useState<number | null>(null);
+  const [chooseQuantity, setChooseQuantity] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const allAttribute = mergeAttributes(data.attributes);
   const variations = getVariations(allAttribute);
@@ -59,16 +59,16 @@ export default function ProductPopup() {
       ...generateCartItem(
         data!,
         attributes,
-        activeState,
-        subActive,
+        activeState === null ? undefined : activeState,
+        subActive === null ? undefined : subActive,
         canWholeSalePrice
       ),
       price:
         generateCartItem(
           data!,
           attributes,
-          activeState,
-          subActive,
+          activeState === null ? undefined : activeState,
+          subActive === null ? undefined : subActive,
           canWholeSalePrice
         ).price ?? 0,
     };
@@ -97,7 +97,6 @@ export default function ProductPopup() {
       const firstInStockAttr = allAttribute.find((attr: any) => {
         const hasSub =
           Array.isArray(attr.sub_attribute) && attr.sub_attribute.length > 0;
-
         if (hasSub) {
           return attr.sub_attribute.some(
             (sub: any) => Number(sub.quantity) > 0
@@ -115,7 +114,7 @@ export default function ProductPopup() {
         );
       }
     }
-  }, [allAttribute, activeState]);
+  }, [activeState, allAttribute]);
   const [delayedImage, setDelayedImage] = useState<any>(null);
   const activeAttributes = data
     ? data?.attributes.find((attr: any) => attr.id === activeState)
@@ -275,8 +274,8 @@ export default function ProductPopup() {
                 key={`popup-attribute-key${variation}`}
                 title={variation}
                 attributes={variations[variation]}
-                defuatlActive={activeState}
-                subActive={subActive}
+                defuatlActive={activeState === null ? undefined : activeState}
+                subActive={subActive === null ? undefined : subActive}
                 active={attributes[variation]}
                 handleAttributeParent={handleAttributeParent}
                 handleAttributeChildren={handleAttributeChildren}
