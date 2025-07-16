@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { useRouter } from "next/router";
-import {
-  getVariations,
-  mergeAttributes,
-} from "@framework/utils/get-variations";
+import { getVariations } from "@framework/utils/get-variations";
 import usePrice from "@framework/product/use-price";
 import { generateCartItem } from "@utils/generate-cart-item";
 import { ProductAttributes } from "./product-attributes";
@@ -61,6 +58,12 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
   const openLightbox = (index: number) => {
     setSelectedIndex(index);
     setLightboxOpen(true);
+  };
+  const mergeAttributes = (attributes: any) => {
+    return attributes?.flatMap((attribute: { sub_attribute: any }) => [
+      attribute, // Thêm attribute gốc
+      ...attribute.sub_attribute, // Thêm tất cả sub_attribute
+    ]);
   };
   const allAttribute = mergeAttributes(data?.attributes);
   const variations = getVariations(allAttribute);
