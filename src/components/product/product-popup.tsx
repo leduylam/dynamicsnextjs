@@ -6,7 +6,10 @@ import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { ProductAttributes } from "@components/product/product-attributes";
 import { generateCartItem } from "@utils/generate-cart-item";
-import { getVariations } from "@framework/utils/get-variations";
+import {
+  getVariations,
+  mergeAttributes,
+} from "@framework/utils/get-variations";
 import {
   calculateTotalQuantity,
   cleanSku,
@@ -35,12 +38,6 @@ export default function ProductPopup() {
   const [subActive, setSubActive] = useState<number>();
   const [chooseQuantity, setChooseQuantity] = useState<number>();
   const [loading, setLoading] = useState(false);
-  const mergeAttributes = (attributes: any) => {
-    return attributes.flatMap((attribute: { sub_attribute: any }) => [
-      attribute, // Thêm attribute gốc
-      ...attribute.sub_attribute, // Thêm tất cả sub_attribute
-    ]);
-  };
   const allAttribute = mergeAttributes(data.attributes);
 
   const variations = getVariations(allAttribute);

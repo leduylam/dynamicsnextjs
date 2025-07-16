@@ -89,12 +89,19 @@ const ProductCard: FC<ProductProps> = ({
   useEffect(() => {
     if (product?.attributes && product?.attributes.length > 0) {
       const imageUrls = product.attributes
-        .filter((attr: any) => attr?.image?.tiny) // chỉ giữ attribute có ảnh
+        .filter((attr: any) => {
+          const hasImage = attr?.image?.tiny;
+          const hasStock =
+            Array.isArray(attr.sub_attribute) && attr.sub_attribute.length > 0
+              ? attr.sub_attribute.some((sub: any) => Number(sub.quantity) > 0)
+              : Number(attr.quantity) > 0;
+          return hasImage && hasStock;
+        })
         .map((attr: any) => `${imagePath}/${attr.image.tiny}`);
       setAttrImage(imageUrls);
     }
   }, [product?.attributes, imagePath]);
-  
+
   return (
     <div
       className={cn(

@@ -29,7 +29,30 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
   }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const allProducts: Product[] =
-    data?.pages?.flatMap((page) => page.products.data ?? []) ?? [];
+    data?.pages
+      ?.flatMap((page) => page.products.data ?? [])
+      ?.filter((product) => {
+        return product.attributes?.some(
+          (attr: {
+            quantity?: number | string;
+            sub_attribute?: Array<{
+              quantity?: number | string;
+            }>;
+          }) => {
+            if (
+              Array.isArray(attr.sub_attribute) &&
+              attr.sub_attribute.length > 0
+            ) {
+              return attr.sub_attribute.some(
+                (sub: { quantity?: number | string }) =>
+                  Number(sub.quantity) > 0
+              );
+            } else {
+              return Number(attr.quantity) > 0;
+            }
+          }
+        );
+      }) ?? [];
 
   if (error) return <p>{error.message}</p>;
   return (
