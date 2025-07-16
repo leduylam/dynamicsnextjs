@@ -17,7 +17,7 @@ const ListMenu = ({
   return (
     <li className={cn(!hasMegaMenu ? "group relative" : "")}>
       <Link
-        href={'/search?category=' + data.slug}
+        href={'/categories/' + data.slug}
         className="flex items-center py-2 ltr:pl-5 rtl:pr-5 ltr:xl:pl-7 rtl:xl:pr-7 ltr:pr-3 rtl:pl-3 ltr:xl:pr-3.5 rtl:xl:pl-3.5 hover:text-heading hover:bg-gray-300"
       >
         {data.icon && (

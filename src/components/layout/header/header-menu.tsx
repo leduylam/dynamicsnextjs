@@ -29,7 +29,7 @@ const HeaderMenu: React.FC<MenuProps> = ({ data, className }) => {
           Array.isArray(item.subCategory) && item.subCategory.length > 0;
         const href = isFullLink(item.slug)
           ? item.slug
-          : `categories/${item.slug}`;
+          : `/categories/${item.slug}`;
         return (
           <div
             className={`menuItem group cursor-pointer py-7 ${
