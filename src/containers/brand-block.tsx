@@ -58,8 +58,8 @@ const BrandBlock: React.FC<BrandProps> = ({
 
     if (typeof image === "string") {
       try {
-        const parsed = JSON.parse(image); // nếu backend trả JSON string
-        return parsed;
+        const parsed = JSON.parse(image);
+        return parsed.original || parsed;
       } catch (err) {
         // Nếu không phải JSON string, giả định là URL chuỗi bình thường
         return image;
@@ -71,11 +71,11 @@ const BrandBlock: React.FC<BrandProps> = ({
   const mapBrandByLocale = (brand: any): Brand => {
     let logoObj = safeParseImage(brand.image);
     return {
+      ...brand,
       id: brand.id,
       name: brand?.name || "",
       slug: brand?.slug || "",
-      image: logoObj,
-      ...brand,
+      image: logoObj || "",
     };
   };
   const brands = data?.brands.map((brand) => mapBrandByLocale(brand));
