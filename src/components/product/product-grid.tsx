@@ -22,7 +22,6 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
     error,
   } = useProductsQuery({ limit: 8, ...query });
   const { ref, inView } = useInView();
-
   useEffect(() => {
     if (inView && !isFetchingNextPage && hasNextPage) {
       fetchNextPage();

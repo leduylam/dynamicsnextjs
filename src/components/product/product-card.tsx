@@ -94,6 +94,7 @@ const ProductCard: FC<ProductProps> = ({
       setAttrImage(imageUrls);
     }
   }, [product?.attributes, imagePath]);
+  
   return (
     <div
       className={cn(
