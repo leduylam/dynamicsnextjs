@@ -1,40 +1,40 @@
-import { useState } from 'react';
-import Link from '@components/ui/link';
-import Scrollbar from '@components/common/scrollbar';
-import { IoIosArrowDown } from 'react-icons/io';
-import Logo from '@components/ui/logo';
-import { useUI } from '@contexts/ui.context';
+import { useState } from "react";
+import Link from "@components/ui/link";
+import Scrollbar from "@components/common/scrollbar";
+import { IoIosArrowDown } from "react-icons/io";
+import Logo from "@components/ui/logo";
+import { useUI } from "@contexts/ui.context";
 import {
   IoLogoInstagram,
   IoLogoTwitter,
   IoLogoFacebook,
   IoLogoYoutube,
   IoClose,
-} from 'react-icons/io5';
-import { API_ENDPOINTS } from '@framework/utils/api-endpoints';
-import { getCategory } from '@framework/category/get-category-server';
-import { useQuery } from '@tanstack/react-query';
+} from "react-icons/io5";
+import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { getCategory } from "@framework/category/get-category-server";
+import { useQuery } from "@tanstack/react-query";
 const social = [
   {
     id: 0,
-    link: 'https://www.facebook.com/profile.php?id=61573007002622',
+    link: "https://www.facebook.com/profile.php?id=61573007002622",
     icon: <IoLogoFacebook />,
-    className: 'facebook',
-    title: 'text-facebook',
+    className: "facebook",
+    title: "text-facebook",
   },
   {
     id: 2,
-    link: 'https://www.youtube.com/@dynamicsportsvietnam9443',
+    link: "https://www.youtube.com/@dynamicsportsvietnam9443",
     icon: <IoLogoYoutube />,
-    className: 'youtube',
-    title: 'text-youtube',
+    className: "youtube",
+    title: "text-youtube",
   },
   {
     id: 3,
-    link: 'https://www.instagram.com/dynamicsportsvietnam/',
+    link: "https://www.instagram.com/dynamicsportsvietnam/",
     icon: <IoLogoInstagram />,
-    className: 'instagram',
-    title: 'text-instagram',
+    className: "instagram",
+    title: "text-instagram",
   },
 ];
 
@@ -66,13 +66,13 @@ const MobileMenu = () => {
     hasSubMenu,
     menuName,
     menuIndex,
-    className = '',
+    className = "",
   }: any) =>
     data && (
       <li className={`mb-0.5 ${className}`}>
         <div className="relative flex items-center justify-between">
           <Link
-            href={'/search?category=' + data.slug}
+            href={`categories/${data.slug}`}
             className="w-full text-[15px] menu-item relative py-3 ltr:pl-5 rtl:pr-5 ltr:md:pl-6 rtl:md:pr-6 ltr:pr-4 rtl:pl-4 transition duration-300 ease-in-out"
           >
             <span className="block w-full" onClick={closeSidebar}>
@@ -85,8 +85,9 @@ const MobileMenu = () => {
               onClick={() => handleArrowClick(menuName)}
             >
               <IoIosArrowDown
-                className={`transition duration-200 ease-in-out transform text-heading ${activeMenus.includes(menuName) ? '-rotate-180' : 'rotate-0'
-                  }`}
+                className={`transition duration-200 ease-in-out transform text-heading ${
+                  activeMenus.includes(menuName) ? "-rotate-180" : "rotate-0"
+                }`}
               />
             </div>
           )}
@@ -107,8 +108,6 @@ const MobileMenu = () => {
       return null;
     }
 
-
-
     dept = dept + 1;
     return (
       <ul className="pt-0.5">
@@ -123,7 +122,7 @@ const MobileMenu = () => {
               menuName={menuName}
               key={menuName}
               menuIndex={index}
-              className={dept > 1 && 'ltr:pl-4 rtl:pr-4'}
+              className={dept > 1 && "ltr:pl-4 rtl:pr-4"}
             />
           );
         })}
@@ -182,5 +181,5 @@ const MobileMenu = () => {
       </div>
     </>
   );
-}
+};
 export default MobileMenu;

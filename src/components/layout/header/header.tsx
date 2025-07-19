@@ -40,7 +40,7 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-center mx-auto max-w-[1920px] h-full w-full">
           <Logo />
           <HeaderMenu
-            data={!isLoading ? data.categories : []}
+            data={!isLoading ? data?.categories : []}
             className="hidden lg:flex ltr:md:ml-6 rtl:md:mr-6 ltr:xl:ml-10 rtl:xl:mr-10"
           />
 
