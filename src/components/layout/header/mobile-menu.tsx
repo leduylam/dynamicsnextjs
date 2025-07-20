@@ -6,7 +6,6 @@ import Logo from "@components/ui/logo";
 import { useUI } from "@contexts/ui.context";
 import {
   IoLogoInstagram,
-  IoLogoTwitter,
   IoLogoFacebook,
   IoLogoYoutube,
   IoClose,
