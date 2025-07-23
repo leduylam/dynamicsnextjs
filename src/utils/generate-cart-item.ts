@@ -39,7 +39,6 @@ export function generateCartItem(
     attribute.image.tiny
       ? attribute.image.tiny
       : item.album?.[0]?.tiny ?? "";
-  console.log(image);
 
   const subAttribute = attribute?.sub_attribute.find(
     (subAttr: any) => subAttr.id === subActive

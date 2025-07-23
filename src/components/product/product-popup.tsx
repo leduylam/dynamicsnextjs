@@ -46,7 +46,6 @@ export default function ProductPopup() {
         attributes.hasOwnProperty(variation)
       )
     : true;
-
   function addToCart() {
     if (!isSelected) return;
     // to show btn feedback while product carting
