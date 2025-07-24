@@ -18,6 +18,7 @@ import {
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 import { useAuth } from "@contexts/auth/auth-context";
+import { getAllImageSizes } from "@utils/use-image";
 export default function ProductPopup() {
   const {
     modalData: { data },
@@ -38,7 +39,7 @@ export default function ProductPopup() {
   const [subActive, setSubActive] = useState<number | null>(null);
   const [chooseQuantity, setChooseQuantity] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const allAttribute = mergeAttributes(data.attributes);
+  const allAttribute = mergeAttributes(data?.attributes);
   const variations = getVariations(allAttribute);
   const isSelected = !isEmpty(variations)
     ? !isEmpty(attributes) &&
@@ -73,7 +74,6 @@ export default function ProductPopup() {
     };
     updateCart({ item, quantity });
   }
-
   function navigateToProductPage() {
     closeModal();
     window.location.href = `${ROUTES.PRODUCT}/${data.slug}`;
@@ -95,9 +95,9 @@ export default function ProductPopup() {
     if (!activeState && allAttribute?.length > 0) {
       const firstInStockAttr = allAttribute.find((attr: any) => {
         const hasSub =
-          Array.isArray(attr.sub_attribute) && attr.sub_attribute.length > 0;
+          Array.isArray(attr.sub_attributes) && attr.sub_attributes.length > 0;
         if (hasSub) {
-          return attr.sub_attribute.some(
+          return attr.sub_attributes.some(
             (sub: any) => Number(sub.quantity) > 0
           );
         }
@@ -128,13 +128,14 @@ export default function ProductPopup() {
     if (!image) return;
     setLoading(true);
     const timeout = setTimeout(() => {
-      setDelayedImage(image);
-    }, 150); // delay 150ms, mày chỉnh theo ý mày, 100-200ms đều ổn
-    return () => clearTimeout(timeout); // clear timeout để tránh memory leak
+      const bestImg = getAllImageSizes(image); // 👈 dùng đúng hàm đã export
+      setDelayedImage(bestImg || "");
+    }, 150);
+    return () => clearTimeout(timeout);
   }, [image]);
   const productSku =
-    activeAttributes?.sub_attribute.length > 0
-      ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
+    activeAttributes?.sub_attributes.length > 0
+      ? cleanSku(activeAttributes?.sub_attributes[0].product_attribute_sku)
       : activeAttributes?.product_attribute_sku;
 
   const getProductQuantity = () => {
@@ -166,7 +167,6 @@ export default function ProductPopup() {
       openCart();
     }, 300);
   }
-  const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
   return (
     <div className="rounded-lg bg-white">
       <div className="flex flex-col lg:flex-row w-full md:w-[650px] lg:w-[960px] mx-auto overflow-hidden">
@@ -179,13 +179,8 @@ export default function ProductPopup() {
           )}
           {delayedImage && (
             <img
-              src={`${imagePath}/${delayedImage?.original}`} // fallback nếu delayedImage là 1 string
-              srcSet={`
-                ${imagePath}/${delayedImage?.tiny || ""} 150w,
-                ${imagePath}/${delayedImage?.small || ""} 400w,
-                ${imagePath}/${delayedImage?.medium || ""} 800w,
-                ${imagePath}/${delayedImage?.original || ""} 1200w,
-              `}
+              src={`${delayedImage.original}`}
+              srcSet={`${delayedImage.tiny} 480w, ${delayedImage.small} 640w, ${delayedImage.medium} 800w, ${delayedImage.original} 1200w`}
               sizes="(max-width: 768px) 100vw, 800px"
               alt={data.name}
               onLoad={() => setLoading(false)}
@@ -270,12 +265,13 @@ export default function ProductPopup() {
           {Object.keys(variations).map((variation) => {
             return (
               <ProductAttributes
-                key={`popup-attribute-key${variation}`}
+                key={variation}
                 title={variation}
                 attributes={variations[variation]}
                 defuatlActive={activeState === null ? undefined : activeState}
+                activeAttributes={activeAttributes}
                 subActive={subActive === null ? undefined : subActive}
-                active={attributes[variation]}
+                active={attributes[variation] ?? ""}
                 handleAttributeParent={handleAttributeParent}
                 handleAttributeChildren={handleAttributeChildren}
               />

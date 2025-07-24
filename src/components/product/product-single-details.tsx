@@ -25,6 +25,7 @@ import { useAuth } from "@contexts/auth/auth-context";
 import Lightbox from "./lightbox/Lightbox";
 import { motion } from "framer-motion";
 import { useProductQuery } from "@framework/product/get-product";
+import { getAllImageSizes } from "@utils/use-image";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -59,10 +60,11 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     setSelectedIndex(index);
     setLightboxOpen(true);
   };
+
   const mergeAttributes = (attributes: any) => {
-    return attributes?.flatMap((attribute: { sub_attribute: any }) => [
+    return attributes?.flatMap((attribute: { sub_attributes: any }) => [
       attribute, // Thêm attribute gốc
-      ...attribute.sub_attribute, // Thêm tất cả sub_attribute
+      ...attribute.sub_attributes, // Thêm tất cả sub_attributes
     ]);
   };
   const allAttribute = mergeAttributes(data?.attributes);
@@ -182,7 +184,6 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     }
     return album;
   };
-  const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
   const productImages = {
     gallery: activeState
       ? Array.isArray(activeAttributes?.album) &&
@@ -193,16 +194,14 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
       ? data.attributes.flatMap((attr: any) => attr.album || [])
       : parseAlbum(data?.album),
   };
-  const images =
-    productImages?.gallery.map((item: any) =>
-      item
-        ? `${imagePath}/${item.medium}`
-        : "/assets/placeholder/products/product-gallery.svg"
-    ) || [];
 
+  const images = productImages.gallery.map((item: any) => {
+    const allSizes = getAllImageSizes(item);
+    return allSizes; // full object
+  });
   const productSku =
-    activeAttributes?.sub_attribute.length > 0
-      ? cleanSku(activeAttributes?.sub_attribute[0].product_attribute_sku)
+    activeAttributes?.sub_attributes.length > 0
+      ? cleanSku(activeAttributes?.sub_attributes[0].product_attribute_sku)
       : activeAttributes?.product_attribute_sku;
 
   const getProductQuantity = () => {
@@ -239,17 +238,17 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
             className="product-gallery"
             buttonGroupClassName="hidden"
           >
-            {productImages.gallery &&
-              productImages.gallery.map((img: any, index: number) => (
+            {images &&
+              images.map((img: any, index: number) => (
                 <SwiperSlide key={`product-gallery-key-${index}`}>
                   <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
                     <img
-                      src={`${imagePath}/${img.medium}`}
+                      src={`${img.medium}`}
                       srcSet={`
-                      ${imagePath}/${img.tiny} 352w,
-                      ${imagePath}/${img.small} 540w,
-                      ${imagePath}/${img.medium} 720w,
-                      ${imagePath}/${img.original} 1000w
+                      ${img.tiny} 352w,
+                      ${img.small} 540w,
+                      ${img.medium} 720w,
+                      ${img.original} 1000w
                   `}
                       sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
                       alt={`${data?.name}--${index}`}
@@ -268,8 +267,8 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
               productImages.gallery.length > 1 ? "grid-cols-2" : "grid-cols-1"
             } gap-2.5`}
           >
-            {productImages.gallery &&
-              productImages.gallery.map((img: any, index: number) => (
+            {images &&
+              images.map((img: any, index: number) => (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={imagesLoaded > index ? { opacity: 1, y: 0 } : {}}
@@ -279,12 +278,12 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                   onClick={() => openLightbox(index)}
                 >
                   <img
-                    src={`${imagePath}/${img.medium}`}
+                    src={`${img.medium}`}
                     srcSet={`
-                    ${imagePath}/${img.tiny} 352w,
-                    ${imagePath}/${img.small} 540w,
-                    ${imagePath}/${img.medium} 720w,
-                    ${imagePath}/${img.original} 1000w
+                    ${img.tiny} 352w,
+                    ${img.small} 540w,
+                    ${img.medium} 720w,
+                    ${img.original} 1000w
                 `}
                     sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
                     alt={`${data?.name}--${index}`}
@@ -298,7 +297,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
               ))}
             {lightboxOpen && (
               <Lightbox
-                images={images}
+                images={images.map((img: any) => img.medium)}
                 initialIndex={selectedIndex}
                 onClose={() => setLightboxOpen(false)}
               />

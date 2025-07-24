@@ -1,4 +1,6 @@
+import { getBestImage } from "@utils/use-image";
 import cn from "classnames";
+import { log } from "console";
 import Image from "next/image";
 interface Props {
   className?: string;
@@ -28,6 +30,8 @@ export const ProductAttributes: React.FC<Props> = ({
   handleAttributeParent,
   handleAttributeChildren,
 }) => {
+  console.log("ProductAttributes attributes", attributes);
+  
   return (
     <div className={className}>
       <h3 className="text-base md:text-lg text-heading font-semibold mb-2.5 capitalize">
@@ -38,14 +42,11 @@ export const ProductAttributes: React.FC<Props> = ({
       </h3>
       <ul className="flex flex-wrap colors ltr:-mr-3 rtl:-ml-3">
         {attributes?.map(({ id, value, image, parent_id, quantity }) => {
-          const imageAttr =
-            image !== null && typeof image === "object" && "tiny" in image
-              ? image.tiny
-              : image;
+          const imageAttr = getBestImage(image, "tiny");
           return (
             <div key={id}>
               {parent_id === 0 &&
-                (image && typeof image === "object" && image.tiny ? (
+                (imageAttr ? (
                   <li
                     key={`${value}-${id}`}
                     className={cn(
@@ -58,9 +59,8 @@ export const ProductAttributes: React.FC<Props> = ({
                   >
                     <span className="block w-full h-full rounded">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_SITE_URL}/${imageAttr}`}
+                        src={`${imageAttr}`}
                         alt=""
                         width={100} // 👈 tùy chọn chiều rộng thực tế
                         height={35}

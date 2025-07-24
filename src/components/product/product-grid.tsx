@@ -17,7 +17,7 @@ interface SubAttribute {
 
 interface Attribute {
   quantity?: number | string;
-  sub_attribute?: SubAttribute[];
+  sub_attributes?: SubAttribute[];
 }
 
 export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
@@ -36,27 +36,20 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
       fetchNextPage();
     }
   }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
-
   const allProducts: Product[] =
     data?.pages
-      ?.flatMap((page) => page.products.data ?? [])
-      ?.filter((product) =>
-        product.attributes?.some((attr: Attribute) => {
+      ?.flatMap((page) => page.products ?? [])
+      ?.filter((product) => {
+        return (product.attributes ?? []).some((attr: Attribute) => {
           const attrQty = Number(attr.quantity || 0);
-
-          if (
-            Array.isArray(attr.sub_attribute) &&
-            attr.sub_attribute.length > 0
-          ) {
-            const hasSubStock: boolean = (
-              attr.sub_attribute as SubAttribute[]
-            ).some((sub: SubAttribute) => Number(sub.quantity || 0) > 0);
-            return hasSubStock || attrQty > 0; // ✅ CHỖ QUAN TRỌNG
-          }
-
-          return attrQty > 0;
-        })
-      ) ?? [];
+          const hasSubStock =
+            Array.isArray(attr.sub_attributes) &&
+            attr.sub_attributes.some(
+              (sub: SubAttribute) => Number(sub.quantity || 0) > 0
+            );
+          return hasSubStock || attrQty > 0;
+        });
+      }) ?? [];
   if (error) return <p>{error.message}</p>;
   return (
     <>

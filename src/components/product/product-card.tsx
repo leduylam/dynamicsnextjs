@@ -11,6 +11,7 @@ import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import { getBestImage, handleImageHover } from "@utils/use-image";
 
 interface ProductProps {
   product: Product;
@@ -67,41 +68,28 @@ const ProductCard: FC<ProductProps> = ({
   const [attrImage, setAttrImage] = useState<string[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hoverImage, setHoverImage] = useState<string>("");
-  const imagePath = process.env.NEXT_PUBLIC_SITE_URL;
-  const handleImageHover = (imageUrl: string) => {
-    const folder = imageUrl.includes("tiny")
-      ? "medium"
-      : imageUrl.includes("medium")
-      ? "large"
-      : "tiny";
-    return imageUrl
-      .replace("tiny", folder)
-      .replace("_tiny", `_${folder}`)
-      .replace("_medium", `_${folder}`)
-      .replace("_large", `_${folder}`);
-  };
+
   useEffect(() => {
     if (product?.image) {
-      const imageUrl = `${imagePath}/${product.image.small}`;
-      setHoverImage(imageUrl);
+      const imageUrl = getBestImage(product.image, "medium");
+      setHoverImage(imageUrl || "");
     }
-  }, [product?.image, imagePath]);
+  }, [product?.image]);
   useEffect(() => {
-    if (product?.attributes && product?.attributes.length > 0) {
+    if (product?.attributes?.length) {
       const imageUrls = product.attributes
         .filter((attr: any) => {
-          const hasImage = attr?.image?.tiny;
           const hasStock =
-            Array.isArray(attr.sub_attribute) && attr.sub_attribute.length > 0
-              ? attr.sub_attribute.some((sub: any) => Number(sub.quantity) > 0)
+            Array.isArray(attr.sub_attributes) && attr.sub_attributes.length > 0
+              ? attr.sub_attributes.some((sub: any) => Number(sub.quantity) > 0)
               : Number(attr.quantity) > 0;
-          return hasImage && hasStock;
+          return hasStock;
         })
-        .map((attr: any) => `${imagePath}/${attr.image.tiny}`);
+        .map((attr: any) => getBestImage(attr.image, "tiny"))
+        .filter(Boolean); // loại bỏ null/undefined
       setAttrImage(imageUrls);
     }
-  }, [product?.attributes, imagePath]);
-
+  }, [product?.attributes]);
   return (
     <div
       className={cn(
@@ -163,9 +151,9 @@ const ProductCard: FC<ProductProps> = ({
               key={hoverImage}
               src={hoverImage}
               srcSet={`
-                ${imagePath}/${product?.image?.tiny} 352px,
-                ${imagePath}/${product?.image?.small} 540px,
-                ${imagePath}/${product?.image?.medium} 720px,
+                ${product?.image?.tiny} 352px,
+                ${product?.image?.small} 540px,
+                ${product?.image?.medium} 720px,
               `}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -322,7 +310,9 @@ const ProductCard: FC<ProductProps> = ({
                   height={35}
                   className="object-cover w-full"
                   style={{ height: "auto", width: "auto" }}
-                  onMouseOver={() => setHoverImage(handleImageHover(img))}
+                  onMouseOver={() =>
+                    setHoverImage(handleImageHover(img, "medium"))
+                  }
                   loading="lazy"
                   priority={false}
                 />

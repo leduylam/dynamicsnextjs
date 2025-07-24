@@ -22,6 +22,9 @@ export default function NewArrivalsProductFeed({
     limit: 10,
     demoVariant,
   });
+  const allProducts = data?.products ?? [];
+  console.log("NewArrivalsProductFeed data", allProducts);
+
   return (
     <ProductsBlock
       className={className}
@@ -29,7 +32,7 @@ export default function NewArrivalsProductFeed({
       showCategory={showCategory}
       showRating={showRating}
       sectionHeading="text-new-arrivals"
-      products={data}
+      products={allProducts}
       loading={isLoading}
       error={error?.message}
       uniqueKey="new-arrivals"
