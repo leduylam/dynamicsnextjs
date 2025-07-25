@@ -1,6 +1,5 @@
 import { getBestImage } from "@utils/use-image";
 import cn from "classnames";
-import { log } from "console";
 import Image from "next/image";
 interface Props {
   className?: string;
@@ -30,8 +29,6 @@ export const ProductAttributes: React.FC<Props> = ({
   handleAttributeParent,
   handleAttributeChildren,
 }) => {
-  console.log("ProductAttributes attributes", attributes);
-  
   return (
     <div className={className}>
       <h3 className="text-base md:text-lg text-heading font-semibold mb-2.5 capitalize">

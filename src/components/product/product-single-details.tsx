@@ -297,7 +297,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
               ))}
             {lightboxOpen && (
               <Lightbox
-                images={images.map((img: any) => img.medium)}
+                images={images.map((img: any) => img.original)}
                 initialIndex={selectedIndex}
                 onClose={() => setLightboxOpen(false)}
               />

@@ -68,7 +68,6 @@ const ProductCard: FC<ProductProps> = ({
   const [attrImage, setAttrImage] = useState<string[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hoverImage, setHoverImage] = useState<string>("");
-
   useEffect(() => {
     if (product?.image) {
       const imageUrl = getBestImage(product.image, "medium");
@@ -90,6 +89,7 @@ const ProductCard: FC<ProductProps> = ({
       setAttrImage(imageUrls);
     }
   }, [product?.attributes]);
+
   return (
     <div
       className={cn(

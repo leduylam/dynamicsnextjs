@@ -31,8 +31,8 @@ const useProductsQuery = (options: QueryOptionsType) => {
     queryFn: fetchProducts,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      const currentPage = lastPage.products?.current_page ?? 1;
-      const totalPages = lastPage.products?.last_page ?? 1;
+      const currentPage = lastPage.current_page ?? 1;
+      const totalPages = lastPage.last_page ?? 1;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
   });

@@ -12,8 +12,11 @@ import { GetServerSideProps } from "next";
 import { fetchProducts } from "@framework/product/get-all-products";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { QueryClient } from "@tanstack/react-query";
-
+import { useRouter } from "next/router";
 export default function Shop() {
+  const {
+    query: { slug },
+  } = useRouter();
   return (
     <Container>
       <div className={`flex pt-8 pb-16 lg:pb-20`}>
@@ -36,7 +39,15 @@ export default function Shop() {
                 </ActiveLink>
               </BreadcrumbItems>
             </div>
-            <ShopFilters />
+            <ShopFilters
+              slug={
+                typeof slug === "string"
+                  ? slug
+                  : Array.isArray(slug)
+                  ? slug[0] ?? ""
+                  : ""
+              }
+            />
           </StickyBox>
         </div>
         <div className="w-full ltr:lg:-ml-9 rtl:lg:-mr-9">

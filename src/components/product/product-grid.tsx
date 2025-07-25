@@ -30,12 +30,13 @@ export const ProductGrid: FC<ProductGridProps> = ({ className = "" }) => {
     isFetchingNextPage,
     error,
   } = useProductsQuery({ limit: 8, ...query });
+
   const { ref, inView } = useInView();
-  useEffect(() => {
-    if (inView && !isFetchingNextPage && hasNextPage) {
-      fetchNextPage();
-    }
-  }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
+    useEffect(() => {
+      if (inView && !isFetchingNextPage && hasNextPage) {
+        fetchNextPage();
+      }
+    }, [inView, fetchNextPage, hasNextPage, isFetchingNextPage]);
   const allProducts: Product[] =
     data?.pages
       ?.flatMap((page) => page.products ?? [])
