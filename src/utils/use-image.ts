@@ -45,10 +45,10 @@ export const handleImageHover = (
   targetSize: keyof typeof sizeMap = "medium"
 ): string => {
   if (!url) return "";
-  const sizePattern = /_(\d+x\d+)(\.(jpg|jpeg|png|webp|gif))$/i;
+  const sizePattern = /_(\d+x\d+)(\.(jpg|jpeg|png|webp|gif|avif))$/i;
   const labelPattern =
-    /_(tiny|small|medium|large|original)(\.(jpg|jpeg|png|webp|gif))$/i;
-  const fileExt = /\.(jpg|jpeg|png|webp|gif)$/i;
+    /_(tiny|small|medium|large|original)(\.(jpg|jpeg|png|webp|gif|avif))$/i;
+  const fileExt = /\.(jpg|jpeg|png|webp|gif|avif)$/i;
   let updated = url;
   // ✅ Đổi folder nếu có /tiny/ → /medium/
   updated = updated.replace(

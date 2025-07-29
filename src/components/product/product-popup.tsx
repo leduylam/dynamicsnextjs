@@ -119,7 +119,7 @@ export default function ProductPopup() {
     ? data?.attributes.find((attr: any) => attr.id === activeState)
     : [];
   const image = activeState
-    ? Object.keys(activeAttributes.image).length > 0
+    ? Object.keys(activeAttributes?.image || {}).length > 0
       ? activeAttributes.image
       : data.image
     : data.image;
