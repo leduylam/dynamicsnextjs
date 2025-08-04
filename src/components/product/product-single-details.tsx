@@ -203,7 +203,6 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     activeAttributes?.sub_attributes.length > 0
       ? cleanSku(activeAttributes?.sub_attributes[0].product_attribute_sku)
       : activeAttributes?.product_attribute_sku;
-
   const getProductQuantity = () => {
     if (activeAttributes) {
       return calculateTotalQuantity(activeAttributes);
@@ -425,7 +424,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                 {data?.product_categories?.map((category: any) => (
                   <Link
                     key={category.id}
-                    href={"/search?q=" + category.slug}
+                    href={"/categories/" + category.slug}
                     className="transition hover:underline hover:text-heading"
                   >
                     <span className="ml-2 bg-blue-100 text-blue-800 px-2 rounded-md font-bold">
