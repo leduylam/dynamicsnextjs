@@ -21,33 +21,7 @@ export default function ProductDetailTab({ data }: any) {
   }, [data]);
   const half = Math.ceil(allContent.length / 2);
   const columns = [allContent.slice(0, half), allContent.slice(half)];
-  const isEmpty = (value: any) => {
-    const str = typeof value === "string" ? value.trim().toLowerCase() : "";
-    return (
-      value === null ||
-      value === undefined ||
-      str === "null" ||
-      str === "" ||
-      str === "undefined" ||
-      str === "0" ||
-      str === "[]" ||
-      str === "{}"
-    );
-  };
 
-  const hasContent = !isEmpty(data?.content);
-  const hasIncludes = !isEmpty(data?.includes);
-  let parsedFeatures: any[] = [];
-
-  try {
-    parsedFeatures = data?.features ? JSON.parse(data.features) : [];
-  } catch (err) {
-    parsedFeatures = [];
-  }
-  const hasFeatures =
-    Array.isArray(parsedFeatures) && parsedFeatures.length > 0;
-
-  if (!hasContent || !hasIncludes || !hasFeatures) return null;
   return (
     <div className="mb-12 md:mb-14 xl:mb-16">
       <TabGroup as="div">
