@@ -10,12 +10,12 @@ export const fetchSearchedProducts = async (options: QueryOptionsType) => {
   const queryParams = new URLSearchParams(
     options as Record<string, string>
   ).toString();
-  const resource = await http.get(`${API_ENDPOINTS.SEARCH}?${queryParams}`);
-  return resource.data.data;
+  const { data } = await http.get(`${API_ENDPOINTS.SEARCH}?${queryParams}`);
+  return data;
 };
 export const useSearchQuery = (options: QueryOptionsType) => {
   const text = options.text || "";
-  return useQuery<Product[], Error>({
+  return useQuery({
     queryKey: [API_ENDPOINTS.SEARCH, options],
     queryFn: () => fetchSearchedProducts(options),
     enabled: text.length > 0,

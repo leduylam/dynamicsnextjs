@@ -108,7 +108,7 @@ export default function Search() {
                         ))}
                       </div>
                     ) : (
-                      data?.map((item: any, index: number) => (
+                      data?.products?.map((item: any, index: number) => (
                         <div
                           key={index}
                           className=" p-5 border-b border-gray-150 relative last:border-b-0"
