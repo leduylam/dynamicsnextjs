@@ -102,7 +102,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
           ...router.query,
           variant: data.attributes[0].id,
         };
-        router.push(
+        router.replace(
           {
             pathname: router.pathname,
             query: currentQuery,
@@ -161,7 +161,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
       setChooseQuantity(quantities.quantity);
       setActiveState(attributeId);
       const currentQuery = { ...router.query, variant: attributeId };
-      router.push(
+      router.replace(
         {
           pathname: router.pathname,
           query: currentQuery,

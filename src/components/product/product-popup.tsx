@@ -76,7 +76,7 @@ export default function ProductPopup() {
   }
   function navigateToProductPage() {
     closeModal();
-    window.location.href = `${ROUTES.PRODUCT}/${data.slug}`;
+    window.location.href = `${ROUTES.PRODUCT}/${data.slug}?variant=${activeState}`;
   }
   function handleAttributeParent(attribute: any, attributeId: number) {
     const quantities = allAttribute.find(

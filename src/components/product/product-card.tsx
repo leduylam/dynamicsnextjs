@@ -68,6 +68,7 @@ const ProductCard: FC<ProductProps> = ({
   const [attrImage, setAttrImage] = useState<string[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hoverImage, setHoverImage] = useState<string>("");
+  const [isHovered, setIsHovered] = useState(false);
   useEffect(() => {
     if (product?.image) {
       const imageUrl = getBestImage(product.image, "medium");
@@ -120,12 +121,14 @@ const ProductCard: FC<ProductProps> = ({
         className
       )}
       onClick={handlePopupView}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       role="button"
       title={product?.name}
     >
       <div
         className={cn(
-          "flex h-[204px] sm:h-[348px] md:h-[239px] lg:h-[202px] xl:h-[239px]",
+          "flex w-full h-[204px] sm:h-[348px] md:h-[239px] lg:h-[202px] xl:h-[239px]",
           {
             "mb-3 md:mb-3.5": variant === "grid",
             "mb-3 md:mb-3.5 pb-0": variant === "gridSlim",
@@ -296,30 +299,37 @@ const ProductCard: FC<ProductProps> = ({
           </p>
         </div>
 
-        {Array.isArray(attrImage) && attrImage.filter(Boolean).length > 1 && (
-          <div className="grid grid-cols-5 gap-2">
-            {attrImage.filter(Boolean).map((img: any, index: number) => (
-              <div
-                key={index}
-                className="w-auto shadow-product hover:border hover:border-gray-400"
-              >
-                <Image
-                  src={img}
-                  alt="Your Image"
-                  width={500}
-                  height={35}
-                  className="object-cover w-full"
-                  style={{ height: "auto", width: "auto" }}
-                  onMouseOver={() =>
-                    setHoverImage(handleImageHover(img, "medium"))
-                  }
-                  loading="lazy"
-                  priority={false}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {isHovered && attrImage.filter(Boolean).length > 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="absolute bottom-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm p-2 grid grid-cols-5 gap-1 rounded-b-md"
+            >
+              {attrImage.filter(Boolean).map((img: any, index: number) => (
+                <div
+                  key={index}
+                  className="w-auto shadow hover:border hover:border-gray-400 rounded-sm overflow-hidden"
+                >
+                  <Image
+                    src={img}
+                    alt={`Thumb ${index}`}
+                    width={500}
+                    height={35}
+                    className="object-cover w-full"
+                    style={{ height: "auto", width: "auto" }}
+                    onMouseOver={() =>
+                      setHoverImage(handleImageHover(img, "medium"))
+                    }
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
         {/* {!hideProductDescription && product?.description && (
           <p className="text-body text-xs lg:text-sm leading-normal xl:leading-relaxed max-w-[250px] truncate">
             {product?.description}
