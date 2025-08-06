@@ -9,16 +9,24 @@ export const CheckoutItem: React.FC<{ item: Item }> = ({ item }) => {
     <div className="flex py-4 items-center lg:px-3 border-b border-gray-300">
       <div className="relative flex shrink-0 border rounded-md border-gray-300 w-16 h-16">
         <Image
-          src={`${process.env.NEXT_PUBLIC_SITE_URL}/${item.image}` || "/assets/placeholder/order-product.svg"}
+          src={`${item.image}` || "/assets/placeholder/order-product.svg"}
           alt="currency"
           className="object-cover"
           fill
         />
       </div>
-      <Link href={'/products/' + item.slug} className="text-sm ltr:pl-3 rtl:pr-3 font-regular text-heading">
+      <Link
+        href={"/products/" + item.slug}
+        className="text-sm ltr:pl-3 rtl:pr-3 font-regular text-heading"
+      >
         {generateCartItemName(item.name, item.attributes)}
         <span className="block">SKU: {item.sku}</span>
-        <span className="block">Qty: <span className="bg-green-300 px-2 rounded-sm font-semibold">{item.quantity}</span></span>
+        <span className="block">
+          Qty:{" "}
+          <span className="bg-green-300 px-2 rounded-sm font-semibold">
+            {item.quantity}
+          </span>
+        </span>
       </Link>
       <div className="flex ltr:ml-auto rtl:mr-auto text-heading text-sm ltr:pl-2 rtl:pr-2 flex-shrink-0">
         {number_format(item.price)}
