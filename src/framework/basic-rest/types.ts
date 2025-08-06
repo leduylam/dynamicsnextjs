@@ -28,7 +28,7 @@ export type QueryOptionsType = {
   status?: string;
   limit?: number;
   page?: number;
-  demoVariant?: "ancient";
+  actions?: "filters";
   params?: { [anyProps: string]: string };
 };
 export type QueryBannerType = {

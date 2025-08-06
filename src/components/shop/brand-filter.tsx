@@ -3,11 +3,13 @@ import { useBrandsQuery } from "@framework/brand/get-all-brands";
 import { useRouter } from "next/router";
 import React from "react";
 
-export const BrandFilter = () => {
+export const BrandFilter = ({ slug }: { slug?: string }) => {
   const router = useRouter();
   const { pathname, query } = router;
   const { data, isLoading, error } = useBrandsQuery({
     limit: 10,
+    slug,
+    actions: "filters",
   });
   const selectedBrands = query?.brand ? (query.brand as string).split(",") : [];
   const [formState, setFormState] = React.useState<string[]>(selectedBrands);

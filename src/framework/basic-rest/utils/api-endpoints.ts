@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   BANNERS: "/v1/dynamic/home/banners",
   SECOND_BANNER: "/v1/dynamic/home/second-banner",
   PRODUCTS: "/v1/dynamic/products",
+  BRANDS_FILTERS: "/v1/dynamic/products/brand-filters",
   SIZES: "/v1/dynamic/products/get_size",
   PRODUCT: "/v1/dynamic/product",
   COLLECTION: "/v1/dynamic/home/collections",

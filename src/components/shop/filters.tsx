@@ -46,7 +46,7 @@ export const ShopFilters: React.FC<Props> = ({ slug }) => {
       </div>
 
       {/* <CategoryFilter /> */}
-      <BrandFilter />
+      <BrandFilter slug={slug} />
       {/* <PriceFilter /> */}
       {/* <ColorFilter /> */}
       {Object.keys(variations).map((variation) => (

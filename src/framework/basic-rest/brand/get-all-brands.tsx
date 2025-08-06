@@ -7,14 +7,29 @@ export const fetchBrands = async () => {
   const { data } = await http.get(API_ENDPOINTS.BRANDS);
   return data;
 };
-
+const fetchFilteredBrands = async (options: QueryOptionsType = {}) => {
+  const { slug, ...query } = options;
+  const normalizedSlug = Array.isArray(slug) ? slug.join("/") : slug;
+  const { data } = await http.get(API_ENDPOINTS.BRANDS_FILTERS, {
+    params: { ...query, slug: normalizedSlug },
+  });
+  return data;
+};
 export const useBrandsQuery = (options: QueryOptionsType) => {
+  const normalizedSlug = Array.isArray(options.slug)
+    ? options.slug.join("/")
+    : options.slug;
   return useQuery<
     { brands: Brand[]; brandsGrid: Brand[]; brandsTimer: Brand[] },
     Error
   >({
-    queryKey: [API_ENDPOINTS.BRANDS, options],
-    queryFn: fetchBrands,
-    staleTime: 1000 * 60 * 10,
+    queryKey:
+      options.actions === "filters"
+        ? [API_ENDPOINTS.BRANDS_FILTERS, { ...options, slug: normalizedSlug }]
+        : [API_ENDPOINTS.BRANDS, options],
+    queryFn:
+      options.actions === "filters"
+        ? () => fetchFilteredBrands({ ...options, slug: normalizedSlug })
+        : fetchBrands,
   });
 };
