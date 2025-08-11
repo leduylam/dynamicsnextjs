@@ -1,6 +1,6 @@
 import React from "react";
 import ActiveLink from "@components/ui/active-link";
-import useBreadcrumb, { convertBreadcrumbTitle } from "@utils/use-breadcrumb";
+import useBreadcrumb from "@utils/use-breadcrumb";
 
 interface Props {
   children: any;
@@ -48,7 +48,6 @@ export const BreadcrumbItems = (props: any) => {
     }
     return acc;
   }, []);
-
   return (
     <div className="flex items-center chawkbazarBreadcrumb">
       <ol className="flex items-center w-full overflow-hidden">{children}</ol>
@@ -71,7 +70,7 @@ const Breadcrumb: React.FC<{ separator?: string }> = ({ separator = "/" }) => {
           className="capitalize"
           key={breadcrumb.href}
         >
-          {convertBreadcrumbTitle(breadcrumb.breadcrumb)}
+          {breadcrumb.breadcrumb}
         </ActiveLink>
       ))}
     </BreadcrumbItems>

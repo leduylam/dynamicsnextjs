@@ -76,19 +76,12 @@ const ProductCard: FC<ProductProps> = ({
     }
   }, [product?.image]);
   useEffect(() => {
-    if (product?.attributes?.length) {
-      const imageUrls = product.attributes
-        .filter((attr: any) => {
-          const hasStock =
-            Array.isArray(attr.sub_attributes) && attr.sub_attributes.length > 0
-              ? attr.sub_attributes.some((sub: any) => Number(sub.quantity) > 0)
-              : Number(attr.quantity) > 0;
-          return hasStock;
-        })
-        .map((attr: any) => getBestImage(attr.image, "tiny"))
-        .filter(Boolean); // loại bỏ null/undefined
-      setAttrImage(imageUrls);
-    }
+    const imageUrls = Array.isArray(product?.attributes)
+      ? product.attributes
+          .map((attr: any) => getBestImage(attr.image, "tiny"))
+          .filter((img): img is string => typeof img === "string" && !!img)
+      : [];
+    setAttrImage(imageUrls);
   }, [product?.attributes]);
 
   return (
