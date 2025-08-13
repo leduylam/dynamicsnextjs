@@ -217,6 +217,7 @@ export const SizeFilter = ({ title, items = [] }: SizeFilterProps) => {
                 if (!list.length) return null;
                 return (
                   <BucketList
+                    key={bucket}
                     data={{ [bucket]: list }}
                     formState={formState}
                     toggleValue={toggleValue}
