@@ -1,144 +1,144 @@
 import { CheckBox } from "@components/ui/checkbox";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+
+interface Item {
+  id?: string | number;
+  name: string; // group name (e.g. "Size", "Material")
+  value: string; // option value (e.g. "M", "Cotton")
+}
+
 interface SizeFilterProps {
   title?: string;
-  items?: any;
+  items?: Item[];
 }
-export const SizeFilter = ({ title, items }: SizeFilterProps) => {
+
+// ---- helpers ----
+const FILTER_RE = /^filter\[(.+)\]$/i;
+
+function parseFiltersFromQuery(
+  query: Record<string, any>
+): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const [key, raw] of Object.entries(query)) {
+    const m = key.match(FILTER_RE);
+    if (!m) continue;
+    const g = m[1].toLowerCase();
+    if (typeof raw === "string") {
+      out[g] = raw
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
+    } else if (Array.isArray(raw)) {
+      // Next đôi khi trả mảng nhưng mình vẫn merge thành unique list
+      out[g] = [
+        ...new Set(
+          raw.flatMap((s) =>
+            String(s)
+              .split(",")
+              .map((v) => v.trim())
+          )
+        ),
+      ].filter(Boolean);
+    }
+  }
+  return out;
+}
+
+function buildNextQuery(
+  baseQuery: Record<string, any>,
+  nextFilters: Record<string, string[]>
+) {
+  // 1) giữ lại các query KHÔNG phải filter[...]
+  const clean: Record<string, any> = {};
+  for (const [key, val] of Object.entries(baseQuery)) {
+    if (!FILTER_RE.test(key)) clean[key] = val;
+  }
+  // 2) thêm lại filter[...] theo nextFilters
+  for (const [g, values] of Object.entries(nextFilters)) {
+    if (values.length === 0) continue;
+    clean[`filter[${g}]`] = values.join(",");
+  }
+  return clean;
+}
+
+export const SizeFilter = ({ title, items = [] }: SizeFilterProps) => {
   const router = useRouter();
-  const { query } = router;
-  const selectedFilters = Object.entries(query).reduce<
-    Record<string, string[]>
-  >((acc, [key, val]) => {
-    const match = key.match(/^filter\[(.+)\]$/); // match "filter[size]"
-    if (!match) return acc;
-    const filterKey = match[1];
-    if (typeof val === "string") {
-      acc[filterKey] = val.split(",").map((v) => v.trim());
-    } else if (Array.isArray(val)) {
-      acc[filterKey] = val;
-    } else {
-      acc[filterKey] = [];
-    }
-    return acc;
-  }, {});
-  const [formState, setFormState] =
-    React.useState<Record<string, string[]>>(selectedFilters);
-  React.useEffect(() => {
+  const { query, isReady, asPath } = router;
+
+  // filters hiện tại lấy thẳng từ URL (phẳng theo filter[...])
+  const selectedFilters = useMemo(() => parseFiltersFromQuery(query), [query]);
+
+  // formState để control UI (checkbox)
+  const [formState, setFormState] = useState<Record<string, string[]>>({});
+
+  // đồng bộ UI khi URL thay đổi
+  useEffect(() => {
+    if (!isReady) return;
     setFormState(selectedFilters);
-  }, [query]);
-  const [colors, setColors] = useState<string[]>([]);
+  }, [isReady, selectedFilters]);
+
+  // xử lý Color đặc biệt (chuẩn hóa và tách theo "-")
+  const uniqueColors = useMemo(() => {
+    if (title !== "Color" || !items?.length) return [];
+    const parts = items
+      .map((x) => String(x.value ?? "").trim())
+      .filter(Boolean)
+      .flatMap((c) => c.split("-").map((s) => s.trim()))
+      .filter(Boolean);
+    return [...new Set(parts)];
+  }, [title, items]);
+
   const [visibleCount, setVisibleCount] = useState(10);
-  function handleItemClick(
-    e: React.FormEvent<HTMLInputElement>,
-    rawGroup: string
-  ): void {
-    const group = rawGroup.toLowerCase();
-    const { value } = e.currentTarget;
-    const currentValues = formState[group] ?? [];
+  const showMore = () => setVisibleCount((n) => n + 10);
 
-    const updatedValues = currentValues.includes(value)
-      ? currentValues.filter((v) => v !== value)
-      : [...currentValues, value];
+  function toggleValue(groupRaw: string, value: string) {
+    const group = groupRaw.toLowerCase();
+    const current = formState[group] ?? [];
+    const exists = current.includes(value);
+    const nextValues = exists
+      ? current.filter((v) => v !== value)
+      : [...current, value];
 
-    // Cập nhật UI
-    setFormState((prev) => ({
-      ...prev,
-      [group]: updatedValues,
-    }));
+    // Cập nhật UI ngay
+    const nextForm = { ...formState };
+    if (nextValues.length === 0) delete nextForm[group];
+    else nextForm[group] = nextValues;
+    setFormState(nextForm);
 
-    // Lấy filter hiện tại
-    const currentFilter =
-      typeof query.filter === "object" &&
-      query.filter !== null &&
-      !Array.isArray(query.filter)
-        ? (query.filter as Record<string, string>)
-        : {};
+    // Cập nhật URL — xóa filter cũ rồi set mới
+    const nextQuery = buildNextQuery(query, nextForm);
 
-    const newFilter = { ...currentFilter };
-
-    if (updatedValues.length > 0) {
-      newFilter[group] = updatedValues.join(",");
-    } else {
-      delete newFilter[group]; // 🧹 Xoá key nếu không còn value nào
-    }
-
-    const filterQuery: Record<string, string> = {};
-    Object.entries(newFilter).forEach(([key, value]) => {
-      filterQuery[`filter[${key}]`] = value;
-    });
-
-    const filterKeys =
-      typeof query.filter === "object" &&
-      query.filter !== null &&
-      !Array.isArray(query.filter)
-        ? Object.keys(query.filter)
-        : [];
-    const cleanQuery = filterKeys.reduce<Record<string, any>>((acc, k) => {
-      if (!/^filter\[.+\]$/.test(k)) acc[k] = query[k];
-      return acc;
-    }, {});
-    // Add updated filter keys
-    Object.assign(cleanQuery, filterQuery);
-
-    router.push(
-      {
-        pathname: router.asPath.split("?")[0], // đường path thực tế
-        query: { ...cleanQuery },
-      },
+    router.replace(
+      { pathname: asPath.split("?")[0], query: nextQuery },
       undefined,
-      { scroll: false }
+      { scroll: false, shallow: true }
     );
   }
-  useEffect(() => {
-    if (items && title === "Color") {
-      setColors(items.map((color: { value: any }) => color.value));
-    }
-  }, [items, title]);
-  const splitColors = colors.flatMap((color) =>
-    color.split("-").map((part: string) => part.trim())
-  );
-  const uniqueColors = [...new Set(splitColors)];
-  const showMore = () => {
-    setVisibleCount((prevCount) => prevCount + 10);
-  };
-  React.useEffect(() => {
-    Object.keys(query).forEach((key) => {
-      const values =
-        typeof query[key] === "string" ? query[key].split(",") : [];
-      setFormState((prevState) => ({
-        ...prevState,
-        [key]: values,
-      }));
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
 
   return (
     <div className="block border-b border-gray-300 pb-7">
       <h3 className="text-heading text-sm md:text-base font-semibold mb-7">
         {title}
       </h3>
+
       <div className="mt-2 flex flex-col space-y-4">
         {title === "Color" ? (
           <>
-            {uniqueColors
-              .slice(0, visibleCount)
-              ?.map((item: any, index: number) => (
+            {uniqueColors.slice(0, visibleCount).map((color, i) => {
+              const g = (title ?? "").toLowerCase();
+              const checked = (formState[g] ?? []).includes(color);
+              return (
                 <CheckBox
-                  key={index}
-                  label={<span className="flex items-center">{item}</span>}
-                  name={title.toLowerCase()}
-                  checked={
-                    (Array.isArray(formState[title.toLowerCase()]) &&
-                      formState[title.toLowerCase()]?.includes(item)) ||
-                    false
-                  }
-                  value={item}
-                  onChange={(e) => handleItemClick(e, title)}
+                  key={`${color}-${i}`}
+                  label={<span className="flex items-center">{color}</span>}
+                  name={g}
+                  checked={checked}
+                  value={color}
+                  onChange={() => toggleValue(title!, color)}
                 />
-              ))}
+              );
+            })}
             {visibleCount < uniqueColors.length && (
               <p
                 className="text-sm mx-5 cursor-pointer italic hover:underline"
@@ -150,20 +150,22 @@ export const SizeFilter = ({ title, items }: SizeFilterProps) => {
           </>
         ) : (
           <>
-            {items?.map((item: any) => (
-              <CheckBox
-                key={item.id}
-                label={<span className="flex items-center">{item.value}</span>}
-                name={item.name.toLowerCase()}
-                checked={
-                  (Array.isArray(formState[item.name.toLowerCase()]) &&
-                    formState[item.name.toLowerCase()]?.includes(item.value)) ||
-                  false
-                }
-                value={item.value}
-                onChange={(e) => handleItemClick(e, item.name)}
-              />
-            ))}
+            {items.map((item) => {
+              const g = item.name.toLowerCase();
+              const checked = (formState[g] ?? []).includes(item.value);
+              return (
+                <CheckBox
+                  key={item.id ?? `${g}-${item.value}`}
+                  label={
+                    <span className="flex items-center">{item.value}</span>
+                  }
+                  name={g}
+                  checked={checked}
+                  value={item.value}
+                  onChange={() => toggleValue(item.name, item.value)}
+                />
+              );
+            })}
           </>
         )}
       </div>
