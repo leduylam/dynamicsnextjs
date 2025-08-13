@@ -25,7 +25,9 @@ const ProductMetaReview: React.FC<Props> = ({ data }) => {
     return (
       <ul className="list-disc ml-6">
         {content.map((item: any, index: number) => (
-          <li key={index}>{item.spectValue}</li>
+          <li key={index}>
+            {typeof item === "object" ? item.spectValue : item}
+          </li>
         ))}
       </ul>
     );
