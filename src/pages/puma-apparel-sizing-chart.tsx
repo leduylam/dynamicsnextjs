@@ -17,7 +17,7 @@ export default function PumaApparelSizingChart() {
           <Breadcrumb />
         </div>
         <div className="flex flex-col">
-          <div className="md:w-10/12 ltr:md:pl-8 rtl:md:pr-8 ">
+          <div className="ltr:md:pl-8 rtl:md:pr-8 ">
             {pumaApparelSizingChart?.map((item) => (
               // @ts-ignore
               <Element
@@ -40,7 +40,7 @@ export default function PumaApparelSizingChart() {
                             {table.head_title}
                           </p>
                           <div className=" overflow-auto">
-                            <table className="w-full border border-heading">
+                            <table className="w-full">
                               <thead>
                                 <tr>
                                   {table.thead.map((q: string) => (

@@ -17,7 +17,7 @@ export default function PumaShoeSizingChart() {
           <Breadcrumb />
         </div>
         <div className="flex flex-col">
-          <div className="pt-0 md:w-9/12 ltr:md:pl-8 rtl:md:pr-8 lg:pt-2">
+          <div className="pt-0 ltr:md:pl-8 rtl:md:pr-8 lg:pt-2">
             {pumaShoeSizingChart?.map((item) => (
               // @ts-ignore
               <Element
