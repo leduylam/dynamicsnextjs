@@ -24,7 +24,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#fbedd0]",
-                    content: "<a href=''> <b>Ultralight 63</b> <img src='https://www.fairwaygolfusa.com/sp/images/US_kids/ul63.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 63</b> <img src='https://www.fairwaygolfusa.com/sp/images/US_kids/ul63.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -48,7 +49,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#f5d6db]",
-                    content: "<a href=''> <b>Ultralight 60</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul60.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 60</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul60.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -72,7 +74,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#cbe8ca]",
-                    content: "<a href=''> <b>Ultralight 57</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul57.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 57</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul57.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -96,7 +99,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#dac9e9]",
-                    content: "<a href=''> <b>Ultralight 54</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul54.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 54</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul54.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -120,7 +124,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#f3c8bf]",
-                    content: "<a href=''> <b>Ultralight 51</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul51.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 51</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul51.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -144,7 +149,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#b3f2ff]",
-                    content: "<a href=''> <b>Ultralight 48</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul48.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 48</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul48.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -163,7 +169,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#bdd3f5]",
-                    content: "<a href=''> <b>Ultralight 45</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul45.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 45</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul45.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -182,7 +189,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#fcf7b6]",
-                    content: "<a href=''> <b>Ultralight 42</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul42.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 42</b> <img src='http://www.fairwaygolfusa.com/sp/images/US_kids/ul42.gif'/> </a>",
                     img: "",
                   },
                   {
@@ -201,7 +209,8 @@ export const usKidSizingChart = [
                   },
                   {
                     className: "bg-[#f5bdc1]",
-                    content: "<a href=''> <b>Ultralight 39</b> <img src='https://www.fairwaygolfusa.com/sp/images/US_kids/ul39.gif'/> </a>",
+                    content:
+                      "<a href=''> <b>Ultralight 39</b> <img src='https://www.fairwaygolfusa.com/sp/images/US_kids/ul39.gif'/> </a>",
                     img: "",
                   },
                   {

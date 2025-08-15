@@ -1,7 +1,8 @@
 export const gregNormanSizingChart = [
   {
     id: "1",
-    title: "Men's",
+    title: "",
+    img: "/assets/images/gnc-mens-chart.webp",
     description: [
       {
         appTitle: "",
@@ -46,13 +47,14 @@ export const gregNormanSizingChart = [
   },
   {
     id: "2",
-    title: "Women's",
+    title: "",
+    img: "/assets/images/womens-size.webp",
     description: [
       {
         appTitle: "",
         table: [
           {
-            head_title: "Women's Polo",
+            head_title: "WOMEN'S POLOS/BOTTOM/DRESS SIZING CHART",
             thead: [
               "SIZE",
               "BUST",
@@ -72,13 +74,27 @@ export const gregNormanSizingChart = [
                 tr: ["M(8/10)", "35″-37″", "30″-32″", "38″-39″", "7½″", "24¾″"],
               },
               {
-                tr: ["L(12/14)", "37″-40″", "33″-36″", "40″-42″", "7¾″", "24⅞″"],
+                tr: [
+                  "L(12/14)",
+                  "37″-40″",
+                  "33″-36″",
+                  "40″-42″",
+                  "7¾″",
+                  "24⅞″",
+                ],
               },
               {
                 tr: ["XL(16/18)", "41″-44″", "38″-41″", "42″-46″", "8″", "25″"],
               },
               {
-                tr: ["XXL(20/22)", "44″-47″", "42″-45″", "47″-50″", "8¼″", "25⅛″"],
+                tr: [
+                  "XXL(20/22)",
+                  "44″-47″",
+                  "42″-45″",
+                  "47″-50″",
+                  "8¼″",
+                  "25⅛″",
+                ],
               },
             ],
           },
