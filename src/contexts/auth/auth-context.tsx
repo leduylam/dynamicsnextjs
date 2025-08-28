@@ -1,131 +1,187 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import { ReactNode } from "react";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 
-// Định nghĩa các interface
+// Types
 interface User {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
 }
-
 interface UserData {
-    user: User;
-    roles: string[];
-    permissions: string[];
+  user: User;
+  roles: any[]; // có thể là string[] hoặc object[]
+  permissions: string[];
+}
+interface AuthContextType {
+  user: User | null;
+  roles: string[] | null; // <-- luôn là slug[]
+  permissions: string[] | null;
+  login: (userData: UserData) => void;
+  logout: () => void;
+  loading: boolean;
+  accessRights: Record<string, boolean>;
+  setAccessRight: (
+    key: string,
+    requiredRoles?: string[],
+    requiredPermissions?: string[]
+  ) => void;
 }
 
-interface AuthContextType {
-    user: User | null;
-    roles: string[] | null;
-    permissions: string[] | null;
-    login: (userData: UserData, accessToken: string, refreshToken: string, expiresIn: number) => void;
-    logout: () => void;
-    loading: boolean;
-    accessRights: Record<string, boolean>; // Add accessRights to the interface
-    setAccessRight: (key: string, requiredRoles?: string[], requiredPermissions?: string[]) => void; // Hàm để check quyền
-}
-// Tạo context
 const AuthContext = createContext<AuthContextType | null>(null);
-// AuthProvider
+
 interface AuthProviderProps {
-    children: ReactNode;
-    initialData?: UserData; // Nhận initialData từ server-side
+  children: ReactNode;
+  initialData?: UserData; // từ SSR
 }
+
+// --- helpers ---
+const toSlug = (v: any): string =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+
+const normalizeRolesToSlugs = (roles: any[]): string[] => {
+  // Hỗ trợ cả dạng ["Admin", "Super Admin"] hoặc [{slug:"admin"},{name:"Super Admin"}]
+  return (roles ?? [])
+    .map((r: any) => {
+      if (!r) return null;
+      if (typeof r === "string") return toSlug(r);
+      if (typeof r === "object") {
+        if (r.slug) return toSlug(r.slug);
+        if (r.name) return toSlug(r.name);
+      }
+      return null;
+    })
+    .filter(Boolean) as string[];
+};
 
 export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
-    const [user, setUser] = useState<User | null>(initialData?.user || null);
-    const [roles, setRoles] = useState<string[]>(initialData?.roles || []);
-    const [permissions, setPermissions] = useState<string[]>(initialData?.permissions || []);
-    const [loading, setLoading] = useState<boolean>(!initialData); // Chỉ loading nếu không có initialData
-    const [accessRights, setAccessRights] = useState<Record<string, boolean>>({})
+  const [user, setUser] = useState<User | null>(initialData?.user || null);
+  const [roles, setRoles] = useState<string[]>(
+    initialData?.roles ? normalizeRolesToSlugs(initialData.roles) : []
+  );
+  const [permissions, setPermissions] = useState<string[]>(
+    initialData?.permissions || []
+  );
+  const [loading, setLoading] = useState<boolean>(!initialData);
+  const [accessRights, setAccessRights] = useState<Record<string, boolean>>({});
 
-    const setAccessRight = (key: string, requiredRoles: string[] = [], requiredPermissions: string[] = [], checkRoles: string[] = roles, checkPermissions: string[] = permissions) => {
-        const hasRole = requiredRoles.some((role) => checkRoles?.includes(role) ?? false);
-        const hasPermission = requiredPermissions.some((perm) => checkPermissions?.includes(perm) ?? false);
-        setAccessRights((prev) => {
-            const newAccessRights = { ...prev, [key]: hasRole || hasPermission };
-            return newAccessRights;
-        });
-    };
+  const setAccessRight = (
+    key: string,
+    requiredRoles: string[] = [],
+    requiredPermissions: string[] = [],
+    checkRoles: string[] = roles,
+    checkPermissions: string[] = permissions
+  ) => {
+    // So sánh theo slug
+    const requiredRoleSlugs = requiredRoles.map(toSlug);
+    const hasRole = requiredRoleSlugs.some(
+      (role) => checkRoles?.includes(role) ?? false
+    );
+    const hasPermission = requiredPermissions.some(
+      (perm) => checkPermissions?.includes(perm) ?? false
+    );
+    setAccessRights((prev) => ({ ...prev, [key]: hasRole || hasPermission }));
+  };
 
-    const checkAllAccessRights = (checkRoles: string[], checkPermissions: string[]) => {
-        setAccessRight("canWholeSalePrice", ["Admin", "User"], [], checkRoles, checkPermissions);
-        setAccessRight("canEdit", ["Admin"], ["edit"], checkRoles, checkPermissions);
-    };
-    // Fetch user từ API /me nếu không có initialData
-    useEffect(() => {
-        const fetchUser = async () => {
-            const token = Cookies.get("access_token");
-            if (!token || initialData) {
-                setLoading(false); // Không fetch nếu đã có initialData hoặc không có token
-                return;
-            }
+  const checkAllAccessRights = (
+    checkRoles: string[],
+    checkPermissions: string[]
+  ) => {
+    setAccessRight(
+      "canWholeSalePrice",
+      ["admin", "user", "super-admin"],
+      [],
+      checkRoles,
+      checkPermissions
+    );
+    setAccessRight(
+      "canEdit",
+      ["admin"],
+      ["edit"],
+      checkRoles,
+      checkPermissions
+    );
+  };
 
-            try {
-                setLoading(true);
-                const response = await http.get(API_ENDPOINTS.ME, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!response?.data) throw new Error("Không thể lấy thông tin user");
-                const data = response.data;
-                setUser(data.user);
-                setRoles(data.roles);
-                setPermissions(data.permissions);
-                checkAllAccessRights(data.roles, data.permissions);
-            } catch (error) {
-                console.error("Lỗi khi fetch user:", error);
-                setUser(null);
-                setRoles([]);
-                setPermissions([]);
-                setAccessRights({});
-            } finally {
-                setLoading(false);
-            }
-        };
+  // Hydrate từ SSR nếu có
+  useEffect(() => {
+    if (initialData) {
+      const r = normalizeRolesToSlugs(initialData.roles ?? []);
+      setRoles(r);
+      checkAllAccessRights(r, initialData.permissions ?? []);
+      setLoading(false);
+      return;
+    }
 
-        fetchUser();
-    }, [initialData]); // Chỉ chạy lại nếu initialData thay đổi
-
-    // Hàm đăng nhập
-    const login = (userData: UserData, accessToken: string, refreshToken: string, expiresIn: number) => {
-        const expires = new Date(new Date().getTime() + expiresIn * 60 * 60 * 1000); // expiresIn tính bằng giờ
-        Cookies.set("access_token", accessToken, { expires });
-        Cookies.set("refresh_token", refreshToken, { expires });
-
-        setUser(userData.user);
-        setRoles(userData.roles);
-        setPermissions(userData.permissions);
-        checkAllAccessRights(userData.roles, userData.permissions);
-    };
-
-    // Hàm đăng xuất
-    const logout = () => {
-        Cookies.remove("access_token");
-        Cookies.remove("refresh_token");
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await http.get(API_ENDPOINTS.ME);
+        if (!mounted) return;
+        const data = res.data as UserData;
+        const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
+        setUser(data.user ?? null);
+        setRoles(roleSlugs);
+        setPermissions(data.permissions ?? []);
+        checkAllAccessRights(roleSlugs, data.permissions ?? []);
+      } catch {
+        if (!mounted) return;
         setUser(null);
         setRoles([]);
         setPermissions([]);
         setAccessRights({});
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
     };
+  }, [initialData]);
 
-    return (
-        <AuthContext.Provider value={{ user, roles, permissions, login, logout, loading, accessRights, setAccessRight }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  // login: nhận mọi format, convert về slug luôn
+  const login = (userData: UserData) => {
+    const roleSlugs = normalizeRolesToSlugs(userData.roles ?? []);
+    setUser(userData.user);
+    setRoles(roleSlugs);
+    setPermissions(userData.permissions ?? []);
+    checkAllAccessRights(roleSlugs, userData.permissions ?? []);
+  };
+
+  const logout = () => {
+    setUser(null);
+    setRoles([]);
+    setPermissions([]);
+    setAccessRights({});
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        roles,
+        permissions,
+        login,
+        logout,
+        loading,
+        accessRights,
+        setAccessRight,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-// Hook để sử dụng auth
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+  return ctx;
 };

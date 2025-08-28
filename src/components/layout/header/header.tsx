@@ -22,6 +22,7 @@ const Header: React.FC = () => {
     staleTime: 1000 * 60 * 10,
   });
   const { openSearch, openModal, setModalView, isAuthorized } = useUI();
+  
   const siteHeaderRef = useRef() as DivElementRef;
   useAddActiveScroll(siteHeaderRef);
 

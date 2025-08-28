@@ -321,7 +321,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                     {price_sale && (
                       <>
                         <span className="line-through font-segoe text-gray-400 text-sm md:text-base lg:text-base xl:text-lg ltr:pl-2 rtl:pr-2">
-                          {price}
+                          W/S: {price}
                         </span>
                         {percent && (
                           <span className="ml-2 bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
@@ -336,11 +336,14 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                     )}
                     {price_sale ? (
                       <div className="text-red-500 font-bold text-base md:text-xl lg:text-lg 2xl:text-2xl ltr:pr-2 rtl:pl-2 ltr:md:pr-0 rtl:md:pl-0 ltr:lg:pr-2 rtl:lg:pl-2 ltr:2xl:pr-0 rtl:2xl:pl-0">
-                        {number_format(price_sale)}{" "}
+                        W/S: {number_format(price_sale)}{" "}
                         <span className="text-base italic">VND</span>
                       </div>
                     ) : (
                       <div className="text-red-500 font-bold text-base md:text-xl lg:text-lg 2xl:text-2xl ltr:pr-2 rtl:pl-2 ltr:md:pr-0 rtl:md:pl-0 ltr:lg:pr-2 rtl:lg:pl-2 ltr:2xl:pr-0 rtl:2xl:pl-0">
+                        <span className="text-gray-600 font-semibold text-base md:text-xl lg:text-lg italic">
+                          W/S:{" "}
+                        </span>
                         {number_format(data?.product_price)}{" "}
                         <span className="text-base italic">VND</span>
                       </div>
