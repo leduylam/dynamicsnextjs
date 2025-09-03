@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+
 interface CheckBoxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   labelKey?: string;
   label?: string | any;
+  indeterminate?: boolean; // thêm prop
 }
+
 export const CheckBox = React.forwardRef<HTMLInputElement, CheckBoxProps>(
-  ({ labelKey, label, ...rest }, ref) => {
+  ({ labelKey, label, indeterminate = false, ...rest }, ref) => {
+    const defaultRef = useRef<HTMLInputElement>(null);
+    const resolvedRef =
+      (ref as React.RefObject<HTMLInputElement>) || defaultRef;
+
+    useEffect(() => {
+      if (resolvedRef.current) {
+        resolvedRef.current.indeterminate = !!indeterminate;
+      }
+    }, [indeterminate, resolvedRef]);
+
     return (
       <label className="group flex items-center text-heading text-sm cursor-pointer">
         <input
           type="checkbox"
           className="form-checkbox w-5 h-5 border border-gray-300 rounded cursor-pointer transition duration-500 ease-in-out focus:ring-offset-0 hover:border-heading focus:outline-none focus:ring-0 focus-visible:outline-none checked:bg-heading checked:hover:bg-heading checked:focus:bg-heading"
-          ref={ref}
-          {...rest}
+          ref={resolvedRef}
+          {...rest} // KHÔNG spread indeterminate xuống DOM
         />
         <span className="ms-4 -mt-0.5">{labelKey ? labelKey : label}</span>
       </label>

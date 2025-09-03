@@ -18,7 +18,7 @@ import {
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 import { useAuth } from "@contexts/auth/auth-context";
-import { getAllImageSizes } from "@utils/use-image";
+import Image from "next/image";
 export default function ProductPopup() {
   const {
     modalData: { data },
@@ -128,8 +128,7 @@ export default function ProductPopup() {
     if (!image) return;
     setLoading(true);
     const timeout = setTimeout(() => {
-      const bestImg = getAllImageSizes(image); // 👈 dùng đúng hàm đã export
-      setDelayedImage(bestImg || "");
+      setDelayedImage(image || "");
     }, 150);
     return () => clearTimeout(timeout);
   }, [image]);
@@ -178,10 +177,10 @@ export default function ProductPopup() {
             </div>
           )}
           {delayedImage && (
-            <img
-              src={`${delayedImage.original}`}
-              srcSet={`${delayedImage.tiny} 480w, ${delayedImage.small} 640w, ${delayedImage.medium} 800w, ${delayedImage.original} 1200w`}
-              sizes="(max-width: 768px) 100vw, 800px"
+            <Image
+              src={`${delayedImage}`}
+              width={430}
+              height={430}
               alt={data.name}
               onLoad={() => setLoading(false)}
               onError={() => setLoading(false)}

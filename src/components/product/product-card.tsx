@@ -11,8 +11,6 @@ import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { getBestImage, handleImageHover } from "@utils/use-image";
-
 interface ProductProps {
   product: Product;
   className?: string;
@@ -39,7 +37,7 @@ interface ProductProps {
   demoVariant?: "ancient";
   disableBorderRadius?: boolean;
 }
-
+const MotionImage = motion(Image);
 const ProductCard: FC<ProductProps> = ({
   product,
   className = "",
@@ -48,6 +46,7 @@ const ProductCard: FC<ProductProps> = ({
   variant = "list",
   imgWidth = 340,
   imgHeight = 340,
+  imgLoading,
   showCategory = false,
   showRating = false,
   bgTransparent = false,
@@ -56,6 +55,7 @@ const ProductCard: FC<ProductProps> = ({
   disableBorderRadius = false,
 }) => {
   const { accessRights } = useAuth();
+  const placeholderImage = `/assets/placeholder/products/product-${variant}.svg`;
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
   const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   function handlePopupView() {
@@ -71,19 +71,38 @@ const ProductCard: FC<ProductProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   useEffect(() => {
     if (product?.image) {
-      const imageUrl = getBestImage(product.image, "medium");
-      setHoverImage(imageUrl || "");
+      setHoverImage(product?.image || "");
     }
   }, [product?.image]);
   useEffect(() => {
-    const imageUrls = Array.isArray(product?.attributes)
-      ? product.attributes
-          .map((attr: any) => getBestImage(attr.image, "tiny"))
-          .filter((img): img is string => typeof img === "string" && !!img)
-      : [];
-    setAttrImage(imageUrls);
+    if (Array.isArray(product?.attributes)) {
+      const imageUrls = product.attributes
+        .map((attr: any) => {
+          if (!attr) return null;
+          // Nếu BE trả object gallery, ưu tiên image_path
+          if (typeof attr.image === "object" && attr.image !== null) {
+            return (
+              attr.image?.original ||
+              attr.image?.large ||
+              attr.image?.medium ||
+              attr.image?.small ||
+              attr.image?.url ||
+              attr.image?.image_path ||
+              null
+            );
+          }
+          // Nếu là string thì dùng trực tiếp
+          if (typeof attr.image === "string" && attr.image.trim() !== "") {
+            return attr.image;
+          }
+          return null;
+        })
+        .filter((u: any) => typeof u === "string" && u.length > 0); // lọc null/undefined
+      setAttrImage(imageUrls);
+    } else {
+      setAttrImage([]);
+    }
   }, [product?.attributes]);
-
   return (
     <div
       className={cn(
@@ -143,45 +162,26 @@ const ProductCard: FC<ProductProps> = ({
           className="w-full h-full"
         >
           <AnimatePresence mode="wait">
-            <motion.img
-              key={hoverImage}
-              src={hoverImage}
-              srcSet={`
-                ${product?.image?.tiny} 352px,
-                ${product?.image?.small} 540px,
-                ${product?.image?.medium} 720px,
-              `}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
-              width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
-              height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
-              alt={product?.name || "Product Image"}
-              loading="eager" // Chuyển đổi loading
-              onLoad={() => setIsImageLoaded(true)}
-              className={cn(
-                `bg-white ${!disableBorderRadius && "rounded-s-md"}`,
-                {
-                  "w-full h-full object-contain ": true,
-                  "transition duration-200 ease-in":
-                    variant === "grid" ||
-                    variant === "gridModern" ||
-                    variant === "gridModernWide" ||
-                    variant === "gridTrendy",
-                  "rounded-md group-hover:rounded-b-none":
-                    (variant === "grid" && !disableBorderRadius) ||
-                    (variant === "gridModern" && !disableBorderRadius) ||
-                    (variant === "gridModernWide" && !disableBorderRadius) ||
-                    (variant === "gridTrendy" && !disableBorderRadius),
-                  "rounded-md transition duration-150 ease-linear transform group-hover:scale-105":
-                    variant === "gridSlim",
-                  "rounded-s-md transition duration-200 ease-linear transform group-hover:scale-105":
-                    variant === "list",
-                }
-              )}
-            />
+            {hoverImage ? (
+              <MotionImage
+                key={hoverImage}
+                src={hoverImage ?? placeholderImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                width={demoVariant === "ancient" ? 352 : Number(imgWidth)}
+                height={demoVariant === "ancient" ? 452 : Number(imgHeight)}
+                alt={product?.name || "Product Image"}
+                loading={imgLoading} // Chuyển đổi loading
+                onLoad={() => setIsImageLoaded(true)}
+                className={cn(
+                  `bg-white rounded-s-md w-full h-full object-contain transition duration-200 ease-in rounded-md group-hover:rounded-b-none`
+                )}
+              />
+            ) : (
+              <img src={placeholderImage} alt="" className="w-full h-full" />
+            )}
           </AnimatePresence>
         </motion.div>
         <div className="absolute top-3.5 md:top-5 3xl:top-7 ltr:left-3.5 rtl:right-3.5 ltr:md:left-5 rtl:md:right-5 ltr:3xl:left-7 rtl:3xl:right-7 flex flex-col gap-y-1 items-start">
@@ -307,15 +307,13 @@ const ProductCard: FC<ProductProps> = ({
                   className="w-auto shadow hover:border hover:border-gray-400 rounded-sm overflow-hidden"
                 >
                   <Image
-                    src={img}
+                    src={img ?? "/public/placeholder.png"}
                     alt={`Thumb ${index}`}
                     width={500}
                     height={35}
                     className="object-cover w-full"
                     style={{ height: "auto", width: "auto" }}
-                    onMouseOver={() =>
-                      setHoverImage(handleImageHover(img, "medium"))
-                    }
+                    onMouseOver={() => setHoverImage(img)}
                     loading="lazy"
                   />
                 </div>

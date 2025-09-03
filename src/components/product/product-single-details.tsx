@@ -26,6 +26,7 @@ import Lightbox from "./lightbox/Lightbox";
 import { motion } from "framer-motion";
 import { useProductQuery } from "@framework/product/get-product";
 import { getAllImageSizes } from "@utils/use-image";
+import Image from "next/image";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -184,17 +185,65 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     }
     return album;
   };
-  const productImages = {
-    gallery: activeState
-      ? Array.isArray(activeAttributes?.album) &&
-        activeAttributes.album.some(Boolean)
-        ? parseAlbum(activeAttributes.album)
-        : parseAlbum(data?.album)
-      : Array.isArray(data?.attributes)
-      ? data.attributes.flatMap((attr: any) => attr.album || [])
-      : parseAlbum(data?.album),
-  };
+  const fromGallery = (g: any): string[] =>
+    Array.isArray(g)
+      ? g
+          .map((x: any) => x?.image_path || x?.url || x?.original || x)
+          .filter((u: any) => typeof u === "string" && !!u)
+      : [];
 
+  const fromAlbum = (a: any): string[] =>
+    Array.isArray(a) ? parseAlbum(a) : a ? parseAlbum(a) : [];
+
+  const uniq = (arr: string[]) => Array.from(new Set(arr));
+  const productImages = {
+    gallery: (() => {
+      // 1) Nếu đang chọn biến thể
+      if (activeState && activeAttributes) {
+        const list = fromGallery(activeAttributes.gallery) // 1) active gallery
+          .concat(fromAlbum(activeAttributes.album)) // 2) active album
+          .concat(fromGallery(data?.gallery)) // 3) product gallery
+          .concat(fromAlbum(data?.album)); // 4) product album
+
+        if (list.length > 0) return uniq(list);
+
+        // 5) vét attributes khác: gallery trước, album sau
+        if (Array.isArray(data?.attributes)) {
+          const others = data.attributes
+            .filter((a: any) => a !== activeAttributes)
+            .flatMap((attr: any) => fromGallery(attr.gallery));
+          if (others.length > 0) return uniq(others);
+
+          const othersAlbum = data.attributes
+            .filter((a: any) => a !== activeAttributes)
+            .flatMap((attr: any) => fromAlbum(attr.album));
+          if (othersAlbum.length > 0) return uniq(othersAlbum);
+        }
+
+        return [];
+      }
+
+      // 2) Không active → product trước, rồi mới tới attributes
+      if (Array.isArray(data?.gallery) && data.gallery.length > 0) {
+        return uniq(fromGallery(data.gallery));
+      }
+      if (Array.isArray(data?.album) && data.album.length > 0) {
+        return uniq(fromAlbum(data.album));
+      }
+      if (Array.isArray(data?.attributes)) {
+        const attrGal = data.attributes.flatMap((attr: any) =>
+          fromGallery(attr.gallery)
+        );
+        if (attrGal.length > 0) return uniq(attrGal);
+
+        const attrAlb = data.attributes.flatMap((attr: any) =>
+          fromAlbum(attr.album)
+        );
+        if (attrAlb.length > 0) return uniq(attrAlb);
+      }
+      return [];
+    })(),
+  };
   const images = productImages.gallery.map((item: any) => {
     const allSizes = getAllImageSizes(item);
     return allSizes; // full object
@@ -241,15 +290,8 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
               images.map((img: any, index: number) => (
                 <SwiperSlide key={`product-gallery-key-${index}`}>
                   <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
-                    <img
+                    <Image
                       src={`${img.medium}`}
-                      srcSet={`
-                      ${img.tiny} 352w,
-                      ${img.small} 540w,
-                      ${img.medium} 720w,
-                      ${img.original} 1000w
-                  `}
-                      sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
                       alt={`${data?.name}--${index}`}
                       width={500}
                       height={500}
@@ -276,15 +318,8 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                   className="col-span-1 transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md"
                   onClick={() => openLightbox(index)}
                 >
-                  <img
-                    src={`${img.medium}`}
-                    srcSet={`
-                    ${img.tiny} 352w,
-                    ${img.small} 540w,
-                    ${img.medium} 720w,
-                    ${img.original} 1000w
-                `}
-                    sizes="(max-width: 600px) 352px, (max-width: 900px) 540px, 720px"
+                  <Image
+                    src={`${img.original}`}
                     alt={`${data?.name}--${index}`}
                     onLoad={() => setImagesLoaded((prev) => prev + 1)}
                     width={500}

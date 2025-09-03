@@ -1,5 +1,4 @@
 import { isEmpty } from "lodash";
-import { getBestImage } from "./use-image";
 
 interface Item {
   id: string | number;
@@ -30,11 +29,10 @@ export function generateCartItem(
   subActive: number | undefined,
   canWholeSalePrice: boolean
 ) {
-  const { id, name, slug, product_price, product_retail_price } = item;
+  const { id, name, slug, image, product_price, product_retail_price } = item;
   const attribute = item.attributes?.find(
     (attr: any) => attr.id === activeState
   );
-  const image = getBestImage(attribute?.image ?? item.album?.[0], "tiny") || "";
 
   const subAttribute = attribute?.sub_attributes.find(
     (subAttr: any) => subAttr.id === subActive

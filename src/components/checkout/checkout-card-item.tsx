@@ -10,9 +10,10 @@ export const CheckoutItem: React.FC<{ item: Item }> = ({ item }) => {
       <div className="relative flex shrink-0 border rounded-md border-gray-300 w-16 h-16">
         <Image
           src={`${item.image}` || "/assets/placeholder/order-product.svg"}
+          width={64}
+          height={64}
           alt="currency"
           className="object-cover"
-          fill
         />
       </div>
       <Link
