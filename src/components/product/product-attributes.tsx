@@ -1,4 +1,3 @@
-import { getBestImage } from "@utils/use-image";
 import cn from "classnames";
 import Image from "next/image";
 interface Props {

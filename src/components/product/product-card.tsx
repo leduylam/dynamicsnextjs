@@ -304,7 +304,7 @@ const ProductCard: FC<ProductProps> = ({
               {attrImage.filter(Boolean).map((img: any, index: number) => (
                 <div
                   key={index}
-                  className="w-auto shadow hover:border hover:border-gray-400 rounded-sm overflow-hidden"
+                  className="w-auto h-[45px] shadow hover:border hover:border-gray-400 rounded-sm overflow-hidden"
                 >
                   <Image
                     src={img ?? "/public/placeholder.png"}

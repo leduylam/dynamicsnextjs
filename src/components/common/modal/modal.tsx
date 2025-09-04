@@ -1,17 +1,17 @@
-import { useRef, useEffect } from 'react';
-import { Portal } from '@reach/portal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useEffect } from "react";
+import { Portal } from "@reach/portal";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   disableBodyScroll,
   enableBodyScroll,
   clearAllBodyScrollLocks,
-} from 'body-scroll-lock';
-import cn from 'classnames';
-import { IoClose } from 'react-icons/io5';
-import { fadeInOut } from '@utils/motion/fade-in-out';
-import { zoomOutIn } from '@utils/motion/zoom-out-in';
-import { useUI } from '@contexts/ui.context';
-import useOnClickOutside from '@utils/use-click-outside';
+} from "body-scroll-lock";
+import cn from "classnames";
+import { IoClose } from "react-icons/io5";
+import { fadeInOut } from "@utils/motion/fade-in-out";
+import { zoomOutIn } from "@utils/motion/zoom-out-in";
+import { useUI } from "@contexts/ui.context";
+import useOnClickOutside from "@utils/use-click-outside";
 
 type ModalProps = {
   open?: boolean;
@@ -19,25 +19,25 @@ type ModalProps = {
   rootClassName?: string;
   useBlurBackdrop?: boolean;
   containerClassName?: string;
-  variant?: 'center' | 'bottom';
+  variant?: "center" | "bottom";
 };
 type DivElementRef = React.MutableRefObject<HTMLDivElement>;
 
 // variant based classes for modal root, container & close btn
 const rootClasses = {
-  center: 'p-4 md:p-5',
-  bottom: 'p-5 pb-0',
+  center: "p-4 md:p-5",
+  bottom: "p-5 pb-0",
 };
 const containerClasses = {
-  center: 'h-auto max-h-full top-1/2 -translate-y-1/2 rounded-lg',
+  center: "h-auto max-h-full top-1/2 -translate-y-1/2 rounded-lg",
   bottom:
-    'h-full max-h-70vh bottom-0 ltr:rounded-tr-2xl rtl:rounded-tl-2xl ltr:rounded-tl-2xl rtl:rounded-tr-2xl',
+    "h-full max-h-70vh bottom-0 ltr:rounded-tr-2xl rtl:rounded-tl-2xl ltr:rounded-tl-2xl rtl:rounded-tr-2xl",
 };
 const closeBtnClasses = {
   center:
-    '-top-3 md:-top-4 ltr:-right-3 rtl:-left-3 ltr:md:-right-4 rtl:md:-left-4',
+    "-top-3 md:-top-4 ltr:-right-3 rtl:-left-3 ltr:md:-right-4 rtl:md:-left-4",
   bottom:
-    'top-1/4 ltr:left-1/2 rtl:right-1/2 transform -translate-y-1/2 -translate-x-1/2',
+    "top-1/4 ltr:left-1/2 rtl:right-1/2 transform -translate-y-1/2 -translate-x-1/2",
 };
 
 export default function Modal({
@@ -47,7 +47,7 @@ export default function Modal({
   rootClassName,
   useBlurBackdrop,
   containerClassName,
-  variant = 'center',
+  variant = "center",
 }: React.PropsWithChildren<ModalProps>) {
   const { closeModal } = useUI();
   const modalRootRef = useRef() as DivElementRef;
@@ -77,8 +77,8 @@ export default function Modal({
             exit="from"
             variants={fadeInOut(0.25)}
             className={cn(
-              'modal-root fixed bg-black bg-opacity-70 inset-0 z-50 cursor-pointer',
-              useBlurBackdrop && 'backdrop-filter backdrop-blur-sm',
+              "modal-root fixed bg-black bg-opacity-70 inset-0 z-50 cursor-pointer",
+              useBlurBackdrop && "backdrop-filter backdrop-blur-sm",
               rootClasses[variant],
               rootClassName
             )}
@@ -92,7 +92,7 @@ export default function Modal({
             >
               <div
                 className={cn(
-                  'w-full md:w-auto absolute left-1/2 transform -translate-x-1/2 shadow-xl',
+                  "w-full md:w-auto absolute left-1/2 transform -translate-x-1/2 shadow-xl",
                   containerClasses[variant],
                   containerClassName
                 )}
@@ -101,7 +101,7 @@ export default function Modal({
                   onClick={onClose}
                   aria-label="Close panel"
                   className={cn(
-                    'fixed z-10 inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-white shadow text-gray-600 transition duration-200 focus:outline-none focus:text-gray-800 focus:shadow-md hover:text-gray-800 hover:shadow-md',
+                    "fixed z-10 inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-white shadow text-gray-600 transition duration-200 focus:outline-none focus:text-gray-800 focus:shadow-md hover:text-gray-800 hover:shadow-md",
                     closeBtnClasses[variant]
                   )}
                 >
@@ -109,8 +109,8 @@ export default function Modal({
                 </button>
                 <div
                   ref={modalInnerRef}
-                  className="h-full overflow-y-auto rounded-lg"
-                  style={{ maxHeight: 'calc(100vh - 120px)' }}
+                  className="h-full rounded-lg"
+                  style={{ maxHeight: "calc(100vh - 120px)" }}
                 >
                   {children}
                 </div>

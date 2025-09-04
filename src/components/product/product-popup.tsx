@@ -168,101 +168,102 @@ export default function ProductPopup() {
   }
   return (
     <div className="rounded-lg bg-white">
-      <div className="flex flex-col lg:flex-row w-full md:w-[650px] lg:w-[960px] mx-auto overflow-hidden">
-        <div className="flex-shrink-0 flex items-center justify-center w-full lg:w-430px max-h-430px lg:max-h-full overflow-hidden bg-white">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
-              <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-            </div>
-          )}
-          {delayedImage && (
-            <Image
-              src={`${delayedImage}`}
-              width={430}
-              height={430}
-              alt={data.name}
-              onLoad={() => setLoading(false)}
-              onError={() => setLoading(false)}
-              className={`object-contain w-full h-auto transition-opacity duration-300 ${
-                loading ? "opacity-0" : "opacity-100"
-              }`}
-            />
-          )}
-        </div>
-        <div className="flex flex-col p-5 md:p-8 w-full">
-          <div className="pb-5">
-            <div
-              className="mb-2 md:mb-2.5 block -mt-1.5"
-              onClick={navigateToProductPage}
-              role="button"
-            >
-              <h2 className="text-heading text-lg md:text-xl lg:text-2xl font-semibold hover:text-black">
-                {data.name}
-              </h2>
-            </div>
-            {data.description && data.description !== "undefined" && (
-              <p
-                className="text-sm leading-6 md:text-body md:leading-7"
-                dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
-              ></p>
-            )}
-            <p className="text-sm">
-              <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
-                SKU:
-              </span>
-              {productSku}
-            </p>
-
-            {isAuthorized && (
-              <div className="flex items-center justify-between mt-3">
-                {canWholeSalePrice && (
-                  <div>
-                    <div className="text-heading font-semibold text-base md:text-xl lg:text-lg flex items-center">
-                      <div>W/S: </div>
-                      {price_sale && (
-                        <div className="h-10 w-[1px] bg-gray-400 mx-2 rotate-12"></div>
-                      )}
-                      <div className="">
-                        {price_sale && (
-                          <>
-                            <del className="font-segoe text-gray-400 text-base lg:text-base ltr:pl-2.5 rtl:pr-2.5 -mt-0.5 md:mt-0">
-                              {price}
-                            </del>
-                            <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 ml-2">
-                              <p>
-                                <span>-</span>
-                                {percent}{" "}
-                                <span className="hidden sm:inline">%</span>
-                              </p>
-                            </span>
-                          </>
-                        )}
-                        {price_sale ? (
-                          <span className="block mx-2">
-                            {number_format(price_sale)}{" "}
-                          </span>
-                        ) : (
-                          <span className="block mx-2">
-                            {number_format(price)}{" "}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div className="text-heading font-semibold text-base md:text-xl lg:text-lg">
-                  {canWholeSalePrice ? "Retail" : "Price"}:
-                  <span className="mx-2">
-                    {number_format(data.product_retail_price)}{" "}
-                  </span>
-                </div>
+      {/* Modal wrapper: cố định chiều cao để bên phải cuộn */}
+      <div className="w-full md:w-[650px] lg:w-[960px] mx-auto max-h-[85vh]">
+        <div className="flex flex-col lg:flex-row items-stretch h-[85vh]">
+          {/* LEFT: Ảnh fixed size, không cuộn */}
+          <div className="relative w-full lg:w-[430px] h-[60vh] lg:h-full bg-white overflow-hidden flex-shrink-0">
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
               </div>
+            )}
+
+            {delayedImage && (
+              <Image
+                src={delayedImage}
+                alt={data.name}
+                fill
+                onLoad={() => setLoading(false)}
+                onError={() => setLoading(false)}
+                className={`object-contain transition-opacity duration-300 ${
+                  loading ? "opacity-0" : "opacity-100"
+                }`}
+                sizes="(min-width:1024px) 430px, 100vw"
+                priority
+              />
             )}
           </div>
 
-          {Object.keys(variations).map((variation) => {
-            return (
+          {/* RIGHT: Content cuộn độc lập */}
+          <div className="flex-1 overflow-y-auto p-5 md:p-8">
+            <div className="pb-5">
+              <div
+                className="mb-2 md:mb-2.5 block -mt-1.5"
+                onClick={navigateToProductPage}
+                role="button"
+              >
+                <h2 className="text-heading text-lg md:text-xl lg:text-2xl font-semibold hover:text-black">
+                  {data.name}
+                </h2>
+              </div>
+
+              {data.description && data.description !== "undefined" && (
+                <p
+                  className="text-sm leading-6 md:text-body md:leading-7"
+                  dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
+                />
+              )}
+
+              <p className="text-sm">
+                <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
+                  SKU:
+                </span>
+                {productSku}
+              </p>
+
+              {isAuthorized && (
+                <div className="flex items-center justify-between mt-3">
+                  {canWholeSalePrice && (
+                    <div>
+                      <div className="text-heading font-semibold text-base md:text-xl lg:text-lg flex items-center">
+                        <div>W/S:</div>
+                        {price_sale && (
+                          <div className="h-10 w-[1px] bg-gray-400 mx-2 rotate-12" />
+                        )}
+                        <div>
+                          {price_sale ? (
+                            <>
+                              <del className="font-segoe text-gray-400 text-base lg:text-base ltr:pl-2.5 rtl:pr-2.5 -mt-0.5 md:mt-0">
+                                {price}
+                              </del>
+                              <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 ml-2">
+                                -{percent}%
+                              </span>
+                              <span className="block mx-2">
+                                {number_format(price_sale)}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="block mx-2">
+                              {number_format(price)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-heading font-semibold text-base md:text-xl lg:text-lg">
+                    {canWholeSalePrice ? "Retail" : "Price"}:
+                    <span className="mx-2">
+                      {number_format(data.product_retail_price)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {Object.keys(variations).map((variation) => (
               <ProductAttributes
                 key={variation}
                 title={variation}
@@ -274,59 +275,62 @@ export default function ProductPopup() {
                 handleAttributeParent={handleAttributeParent}
                 handleAttributeChildren={handleAttributeChildren}
               />
-            );
-          })}
-          {isAuthorized &&
-            chooseQuantity &&
-            (productQuantity === 0 ? (
-              <div className="text-red-600">Out of stock</div>
-            ) : (
-              <div>Quantity avaiable: {chooseQuantity}</div>
             ))}
-          <div className="pt-2 md:pt-4">
-            {isAuthorized && (
-              <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
-                <Counter
-                  quantity={quantity}
-                  onIncrement={() =>
-                    setQuantity((prev) =>
-                      prev < (chooseQuantity ?? 0) ? prev + 1 : prev
-                    )
-                  }
-                  onDecrement={() =>
-                    setQuantity((prev) => (prev !== 1 ? prev - 1 : 1))
-                  }
-                  disableDecrement={quantity === 1}
-                />
-                <Button
-                  onClick={addToCart}
-                  variant="flat"
-                  className={`w-full h-11 md:h-12 px-1.5 ${
-                    !isSelected && "bg-gray-400 hover:bg-gray-400"
-                  }`}
-                  disabled={!isSelected || Number(productQuantity) <= 0}
-                  loading={addToCartLoader}
-                >
-                  Add to Cart
-                </Button>
-              </div>
-            )}
-            {viewCartBtn && (
-              <button
-                onClick={navigateToCartPage}
-                className="w-full mb-4 h-11 md:h-12 rounded bg-gray-100 text-heading focus:outline-none border border-gray-300 transition-colors hover:bg-gray-50 focus:bg-gray-50"
-              >
-                View Cart
-              </button>
-            )}
 
-            <Button
-              onClick={navigateToProductPage}
-              variant="flat"
-              className="w-full h-11 md:h-12"
-            >
-              View Details
-            </Button>
+            {isAuthorized &&
+              chooseQuantity &&
+              (productQuantity === 0 ? (
+                <div className="text-red-600">Out of stock</div>
+              ) : (
+                <div>Quantity avaiable: {chooseQuantity}</div>
+              ))}
+
+            <div className="pt-2 md:pt-4">
+              {isAuthorized && (
+                <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
+                  <Counter
+                    quantity={quantity}
+                    onIncrement={() =>
+                      setQuantity((prev) =>
+                        prev < (chooseQuantity ?? 0) ? prev + 1 : prev
+                      )
+                    }
+                    onDecrement={() =>
+                      setQuantity((prev) => (prev !== 1 ? prev - 1 : 1))
+                    }
+                    disableDecrement={quantity === 1}
+                  />
+                  <Button
+                    onClick={addToCart}
+                    variant="flat"
+                    className={`w-full h-11 md:h-12 px-1.5 ${
+                      !isSelected && "bg-gray-400 hover:bg-gray-400"
+                    }`}
+                    disabled={!isSelected || Number(productQuantity) <= 0}
+                    loading={addToCartLoader}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
+              )}
+
+              {viewCartBtn && (
+                <button
+                  onClick={navigateToCartPage}
+                  className="w-full mb-4 h-11 md:h-12 rounded bg-gray-100 text-heading focus:outline-none border border-gray-300 transition-colors hover:bg-gray-50 focus:bg-gray-50"
+                >
+                  View Cart
+                </button>
+              )}
+
+              <Button
+                onClick={navigateToProductPage}
+                variant="flat"
+                className="w-full h-11 md:h-12"
+              >
+                View Details
+              </Button>
+            </div>
           </div>
         </div>
       </div>
