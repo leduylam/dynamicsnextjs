@@ -54,7 +54,7 @@ export default function BannerCard({
             height={width < 768 ? image.mobile.height : image.desktop.height}
             alt={title}
             quality={100}
-            className="w-full h-auto object-cover"
+            className="h-auto object-cover"
             onLoad={() => setLoaded(true)}
             loading="eager"
             priority={false}
