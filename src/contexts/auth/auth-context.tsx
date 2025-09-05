@@ -95,7 +95,17 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
   ) => {
     setAccessRight(
       "canWholeSalePrice",
-      ["admin", "user", "super-admin"],
+      [
+        "admin",
+        "user",
+        "super-admin",
+        "corporate",
+        "sale",
+        "sales-manager",
+        "accounting",
+        "warehouse",
+        "designer",
+      ],
       [],
       checkRoles,
       checkPermissions
