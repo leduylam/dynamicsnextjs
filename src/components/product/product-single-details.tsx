@@ -291,12 +291,13 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                 <SwiperSlide key={`product-gallery-key-${index}`}>
                   <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
                     <Image
-                      src={`${img.medium}`}
+                      src={`${img.original}`}
                       alt={`${data?.name}--${index}`}
+                      onLoad={() => setImagesLoaded((prev) => prev + 1)}
                       width={500}
                       height={500}
                       className="object-cover w-full mix-blend-multiply"
-                      loading="eager"
+                      loading="lazy"
                     />
                   </div>
                 </SwiperSlide>
