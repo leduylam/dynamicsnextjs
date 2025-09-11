@@ -6,9 +6,18 @@ export const number_format = (number: any) => {
 
 export const cleanSku = (sku: string) => {
   if (!sku) return "";
-  return sku.includes("-")
-    ? sku.split("-")[0]
-    : sku.split("_").slice(0, -1).join("_");
+  if (sku.includes("-")) {
+    const parts = sku.split("-");
+    parts.pop(); // bỏ phần cuối
+    return parts.join("-");
+  }
+  if (sku.includes("_")) {
+    const parts = sku.split("_");
+    parts.pop(); // bỏ phần cuối
+    return parts.join("_");
+  }
+
+  return sku;
 };
 
 // Hàm tính tổng các chữ số của số lượng

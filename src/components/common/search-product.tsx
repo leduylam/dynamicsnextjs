@@ -1,21 +1,12 @@
 import Link from "@components/ui/link";
 import Image from "next/image";
 import { ROUTES } from "@utils/routes";
-import { useEffect, useState } from "react";
-import { getBestImage } from "@utils/use-image";
 
 type SearchProductProps = {
   item: any;
 };
 
 const SearchProduct: React.FC<SearchProductProps> = ({ item }) => {
-  const [hoverImage, setHoverImage] = useState<string>("");
-  useEffect(() => {
-    if (item?.image) {
-      const imageUrl = getBestImage(item.image, "small");
-      setHoverImage(imageUrl || "");
-    }
-  }, [item?.image]);
   return (
     <Link
       href={`${ROUTES.PRODUCT}/${item?.slug}`}
@@ -23,7 +14,7 @@ const SearchProduct: React.FC<SearchProductProps> = ({ item }) => {
     >
       <div className="relative flex flex-shrink-0 w-24 h-24 overflow-hidden bg-gray-200 rounded-md cursor-pointer ltr:mr-4 rtl:ml-4">
         <Image
-          src={hoverImage}
+          src={item?.image || ""}
           width={96}
           height={96}
           loading="eager"
