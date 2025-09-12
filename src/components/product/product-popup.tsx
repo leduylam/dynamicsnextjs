@@ -19,6 +19,7 @@ import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
+import { FaShare, FaShareAlt } from "react-icons/fa";
 export default function ProductPopup() {
   const {
     modalData: { data },
@@ -322,14 +323,18 @@ export default function ProductPopup() {
                   View Cart
                 </button>
               )}
-
-              <Button
-                onClick={navigateToProductPage}
-                variant="flat"
-                className="w-full h-11 md:h-12"
-              >
-                View Details
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={navigateToProductPage}
+                  variant="flat"
+                  className="w-full h-11 md:h-12"
+                >
+                  View Details
+                </Button>
+                <button className="px-5 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 rounded-md h-11 md:h-12 bg-gray-100 text-heading focus:outline-none border border-gray-300 transition-colors hover:bg-gray-50 focus:bg-gray-50">
+                  <FaShare />
+                </button>
+              </div>
             </div>
           </div>
         </div>

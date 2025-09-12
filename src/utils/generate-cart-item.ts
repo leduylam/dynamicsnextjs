@@ -7,10 +7,6 @@ interface Item {
   sku?: string;
   product_id?: string;
   attributes?: any;
-  image: {
-    thumbnail: string;
-    [key: string]: unknown;
-  };
   album?: Array<{ tiny: string; [key: string]: unknown }>;
   promotions?: {
     discount: number;
@@ -29,7 +25,7 @@ export function generateCartItem(
   subActive: number | undefined,
   canWholeSalePrice: boolean
 ) {
-  const { id, name, slug, image, product_price, product_retail_price } = item;
+  const { id, name, slug, product_price, product_retail_price } = item;
   const attribute = item.attributes?.find(
     (attr: any) => attr.id === activeState
   );
@@ -41,6 +37,8 @@ export function generateCartItem(
     ? subAttribute.product_attribute_sku
     : attribute.product_attribute_sku;
   // const detailSku = attribute ? attribute.product_detail_sku : "";
+  const image = attribute.image ?? item.image;
+
   const promotion_price = item.promotions
     ? item?.product_price! - item.promotions.discount
     : null;
@@ -54,7 +52,7 @@ export function generateCartItem(
     product_price,
     product_retail_price,
     sku: itemSku,
-    image: image ?? item.image.tiny,
+    image: image,
     price: canWholeSalePrice
       ? promotion_price
         ? promotion_price
