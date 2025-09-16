@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useUI } from "@contexts/ui.context";
 import { useAuth } from "@contexts/auth/auth-context";
-import { handleLoginSuccess } from "@utils/auth-helper";
+import Cookies from "js-cookie";
 
 export interface ResetPasswordType {
   token: string;
@@ -24,7 +24,10 @@ export const useResetPasswordMutation = () => {
   return useMutation({
     mutationFn: (values: ResetPasswordType) => resetPassword(values),
     onSuccess: async (_data) => {
-      await handleLoginSuccess(_data, authLogin, authorize);
+      Cookies.set("access_token", _data.access_token);
+      Cookies.set("refresh_token", _data.refresh_token);
+      authLogin(_data.user);
+      authorize(_data.user);
       router.push("/");
       toast.success("Đặt lại mật khẩu thành công!");
     },
