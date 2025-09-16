@@ -1,10 +1,8 @@
-// import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
-// import http from "@framework/utils/http";
-import Cookies from "js-cookie";
 import { useMutation } from "@tanstack/react-query";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
-import { useState } from "react";
+import { useUI } from "@contexts/ui.context";
+import { toast } from "react-toastify";
 
 export interface ForgetPasswordType {
   email: string;
@@ -14,18 +12,15 @@ async function forgetPassword(input: ForgetPasswordType) {
   return data;
 }
 export const useForgetPasswordMutation = () => {
-  const [_, setError] = useState<string | null>('')
+  const { closeModal } = useUI();
   return useMutation({
     mutationFn: (input: ForgetPasswordType) => forgetPassword(input),
     onSuccess: (data) => {
-      if (data.code === 'ERROR') {
-        setError(data.message)
-      }
-      Cookies.remove("access_token");
-      Cookies.remove("refresh_token");
+      closeModal();
+      toast.success(data.message);
     },
-    onError: (data) => {
-      console.log(data, "forget password error response");
+    onError: (error: any) => {
+      console.log(error, "forget password error response");
     },
   });
 };

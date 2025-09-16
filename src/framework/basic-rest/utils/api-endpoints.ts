@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
   CHANGE_PASSWORD: "/v1/auth/change_password",
   LOGOUT: "/v1/auth/logout",
   FORGET_PASSWORD: "/v1/auth/forget-password",
+  RESET_PASSWORD: "/v1/auth/reset-password",
   CATEGORIES_SERVER: "/v1/dynamic/home/categories",
   CATEGORIES: "/v1/dynamic/home/categories",
   BRANDS: "/v1/dynamic/home/brands",
