@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useUI } from "@contexts/ui.context";
 import { useAuth } from "@contexts/auth/auth-context";
 import Cookies from "js-cookie";
+import { me } from "./use-login";
 
 export interface ResetPasswordType {
   token: string;
@@ -26,8 +27,9 @@ export const useResetPasswordMutation = () => {
     onSuccess: async (_data) => {
       Cookies.set("access_token", _data.access_token);
       Cookies.set("refresh_token", _data.refresh_token);
-      authLogin(_data.user);
-      authorize(_data.user);
+      const res = await me();
+      authLogin(res);
+      authorize();
       router.push("/");
       toast.success("Đặt lại mật khẩu thành công!");
     },
