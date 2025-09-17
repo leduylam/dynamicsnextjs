@@ -32,5 +32,5 @@ export const API_ENDPOINTS = {
   PROVINCES: "/v1/dynamic/retailer_locator/provinces",
   REGISTERAPI: "/v2/register-client",
   APIKEY: "/v2/api-key",
-  COMPANIES: "/v1/companies/companies",
+  COMPANIES: "/v1/dynamic/companies",
 };
