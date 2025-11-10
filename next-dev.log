@@ -1,0 +1,56 @@
+
+> dynamicsportsvn@1.0.0 dev /home/duylam/sources/dynamicsportsvn/dynamicsnextjs
+> next dev
+
+   ▲ Next.js 15.3.5
+   - Local:        http://localhost:3000
+   - Network:      http://172.26.53.161:3000
+   - Environments: .env
+
+ ✓ Starting...
+> [PWA] PWA support is disabled
+> [PWA] PWA support is disabled
+ ✓ Ready in 7.7s
+ ○ Compiling / ...
+Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled /my-account in 49.9s (1645 modules)
+motion() is deprecated. Use motion.create() instead.
+ GET /my-account 200 in 24269ms
+ GET / 200 in 55667ms
+ ○ Compiling /404 ...
+ ✓ Compiled /404 in -1357ms (1653 modules)
+react-i18next:: useTranslation: You will need to pass in an i18next instance by using initReactI18next { code: 'NO_I18NEXT_INSTANCE' }
+ GET /_next/static/webpack/886716dc455ac79f.webpack.hot-update.json 404 in -224ms
+ GET /sw.js 404 in 259ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /my-account 200 in 852ms
+ GET / 200 in 1121ms
+ GET /sw.js 404 in 496ms
+ GET / 200 in 891ms
+ GET / 200 in 7250ms
+ GET /sw.js 404 in 772ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 449ms
+ GET / 200 in 729ms
+ GET / 200 in 760ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 495ms
+ GET / 200 in 792ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 556ms
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/mobile/6e7896ed-7230-443b-9dff-770c4ed7020e_mobile.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/mobile/6c16ad1f-8c8d-4dec-8a67-5cca91935a7a_mobile.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/mobile/website-686b1dd228823_mobile.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/mobile/70cc0e2e-dd8f-43cf-b2d5-9e8722149265_mobile.jpg 500
+ ⨯ upstream image response failed for https://dynamicsport.s3.ap-southeast-1.amazonaws.com/brands/25ss-ecom-go-apparel-plp-collage-sm-temp-1iahyo.webp 403
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/website-686b1dd228823_desktop.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/6e7896ed-7230-443b-9dff-770c4ed7020e_desktop.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/70cc0e2e-dd8f-43cf-b2d5-9e8722149265_desktop.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/6c16ad1f-8c8d-4dec-8a67-5cca91935a7a_desktop.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/f011fc2f-1db2-49d2-8486-8375e44518a5_desktop.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/93d639f9-fe00-4799-8454-4eedd2d341c7_desktop.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/mobile/2c5ca96d-7dfb-4455-b8cd-8486c0c44185_mobile.jpg 500
+ ⨯ upstream image response failed for http://localhost:8000/storage/images/banners/desktop/2c5ca96d-7dfb-4455-b8cd-8486c0c44185_desktop.jpg 500
+ ⨯ upstream image response failed for https://dynamicsport.s3.ap-southeast-1.amazonaws.com/products/wildside-abtracts-double-canopy-umbrella/original/z6852964132500-28f858780cef6382bac1e27d2-b8sq0u.webp 403
+ ⨯ upstream image response failed for https://dynamicsport.s3.ap-southeast-1.amazonaws.com/products/default/original/emboidery-2025-07-29t205309601-hphd5a.webp 403
+ ⨯ upstream image response failed for https://dynamicsport.s3.ap-southeast-1.amazonaws.com/products/default/original/emboidery-2025-07-29t192713156-photor-7lxqd8.webp 403
+ ⨯ upstream image response failed for https://dynamicsport.s3.ap-southeast-1.amazonaws.com/products/default/original/emboidery-2025-07-29t204059880-0a6as6.webp 403
