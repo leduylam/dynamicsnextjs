@@ -1,10 +1,9 @@
 import { useUI } from "@contexts/ui.context";
-// import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
-// import http from "@framework/utils/http";
+import { useAuth } from "@contexts/auth/auth-context";
 import Cookies from "js-cookie";
 import Router from "next/router";
 import { useMutation } from "@tanstack/react-query";
-import http from "@framework/utils/http";
+import http, { setLoggingOut } from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 
 export interface LoginInputType {
@@ -14,23 +13,40 @@ export interface LoginInputType {
 }
 async function logout() {
   return http.post(API_ENDPOINTS.LOGOUT);
-  return {
-    ok: true,
-    message: "Logout Successful!",
-  };
 }
 export const useLogoutMutation = () => {
   const { unauthorize } = useUI();
+  const { clearState } = useAuth();
+  
+  const clearAllState = () => {
+    setLoggingOut(true);
+    clearState();
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('auth_state');
+    }
+    
+    unauthorize();
+  };
+  
   return useMutation({
     mutationFn: logout,
-    onSuccess: (_data) => {
-      Cookies.remove("access_token");
-      Cookies.remove("refresh_token");
-      unauthorize();
-      Router.push("/");
+    onSuccess: () => {
+      clearAllState();
+      Router.push("/").then(() => {
+        setLoggingOut(false);
+      });
     },
-    onError: (data) => {
-      console.log(data, "logout error response");
+    onError: () => {
+      clearAllState();
+      Router.push("/").then(() => {
+        setLoggingOut(false);
+      });
     },
   });
 };

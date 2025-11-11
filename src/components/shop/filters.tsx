@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { BrandFilter } from "./brand-filter";
 import { FilteredItem } from "./filtered-item";
 import { useRouter } from "next/router";
@@ -6,11 +7,11 @@ import { SizeFilter } from "./size-filter";
 import { useSizeQuery } from "@framework/product/get-all-size";
 import { getVariations } from "@framework/utils/get-variations";
 type Props = { slug?: string };
-export const ShopFilters: React.FC<Props> = ({ slug }) => {
+export const ShopFilters: React.FC<Props> = React.memo(({ slug }) => {
   const router = useRouter();
   const { pathname, query } = router;
   const { data } = useSizeQuery({ ...(slug ? { slug } : {}), ...query });
-  const variations = getVariations(data);
+  const variations = useMemo(() => getVariations(data), [data]);
   return (
     <div className="pt-1">
       <div className="block border-b border-gray-300 pb-7 mb-7">
@@ -58,4 +59,6 @@ export const ShopFilters: React.FC<Props> = ({ slug }) => {
       ))}
     </div>
   );
-};
+});
+
+ShopFilters.displayName = 'ShopFilters';

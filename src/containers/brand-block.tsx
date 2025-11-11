@@ -7,6 +7,7 @@ import { ROUTES } from "@utils/routes";
 import Alert from "@components/ui/alert";
 import { Brand } from "@framework/types";
 import { useBrandsQuery } from "@framework/brand/get-all-brands";
+import React, { useMemo } from "react";
 
 interface BrandProps {
   sectionHeading: string;
@@ -16,14 +17,40 @@ interface BrandProps {
   disableBorderRadius?: boolean;
 }
 
-const BrandBlock: React.FC<BrandProps> = ({
+function safeParseImage(image: any) {
+  if (!image || image === "undefined") return null;
+
+  if (typeof image === "string") {
+    try {
+      const parsed = JSON.parse(image);
+      return parsed.original || parsed;
+    } catch (err) {
+      return image;
+    }
+  }
+
+  return image;
+}
+
+function mapBrandByLocale(brand: any): Brand {
+  let logoObj = safeParseImage(brand.image);
+  return {
+    ...brand,
+    id: brand.id,
+    name: brand?.name || "",
+    slug: brand?.slug || "",
+    image: logoObj || "",
+  };
+}
+
+const BrandBlock: React.FC<BrandProps> = React.memo(({
   className = "mb-11 md:mb-11 lg:mb-12 xl:mb-14 lg:pb-1 xl:pb-0",
   sectionHeading,
   showName = true,
   demoVariant,
   disableBorderRadius = false,
 }) => {
-  const breakpoints = {
+  const breakpoints = useMemo(() => ({
     "1720": {
       slidesPerView: 8,
       spaceBetween: demoVariant === "ancient" ? 8 : 28,
@@ -48,37 +75,16 @@ const BrandBlock: React.FC<BrandProps> = ({
       slidesPerView: 3,
       spaceBetween: demoVariant === "ancient" ? 8 : 12,
     },
-  };
+  }), [demoVariant]);
+  
   const { data, isLoading, error } = useBrandsQuery({
     limit: 8,
     demoVariant,
-  });
-  const safeParseImage = (image: any) => {
-    if (!image || image === "undefined") return null;
-
-    if (typeof image === "string") {
-      try {
-        const parsed = JSON.parse(image);
-        return parsed.original || parsed;
-      } catch (err) {
-        // Nếu không phải JSON string, giả định là URL chuỗi bình thường
-        return image;
-      }
-    }
-
-    return image;
-  };
-  const mapBrandByLocale = (brand: any): Brand => {
-    let logoObj = safeParseImage(brand.image);
-    return {
-      ...brand,
-      id: brand.id,
-      name: brand?.name || "",
-      slug: brand?.slug || "",
-      image: logoObj || "",
-    };
-  };
-  const brands = data?.brands.map((brand) => mapBrandByLocale(brand));
+  } as any);
+  
+  const brands = useMemo(() => {
+    return data?.brands.map((brand) => mapBrandByLocale(brand)) ?? [];
+  }, [data?.brands]);
   return (
     <div className={className}>
       <SectionHeader sectionHeading={sectionHeading} />
@@ -90,7 +96,6 @@ const BrandBlock: React.FC<BrandProps> = ({
           buttonGroupClassName="-mt-4 md:-mt-5 xl:-mt-7"
           autoplay={{
             delay: 4000,
-            // delay: 4000000,
           }}
         >
           {isLoading && !data
@@ -119,6 +124,8 @@ const BrandBlock: React.FC<BrandProps> = ({
       )}
     </div>
   );
-};
+});
+
+BrandBlock.displayName = 'BrandBlock';
 
 export default BrandBlock;

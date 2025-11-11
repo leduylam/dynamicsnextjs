@@ -21,29 +21,27 @@ export async function me(): Promise<any> {
 export const useLoginMutation = () => {
   const { authorize, closeModal } = useUI();
   const { login: authLogin } = useAuth();
+  
   return useMutation({
     mutationFn: (input: LoginInputType) => login(input),
     onSuccess: async (data) => {
       try {
         await handleLoginSuccess(data, authLogin, authorize);
+        closeModal();
       } catch (error) {
-        console.error("Failed to fetch user data:", error);
+        toast.error("Failed to fetch user data");
       }
-      closeModal();
     },
     onError: (data: any) => {
-      if (data instanceof AxiosError) {
-        if (data?.response!.status === 401) {
-          toast.error(data.response!.data.error, {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          })
-        }
+      if (data instanceof AxiosError && data?.response?.status === 401) {
+        toast.error(data.response.data.error, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     },
   });

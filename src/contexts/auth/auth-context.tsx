@@ -13,15 +13,16 @@ interface User {
 }
 interface UserData {
   user: User;
-  roles: any[]; // có thể là string[] hoặc object[]
+  roles: any[];
   permissions: string[];
 }
 interface AuthContextType {
   user: User | null;
-  roles: string[] | null; // <-- luôn là slug[]
+  roles: string[] | null;
   permissions: string[] | null;
   login: (userData: UserData) => void;
   logout: () => void;
+  clearState: () => void;
   loading: boolean;
   accessRights: Record<string, boolean>;
   setAccessRight: (
@@ -35,10 +36,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
-  initialData?: UserData; // từ SSR
+  initialData?: UserData;
 }
 
-// --- helpers ---
 const toSlug = (v: any): string =>
   String(v ?? "")
     .trim()
@@ -46,7 +46,6 @@ const toSlug = (v: any): string =>
     .replace(/\s+/g, "-");
 
 const normalizeRolesToSlugs = (roles: any[]): string[] => {
-  // Hỗ trợ cả dạng ["Admin", "Super Admin"] hoặc [{slug:"admin"},{name:"Super Admin"}]
   return (roles ?? [])
     .map((r: any) => {
       if (!r) return null;
@@ -78,7 +77,6 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     checkRoles: string[] = roles,
     checkPermissions: string[] = permissions
   ) => {
-    // So sánh theo slug
     const requiredRoleSlugs = requiredRoles.map(toSlug);
     const hasRole = requiredRoleSlugs.some(
       (role) => checkRoles?.includes(role) ?? false
@@ -119,7 +117,6 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     );
   };
 
-  // Hydrate từ SSR nếu có
   useEffect(() => {
     if (initialData) {
       const r = normalizeRolesToSlugs(initialData.roles ?? []);
@@ -130,33 +127,85 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     }
 
     let mounted = true;
-    (async () => {
+    const abortController = new AbortController();
+
+    const initializeAuth = async () => {
+      if (!mounted) return;
+      
       try {
         setLoading(true);
-        const res = await http.get(API_ENDPOINTS.ME);
+        
+        const res = await http.get(API_ENDPOINTS.ME, {
+          signal: abortController.signal,
+        });
+        
         if (!mounted) return;
+        
         const data = res.data as UserData;
         const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
         setUser(data.user ?? null);
         setRoles(roleSlugs);
         setPermissions(data.permissions ?? []);
         checkAllAccessRights(roleSlugs, data.permissions ?? []);
-      } catch {
+        
+      } catch (error: any) {
+        if (error.name === 'AbortError' || error.name === 'CanceledError') {
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        if (error.response?.status === 401) {
+          try {
+            await http.post(API_ENDPOINTS.REFRESH_TOKEN, {}, {
+              signal: abortController.signal,
+              withCredentials: true,
+            });
+            
+            if (!mounted) return;
+            
+            const meRes = await http.get(API_ENDPOINTS.ME, {
+              signal: abortController.signal,
+            });
+            
+            if (!mounted) return;
+            
+            const data = meRes.data as UserData;
+            const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
+            setUser(data.user ?? null);
+            setRoles(roleSlugs);
+            setPermissions(data.permissions ?? []);
+            checkAllAccessRights(roleSlugs, data.permissions ?? []);
+            
+            if (mounted) setLoading(false);
+            return;
+            
+          } catch (refreshError: any) {
+            if (refreshError.name === 'AbortError' || refreshError.name === 'CanceledError') {
+              return;
+            }
+          }
+        }
+        
         if (!mounted) return;
         setUser(null);
         setRoles([]);
         setPermissions([]);
         setAccessRights({});
+        
       } finally {
         if (mounted) setLoading(false);
       }
-    })();
+    };
+
+    initializeAuth();
+    
     return () => {
       mounted = false;
+      abortController.abort();
     };
   }, [initialData]);
 
-  // login: nhận mọi format, convert về slug luôn
   const login = (userData: UserData) => {
     const roleSlugs = normalizeRolesToSlugs(userData.roles ?? []);
     setUser(userData.user);
@@ -165,7 +214,20 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     checkAllAccessRights(roleSlugs, userData.permissions ?? []);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await http.post(API_ENDPOINTS.LOGOUT);
+    } catch (error) {
+      // Silent fail
+    } finally {
+      setUser(null);
+      setRoles([]);
+      setPermissions([]);
+      setAccessRights({});
+    }
+  };
+
+  const clearState = () => {
     setUser(null);
     setRoles([]);
     setPermissions([]);
@@ -180,6 +242,7 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         permissions,
         login,
         logout,
+        clearState,
         loading,
         accessRights,
         setAccessRight,

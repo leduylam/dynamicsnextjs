@@ -4,7 +4,7 @@ import { ProductGrid } from "@components/product/product-grid";
 import { ShopFilters } from "@components/shop/filters";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, dehydrate } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { fetchProducts } from "@framework/product/get-all-products";
 import Breadcrumb from "@components/common/breadcrumb";
@@ -40,12 +40,13 @@ export const getServerSideProps: GetServerSideProps = async ({
   const slug = params?.slug;
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [API_ENDPOINTS.PRODUCTS, { slug, limit: 10, locale }],
+    queryKey: [API_ENDPOINTS.PRODUCTS, { slug, limit: 8, locale }],
     queryFn: fetchProducts,
   });
   return {
     props: {
       ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+      dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
       slug,
     },
   };

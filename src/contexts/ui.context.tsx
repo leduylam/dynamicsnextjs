@@ -230,49 +230,53 @@ function uiReducer(state: State, action: Action) {
 export const UIProvider: React.FC = (props) => {
   const [state, dispatch] = React.useReducer(uiReducer, initialState);
   const { user, loading } = useAuth();
-  const authorize = () => dispatch({ type: "SET_AUTHORIZED" });
-  const unauthorize = () => dispatch({ type: "SET_UNAUTHORIZED" });
-  const openSidebar = () => dispatch({ type: "OPEN_SIDEBAR" });
-  const closeSidebar = () => dispatch({ type: "CLOSE_SIDEBAR" });
-  const toggleSidebar = () =>
+  
+  // ✅ FIX: useCallback để stable function references (tránh infinite loop)
+  const authorize = React.useCallback(() => dispatch({ type: "SET_AUTHORIZED" }), []);
+  const unauthorize = React.useCallback(() => dispatch({ type: "SET_UNAUTHORIZED" }), []);
+  const openSidebar = React.useCallback(() => dispatch({ type: "OPEN_SIDEBAR" }), []);
+  const closeSidebar = React.useCallback(() => dispatch({ type: "CLOSE_SIDEBAR" }), []);
+  const toggleSidebar = React.useCallback(() =>
     state.displaySidebar
       ? dispatch({ type: "CLOSE_SIDEBAR" })
-      : dispatch({ type: "OPEN_SIDEBAR" });
-  const closeSidebarIfPresent = () =>
-    state.displaySidebar && dispatch({ type: "CLOSE_CART" });
-  const openCart = () => dispatch({ type: "OPEN_CART" });
-  const closeCart = () => dispatch({ type: "CLOSE_CART" });
-  const toggleCart = () =>
+      : dispatch({ type: "OPEN_SIDEBAR" }), [state.displaySidebar]);
+  const closeSidebarIfPresent = React.useCallback(() =>
+    state.displaySidebar && dispatch({ type: "CLOSE_CART" }), [state.displaySidebar]);
+  const openCart = React.useCallback(() => dispatch({ type: "OPEN_CART" }), []);
+  const closeCart = React.useCallback(() => dispatch({ type: "CLOSE_CART" }), []);
+  const toggleCart = React.useCallback(() =>
     state.displaySidebar
       ? dispatch({ type: "CLOSE_CART" })
-      : dispatch({ type: "OPEN_CART" });
-  const closeCartIfPresent = () =>
-    state.displaySidebar && dispatch({ type: "CLOSE_CART" });
+      : dispatch({ type: "OPEN_CART" }), [state.displaySidebar]);
+  const closeCartIfPresent = React.useCallback(() =>
+    state.displaySidebar && dispatch({ type: "CLOSE_CART" }), [state.displaySidebar]);
 
-  const openFilter = () => dispatch({ type: "OPEN_FILTER" });
-  const closeFilter = () => dispatch({ type: "CLOSE_FILTER" });
+  const openFilter = React.useCallback(() => dispatch({ type: "OPEN_FILTER" }), []);
+  const closeFilter = React.useCallback(() => dispatch({ type: "CLOSE_FILTER" }), []);
 
-  const openShop = () => dispatch({ type: "OPEN_SHOP" });
-  const closeShop = () => dispatch({ type: "CLOSE_SHOP" });
+  const openShop = React.useCallback(() => dispatch({ type: "OPEN_SHOP" }), []);
+  const closeShop = React.useCallback(() => dispatch({ type: "CLOSE_SHOP" }), []);
 
-  const openModal = () => dispatch({ type: "OPEN_MODAL" });
-  const closeModal = () => dispatch({ type: "CLOSE_MODAL" });
-  const openSearch = () => dispatch({ type: "OPEN_SEARCH" });
-  const closeSearch = () => dispatch({ type: "CLOSE_SEARCH" });
+  const openModal = React.useCallback(() => dispatch({ type: "OPEN_MODAL" }), []);
+  const closeModal = React.useCallback(() => dispatch({ type: "CLOSE_MODAL" }), []);
+  const openSearch = React.useCallback(() => dispatch({ type: "OPEN_SEARCH" }), []);
+  const closeSearch = React.useCallback(() => dispatch({ type: "CLOSE_SEARCH" }), []);
 
-  const setUserAvatar = (_value: string) =>
-    dispatch({ type: "SET_USER_AVATAR", value: _value });
-  const setModalView = (view: MODAL_VIEWS) =>
-    dispatch({ type: "SET_MODAL_VIEW", view });
-  const setDrawerView = (view: DRAWER_VIEWS) =>
-    dispatch({ type: "SET_DRAWER_VIEW", view });
-  const setModalData = (data: any) =>
-    dispatch({ type: "SET_MODAL_DATA", data });
+  const setUserAvatar = React.useCallback((_value: string) =>
+    dispatch({ type: "SET_USER_AVATAR", value: _value }), []);
+  const setModalView = React.useCallback((view: MODAL_VIEWS) =>
+    dispatch({ type: "SET_MODAL_VIEW", view }), []);
+  const setDrawerView = React.useCallback((view: DRAWER_VIEWS) =>
+    dispatch({ type: "SET_DRAWER_VIEW", view }), []);
+  const setModalData = React.useCallback((data: any) =>
+    dispatch({ type: "SET_MODAL_DATA", data }), []);
+    
   useEffect(() => {
     if (loading) return;
     if (user) authorize();
     else unauthorize();
-  }, [user, loading]);
+  }, [user, loading, authorize, unauthorize]);
+
   const value = React.useMemo(
     () => ({
       ...state,
@@ -299,7 +303,8 @@ export const UIProvider: React.FC = (props) => {
       setUserAvatar,
       setModalData,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // ✅ FIX: state thay đổi → value update
+    // dispatch từ useReducer là stable, không cần include trong deps
     [state]
   );
   return <UIContext.Provider value={value} {...props} />;
