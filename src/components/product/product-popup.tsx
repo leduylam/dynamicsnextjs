@@ -1,25 +1,20 @@
-import React, { useEffect, useState } from "react";
-import isEmpty from "lodash/isEmpty";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ROUTES } from "@utils/routes";
 import { useUI } from "@contexts/ui.context";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { ProductAttributes } from "@components/product/product-attributes";
-import { generateCartItem } from "@utils/generate-cart-item";
-import {
-  getVariations,
-  mergeAttributes,
-} from "@framework/utils/get-variations";
-import {
-  calculateTotalQuantity,
-  cleanSku,
-  number_format,
-} from "src/helpers/my-helper";
+import { number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
-import { FaShare, FaShareAlt } from "react-icons/fa";
+import { FaShare } from "react-icons/fa";
+import { MdContentCopy, MdCheck } from "react-icons/md";
+import useProductVariant from "./hooks/use-product-variant";
+import useQuantityInput from "./hooks/use-quantity-input";
+import { buildCartItemWithPrice } from "@utils/cart";
+
 export default function ProductPopup() {
   const {
     modalData: { data },
@@ -32,22 +27,61 @@ export default function ProductPopup() {
   const canWholeSalePrice = accessRights.canWholeSalePrice || false;
   // const { addItemToCart } = useCart();
   const { mutate: updateCart } = useCartMutation();
-  const [quantity, setQuantity] = useState(1);
-  const [attributes, setAttributes] = useState<{ [key: string]: string }>({});
   const [viewCartBtn, setViewCartBtn] = useState<boolean>(false);
   const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
-  const [activeState, setActiveState] = useState<number | null>(null);
-  const [subActive, setSubActive] = useState<number | null>(null);
-  const [chooseQuantity, setChooseQuantity] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const allAttribute = mergeAttributes(data?.attributes);
-  const variations = getVariations(allAttribute);
-  const isSelected = !isEmpty(variations)
-    ? !isEmpty(attributes) &&
-      Object.keys(variations).every((variation) =>
-        attributes.hasOwnProperty(variation)
-      )
-    : true;
+  const [showShareUrl, setShowShareUrl] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "success">(
+    "idle"
+  );
+  const {
+    variations,
+    attributes,
+    isSelected,
+    activeState,
+    subActive,
+    chooseQuantity,
+    activeAttributes,
+    productSku,
+    productQuantity,
+    handleAttributeParent,
+    handleAttributeChildren,
+    selectFirstAvailable,
+  } = useProductVariant(data);
+
+  const availableQuantity = useMemo(() => {
+    const parsedChoose =
+      typeof chooseQuantity === "number"
+        ? chooseQuantity
+        : Number(chooseQuantity);
+    if (Number.isFinite(parsedChoose) && parsedChoose > 0) {
+      return parsedChoose;
+    }
+    const parsedProduct =
+      typeof productQuantity === "number"
+        ? productQuantity
+        : Number(productQuantity);
+    return Number.isFinite(parsedProduct) && parsedProduct > 0
+      ? parsedProduct
+      : undefined;
+  }, [chooseQuantity, productQuantity]);
+
+  const {
+    quantity,
+    inputValue,
+    increment,
+    decrement,
+    handleInputChange,
+    handleInputBlur,
+    disableDecrement,
+    disableIncrement,
+  } = useQuantityInput({
+    initial: 1,
+    min: 1,
+    max: availableQuantity,
+  });
+
   function addToCart() {
     if (!isSelected) return;
     // to show btn feedback while product carting
@@ -56,70 +90,103 @@ export default function ProductPopup() {
       setAddToCartLoader(false);
       setViewCartBtn(true);
     }, 600);
-    const item = {
-      ...generateCartItem(
+    const item = buildCartItemWithPrice(
         data!,
         attributes,
-        activeState === null ? undefined : activeState,
-        subActive === null ? undefined : subActive,
+      activeState,
+      subActive,
         canWholeSalePrice
-      ),
-      price:
-        generateCartItem(
-          data!,
-          attributes,
-          activeState === null ? undefined : activeState,
-          subActive === null ? undefined : subActive,
-          canWholeSalePrice
-        ).price ?? 0,
-    };
+    );
     updateCart({ item, quantity });
   }
+  const shareButtonRef = useRef<HTMLButtonElement | null>(null);
+  const shareBlockRef = useRef<HTMLDivElement | null>(null);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearCopyTimeout = () => {
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = null;
+    }
+  };
+
   function navigateToProductPage() {
     closeModal();
     window.location.href = `${ROUTES.PRODUCT}/${data.slug}?variant=${activeState}`;
   }
-  function handleAttributeParent(attribute: any, attributeId: number) {
-    const quantities = allAttribute.find(
-      (attr: any) => attr.id === attributeId
-    );
-    setAttributes((prev) => ({
-      ...prev,
-      ...attribute,
-    }));
-    if (attributeId) {
-      setChooseQuantity(quantities.quantity);
-      setActiveState(attributeId);
+  const buildShareUrl = () => {
+    if (typeof window === "undefined" || !data?.slug) {
+      return "";
     }
-  }
+    const variantId =
+      activeAttributes?.id ??
+      (typeof activeState === "number" ? activeState : undefined) ??
+      data?.activeVariant?.id ??
+      data?.selectedVariant?.id ??
+      (typeof subActive === "number" ? subActive : undefined);
+    const url = `${window.location.origin}/products/${data.slug}${
+      variantId ? `?variant=${variantId}` : ""
+    }`;
+    return url;
+  };
+  const toggleShare = () => {
+    const url = buildShareUrl();
+    clearCopyTimeout();
+    setCopyStatus("idle");
+    if (!url) return;
+    if (showShareUrl) {
+      setShowShareUrl(false);
+      return;
+    }
+    setShareUrl(url);
+    setShowShareUrl(true);
+  };
+  const handleCopyShareUrl = async () => {
+    if (!shareUrl) return;
+    if (typeof navigator === "undefined" || !navigator?.clipboard?.writeText)
+      return;
+    clearCopyTimeout();
+    setCopyStatus("copying");
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopyStatus("success");
+        copyTimeoutRef.current = null;
+      }, 1500);
+    } catch (error) {
+      console.error("Failed to copy product link", error);
+      setCopyStatus("idle");
+    }
+  };
   useEffect(() => {
-    if (!activeState && allAttribute?.length > 0) {
-      const firstInStockAttr = allAttribute.find((attr: any) => {
-        const hasSub =
-          Array.isArray(attr.sub_attributes) && attr.sub_attributes.length > 0;
-        if (hasSub) {
-          return attr.sub_attributes.some(
-            (sub: any) => Number(sub.quantity) > 0
-          );
-        }
-        return Number(attr.quantity) > 0;
-      });
-
-      if (firstInStockAttr) {
-        handleAttributeParent(
-          {
-            [firstInStockAttr.name]: firstInStockAttr.value,
-          },
-          firstInStockAttr.id
-        );
-      }
+    if (!showShareUrl) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (shareBlockRef.current?.contains(target)) return;
+      if (shareButtonRef.current?.contains(target)) return;
+      clearCopyTimeout();
+      setCopyStatus("idle");
+      setShowShareUrl(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showShareUrl]);
+  useEffect(() => {
+    if (!activeState) {
+      selectFirstAvailable();
     }
-  }, [activeState, allAttribute]);
+  }, [activeState, selectFirstAvailable]);
+  useEffect(
+    () => () => {
+      clearCopyTimeout();
+    },
+    []
+  );
   const [delayedImage, setDelayedImage] = useState<any>(null);
-  const activeAttributes = data
-    ? data?.attributes.find((attr: any) => attr.id === activeState)
-    : [];
-  const image = activeState
+  const image =
+    activeState && activeAttributes
     ? Object.keys(activeAttributes?.image || {}).length > 0
       ? activeAttributes.image
       : data.image
@@ -133,33 +200,6 @@ export default function ProductPopup() {
     }, 150);
     return () => clearTimeout(timeout);
   }, [image]);
-  const productSku =
-    activeAttributes?.sub_attributes.length > 0
-      ? cleanSku(activeAttributes?.sub_attributes[0].product_attribute_sku)
-      : activeAttributes?.product_attribute_sku;
-
-  const getProductQuantity = () => {
-    if (activeAttributes) {
-      return calculateTotalQuantity(activeAttributes);
-    }
-    return 0;
-  };
-
-  // Lấy giá trị số lượng khi cần sử dụng
-  const productQuantity = getProductQuantity();
-  function handleAttributeChildren(attribute: any, attributeId: number) {
-    const quantities = allAttribute.find(
-      (attr: any) => attr.id === attributeId
-    );
-    setAttributes((prev) => ({
-      ...prev,
-      ...attribute,
-    }));
-    if (attributeId) {
-      setChooseQuantity(quantities.quantity);
-      setSubActive(attributeId);
-    }
-  }
 
   function navigateToCartPage() {
     closeModal();
@@ -283,7 +323,10 @@ export default function ProductPopup() {
               (productQuantity === 0 ? (
                 <div className="text-red-600">Out of stock</div>
               ) : (
-                <div>Quantity avaiable: {chooseQuantity}</div>
+                <div>
+                  Quantity avaiable:{" "}
+                  {availableQuantity ?? chooseQuantity ?? productQuantity}
+                </div>
               ))}
 
             <div className="pt-2 md:pt-4">
@@ -291,15 +334,14 @@ export default function ProductPopup() {
                 <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
                   <Counter
                     quantity={quantity}
-                    onIncrement={() =>
-                      setQuantity((prev) =>
-                        prev < (chooseQuantity ?? 0) ? prev + 1 : prev
-                      )
-                    }
-                    onDecrement={() =>
-                      setQuantity((prev) => (prev !== 1 ? prev - 1 : 1))
-                    }
-                    disableDecrement={quantity === 1}
+                    quantityInput={inputValue}
+                    onIncrement={increment}
+                    onDecrement={decrement}
+                    onInputChange={handleInputChange}
+                    onInputBlur={handleInputBlur}
+                    disableDecrement={disableDecrement}
+                    disableIncrement={disableIncrement}
+                    inputAriaLabel="Product quantity"
                   />
                   <Button
                     onClick={addToCart}
@@ -331,10 +373,50 @@ export default function ProductPopup() {
                 >
                   View Details
                 </Button>
-                <button className="px-5 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 rounded-md h-11 md:h-12 bg-gray-100 text-heading focus:outline-none border border-gray-300 transition-colors hover:bg-gray-50 focus:bg-gray-50">
+                <button
+                  type="button"
+                  ref={shareButtonRef}
+                  onClick={toggleShare}
+                  className="px-5 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 rounded-md h-11 md:h-12 bg-gray-100 text-heading focus:outline-none border border-gray-300 transition-colors hover:bg-gray-50 focus:bg-gray-50 flex items-center justify-center"
+                >
                   <FaShare />
                 </button>
               </div>
+              {showShareUrl && (
+                <div
+                  ref={shareBlockRef}
+                  className="flex items-center gap-2 mt-2 max-w-xs sm:max-w-md w-full"
+                >
+                  <input
+                    readOnly
+                    value={shareUrl}
+                    className={`flex-1 border border-gray-300 rounded-md px-2 py-1 text-sm bg-white truncate ${
+                      copyStatus === "success"
+                        ? "border-green-500 text-green-600"
+                        : ""
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyShareUrl}
+                    className={`h-9 w-9 flex items-center justify-center rounded-md border ${
+                      copyStatus === "success"
+                        ? "border-green-500 bg-green-100 text-green-600"
+                        : "border-gray-300 bg-gray-100 text-heading hover:bg-gray-50"
+                    } focus:outline-none`}
+                    aria-label="Copy share link"
+                  >
+                    {copyStatus === "success" ? (
+                      <MdCheck size={18} />
+                    ) : (
+                      <MdContentCopy size={18} />
+                    )}
+                  </button>
+                  {copyStatus === "copying" && (
+                    <span className="text-xs text-heading font-medium">Copy</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,21 +1,30 @@
 import cn from "classnames";
 import Image from "next/image";
+interface AttributeOption {
+  id: number;
+  value: string;
+  image?: { [key: string]: any } | string;
+  parent_id?: number;
+  quantity?: number;
+  [key: string]: any;
+}
+
 interface Props {
   className?: string;
   title: string;
-  attributes: {
-    id: number;
-    value: string;
-    image: { tiny: string; [key: string]: any } | string;
-    parent_id: number;
-    quantity: number;
-  }[];
+  attributes: AttributeOption[];
   active?: any;
-  defuatlActive?: number;
-  subActive?: number;
+  defuatlActive?: number | null;
+  subActive?: number | null;
   activeAttributes?: any;
-  handleAttributeParent: any;
-  handleAttributeChildren: any;
+  handleAttributeParent: (
+    attribute: Record<string, string>,
+    attributeId: number
+  ) => void;
+  handleAttributeChildren: (
+    attribute: Record<string, string>,
+    attributeId: number
+  ) => void;
 }
 
 export const ProductAttributes: React.FC<Props> = ({
@@ -87,7 +96,7 @@ export const ProductAttributes: React.FC<Props> = ({
                 ))}
               {parent_id === defuatlActive && (
                 <div>
-                  {quantity > 0 ? (
+                  {(quantity ?? 0) > 0 ? (
                     <li
                       key={`${value}-${id}`}
                       className={cn(

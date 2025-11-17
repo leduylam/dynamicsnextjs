@@ -25,7 +25,7 @@ export const BrandFilter = ({ slug }: { slug?: string }) => {
     let currentFormState = formState.includes(value)
       ? formState.filter((i) => i !== value)
       : [...formState, value];
-    // setFormState(currentFormState);
+    setFormState(currentFormState);
     const { brand, ...restQuery } = query;
     router.push(
       {

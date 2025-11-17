@@ -155,7 +155,9 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         
         if (!mounted) return;
         
-        if (error.response?.status === 401) {
+        const status = error.response?.status;
+
+        if (status === 401 || status === 419) {
           try {
             await http.post(API_ENDPOINTS.REFRESH_TOKEN, {}, {
               signal: abortController.signal,
@@ -182,6 +184,15 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
             
           } catch (refreshError: any) {
             if (refreshError.name === 'AbortError' || refreshError.name === 'CanceledError') {
+              return;
+            }
+            const refreshStatus = refreshError.response?.status;
+            if (refreshStatus === 401 || refreshStatus === 419) {
+              setUser(null);
+              setRoles([]);
+              setPermissions([]);
+              setAccessRights({});
+              if (mounted) setLoading(false);
               return;
             }
           }

@@ -18,8 +18,15 @@ export const fetchRelatedProducts = async ({
   });
   return data;
 };
-export const useRelatedProductsQuery = (options: QueryOptionsType) => {
-  return useInfiniteQuery<PaginatedProduct>({
+type RelatedProductsQueryConfig = {
+  enabled?: boolean;
+};
+
+export const useRelatedProductsQuery = (
+  options: QueryOptionsType,
+  queryConfig?: RelatedProductsQueryConfig
+) => {
+  return useInfiniteQuery<PaginatedProduct, Error>({
     queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, options],
     queryFn: fetchRelatedProducts,
     initialPageParam: 1,
@@ -28,5 +35,6 @@ export const useRelatedProductsQuery = (options: QueryOptionsType) => {
       const totalPages = lastPage.last_page ?? 1;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
+    enabled: queryConfig?.enabled,
   });
 };

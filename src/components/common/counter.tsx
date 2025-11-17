@@ -9,6 +9,10 @@ type CounterProps = {
 	disableDecrement?: boolean;
 	variant?: "default" | "dark";
 	className?: string;
+	quantityInput?: string;
+	onInputChange?: (value: string) => void;
+	onInputBlur?: () => void;
+	inputAriaLabel?: string;
 };
 const Counter: React.FC<CounterProps> = ({
 	quantity,
@@ -17,8 +21,14 @@ const Counter: React.FC<CounterProps> = ({
 	disableIncrement = false,
 	disableDecrement = false,
 	variant = "default",
+	quantityInput,
+	onInputChange,
+	onInputBlur,
+	inputAriaLabel,
 }) => {
 	const size = variant !== "dark" ? "12px" : "10px";
+	const displayValue =
+		quantityInput !== undefined ? quantityInput : String(quantity);
 	return (
 		<div
 			className={cn(
@@ -44,7 +54,25 @@ const Counter: React.FC<CounterProps> = ({
 			>
 				<MinusIcon width={size} />
 			</button>
-
+			{onInputChange ? (
+				<input
+					type="text"
+					inputMode="numeric"
+					pattern="[0-9]*"
+					value={displayValue}
+					onChange={(e) => onInputChange?.(e.target.value)}
+					onBlur={onInputBlur}
+					aria-label={inputAriaLabel ?? "Quantity"}
+					className={cn(
+						"font-semibold flex items-center justify-center h-full transition-colors duration-250 ease-in-out flex-shrink-0 text-center outline-none",
+						{
+							"text-base text-heading w-12 md:w-20 xl:w-24 bg-transparent":
+								variant === "default",
+							"text-sm text-white w-8 md:w-10 bg-transparent": variant === "dark",
+						}
+					)}
+				/>
+			) : (
 			<span
 				className={cn(
 					"font-semibold flex items-center justify-center h-full  transition-colors duration-250 ease-in-out cursor-default flex-shrink-0",
@@ -57,6 +85,7 @@ const Counter: React.FC<CounterProps> = ({
 			>
 				{quantity}
 			</span>
+			)}
 
 			<button
 				onClick={onIncrement}

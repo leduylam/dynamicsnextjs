@@ -3,13 +3,13 @@ import ProductCard from "@components/product/product-card";
 import ProductFeedLoader from "@components/ui/loaders/product-feed-loader";
 import { useRelatedProductsQuery } from "@framework/product/get-related-product";
 import { Product } from "@framework/types";
-import { useRouter } from "next/router";
 import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 
 interface ProductsProps {
   sectionHeading: string;
   className?: string;
+  slug: string;
 }
 interface SubAttribute {
   quantity?: number | string;
@@ -22,10 +22,10 @@ interface Attribute {
 const RelatedProducts: React.FC<ProductsProps> = ({
   sectionHeading,
   className = "mb-9 lg:mb-10 xl:mb-14",
+  slug,
 }) => {
-  const {
-    query: { slug },
-  } = useRouter();
+  const normalizedSlug = typeof slug === "string" ? slug : "";
+  const shouldFetch = normalizedSlug.length > 0;
 
   const {
     data,
@@ -34,7 +34,12 @@ const RelatedProducts: React.FC<ProductsProps> = ({
     hasNextPage,
     isFetchingNextPage, // chỉ khi load thêm
     error,
-  } = useRelatedProductsQuery({ text: slug as string });
+  } = useRelatedProductsQuery(
+    { text: normalizedSlug },
+    {
+      enabled: shouldFetch,
+    }
+  );
 
   const { ref, inView } = useInView();
 

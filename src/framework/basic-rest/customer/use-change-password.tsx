@@ -3,7 +3,7 @@
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import http from "@framework/utils/http";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
 export interface ChangePasswordInputType {
@@ -15,10 +15,10 @@ async function changePassword(input: ChangePasswordInputType) {
   return http.post(API_ENDPOINTS.CHANGE_PASSWORD, input);
 }
 export const useChangePasswordMutation = () => {
-  const router = useRouter()
+  const router = useRouter();
   return useMutation({
     mutationFn: (input: ChangePasswordInputType) => changePassword(input),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       toast(data.data.message, {
         progressClassName: "fancy-progress-bar",
         autoClose: 2000,
@@ -27,7 +27,12 @@ export const useChangePasswordMutation = () => {
         pauseOnHover: true,
         draggable: true,
       });
-      router.push('/my-account');
+      try {
+        await router.prefetch("/my-account");
+      } catch (error) {
+        // ignore prefetch errors; fallback to normal navigation
+      }
+      router.push("/my-account");
     },
     onError: (data) => {
       console.log(data, "ChangePassword error response");

@@ -45,16 +45,22 @@ http.interceptors.response.use(
     const isRefreshEndpoint = originalRequest.url?.includes(API_ENDPOINTS.REFRESH_TOKEN);
     const isLogoutEndpoint = originalRequest.url?.includes(API_ENDPOINTS.LOGOUT);
     const isMeEndpoint = originalRequest.url?.includes(API_ENDPOINTS.ME);
+    const status = error.response?.status;
     
     if (isLoggingOut) {
       return Promise.reject(new Error('User is logging out'));
     }
     
-    if (isMeEndpoint && error.response?.status === 401) {
+    if (isMeEndpoint && (status === 401 || status === 419)) {
       return Promise.reject(error);
     }
     
-    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshEndpoint && !isLogoutEndpoint) {
+    if (
+      (status === 401 || status === 419) &&
+      !originalRequest._retry &&
+      !isRefreshEndpoint &&
+      !isLogoutEndpoint
+    ) {
       originalRequest._retry = true;
       try {
         const newToken = await refreshAccessToken();
@@ -90,9 +96,9 @@ const refreshAccessToken = async () => {
     throw new Error('User is logging out - refresh cancelled');
   }
 
-  const refreshToken = Cookies.get('refresh_token');
+  const refreshToken = Cookies.get('client_refresh_token');
   if (!refreshToken) {
-    Cookies.remove('access_token');
+    Cookies.remove('client_access_token');
     if (typeof window !== 'undefined' && !isLoggingOut) {
       window.location.href = '/signin';
     }
@@ -132,7 +138,7 @@ const refreshAccessToken = async () => {
       throw new Error('User logged out during refresh');
     }
     
-    Cookies.set("access_token", access_token);
+    Cookies.set("client_access_token", access_token);
     isRefreshing = false;
     onRefreshed(access_token);
     
@@ -142,8 +148,8 @@ const refreshAccessToken = async () => {
     refreshSubscribers = [];
     
     if (!isLoggingOut) {
-      Cookies.remove('access_token');
-      Cookies.remove('refresh_token');
+      Cookies.remove('client_access_token');
+      Cookies.remove('client_refresh_token');
       if (typeof window !== 'undefined') {
         window.location.href = '/signin';
       }

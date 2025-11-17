@@ -25,8 +25,8 @@ export const useResetPasswordMutation = () => {
   return useMutation({
     mutationFn: (values: ResetPasswordType) => resetPassword(values),
     onSuccess: async (_data) => {
-      Cookies.set("access_token", _data.access_token);
-      Cookies.set("refresh_token", _data.refresh_token);
+      Cookies.set("client_access_token", _data.access_token);
+      Cookies.set("client_refresh_token", _data.refresh_token);
       const res = await me();
       authLogin(res);
       authorize();

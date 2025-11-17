@@ -13,7 +13,13 @@ export const fetchNewArrivalAncientProducts = async () => {
   return data;
 };
 
-export const useNewArrivalProductsQuery = (options: QueryOptionsType) => {
+type NewArrivalQueryOptions = QueryOptionsType & {
+  demoVariant?: string;
+};
+
+export const useNewArrivalProductsQuery = (
+  options: NewArrivalQueryOptions
+) => {
   return useQuery({
     queryKey: [API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT, options],
     queryFn:

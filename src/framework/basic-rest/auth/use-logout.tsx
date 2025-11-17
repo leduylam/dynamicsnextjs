@@ -21,12 +21,12 @@ export const useLogoutMutation = () => {
   const clearAllState = () => {
     setLoggingOut(true);
     clearState();
-    Cookies.remove("access_token");
-    Cookies.remove("refresh_token");
+    Cookies.remove("client_access_token");
+    Cookies.remove("client_refresh_token");
     
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('client_access_token');
+      localStorage.removeItem('client_refresh_token');
       localStorage.removeItem('user');
       localStorage.removeItem('auth_state');
     }

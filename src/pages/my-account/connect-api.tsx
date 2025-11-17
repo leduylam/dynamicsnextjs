@@ -6,27 +6,53 @@ import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import ConnectApi from "@components/my-account/connect-api";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
-export default function ConnectApiPage({ apiKeys }: { apiKeys: any }) {
+type ConnectApiPageProps = {
+  apiKeys: any | null;
+  error?: string | null;
+};
+
+export default function ConnectApiPage({ apiKeys, error }: ConnectApiPageProps) {
     return (
         <AccountLayout>
-            <ConnectApi apiKey={apiKeys} />
+      <ConnectApi apiKey={apiKeys} error={error} />
         </AccountLayout>
     );
 }
-export const getServerSideProps: GetServerSideProps = async ({ req, locale }) => {
+
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  res,
+  locale,
+}) => {
+  try {
     const response = await http.get(API_ENDPOINTS.APIKEY, {
         headers: {
-            Authorization: `Bearer ${req.cookies.access_token}`,
-            Cookie: req.headers.cookie || "", // Gửi toàn bộ cookies
+            Authorization: `Bearer ${req.cookies.client_access_token}`,
+        Cookie: req.headers.cookie || "",
         },
         withCredentials: true,
     });
+
+    if (res) {
+      res.setHeader("Cache-Control", "private, max-age=60");
+    }
+
+    return {
+      props: {
+        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+        apiKeys: response.data ?? null,
+        error: null,
+      },
+    };
+  } catch (error) {
     return {
         props: {
             ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-            apiKeys: response.data
+        apiKeys: null,
+        error: (error as Error)?.message ?? "Unable to load API keys",
         },
     };
+  }
 };
-ConnectApiPage.Layout = Layout;
 
+ConnectApiPage.Layout = Layout;

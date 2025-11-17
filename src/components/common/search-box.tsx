@@ -10,6 +10,8 @@ type SearchProps = {
   onChange: (e: React.FormEvent<HTMLInputElement>) => void;
   name: string;
   value: string;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 };
 
 const SearchBox = React.forwardRef<HTMLInputElement, SearchProps>(

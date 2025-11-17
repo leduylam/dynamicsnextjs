@@ -1,15 +1,23 @@
-import { motion } from 'framer-motion';
-import { fadeInTop } from '@utils/motion/fade-in-top';
-import Link from '@components/ui/link';
-import { useWindowSize } from '@utils/use-window-size';
-import { useSsrCompatible } from '@utils/use-ssr-compatible';
-import { useOrdersQuery } from '@framework/order/get-all-orders';
-import { number_format } from 'src/helpers/my-helper';
-import { FaEye } from 'react-icons/fa';
+import { motion } from "framer-motion";
+import { fadeInTop } from "@utils/motion/fade-in-top";
+import Link from "@components/ui/link";
+import { useWindowSize } from "@utils/use-window-size";
+import { useSsrCompatible } from "@utils/use-ssr-compatible";
+import {
+  useOrdersQuery,
+  type OrdersResponse,
+  type OrderSummary,
+} from "@framework/order/get-all-orders";
+import { number_format } from "src/helpers/my-helper";
+import { FaEye } from "react-icons/fa";
 
 const OrdersTable: React.FC = () => {
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
-  const { data } = useOrdersQuery()
+  const { data, isLoading, isFetching } = useOrdersQuery();
+  const orders =
+    ((data as OrdersResponse | undefined)?.orders ?? []) as OrderSummary[];
+  const showSkeleton = (!orders.length && isLoading) || (!orders.length && isFetching);
+
   return (
     <>
       <h2 className="mb-6 text-lg font-bold md:text-xl xl:text-2xl text-heading xl:mb-8">
@@ -22,9 +30,18 @@ const OrdersTable: React.FC = () => {
         exit="from"
         //@ts-ignore
         variants={fadeInTop(0.35)}
-        className={`w-full flex flex-col`}
+        className="w-full flex flex-col"
       >
-        {width >= 1025 ? (
+        {showSkeleton ? (
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-16 w-full animate-pulse rounded-md bg-gray-100"
+              />
+            ))}
+          </div>
+        ) : width >= 1025 ? (
           <table>
             <thead className="text-sm lg:text-base">
               <tr>
@@ -49,11 +66,11 @@ const OrdersTable: React.FC = () => {
               </tr>
             </thead>
             <tbody className="text-sm lg:text-base">
-              {data && data.orders?.map((order: any) => (
+              {orders.map((order: any) => (
                 <tr className="border-b border-gray-300 last:border-b-0" key={order.id}>
                   <td className="px-4 py-5 ltr:text-left rtl:text-right">
                     <Link
-                      href={'/my-account/orders/' + order.id}
+                      href={`/my-account/orders/${order.id}`}
                       className="underline hover:no-underline text-body"
                     >
                       {order.order_code}
@@ -63,7 +80,11 @@ const OrdersTable: React.FC = () => {
                     {order.created_at}
                   </td>
                   <td className="px-4 py-5 ltr:text-left rtl:text-right lg:text-center text-heading">
-                    <span className={`${order.publish.className} inline-block px-2 rounded-md shadow-vendorCard text-sm font-semibold`}>{order.publish.name}</span>
+                    <span
+                      className={`${order.publish.className} inline-block px-2 rounded-md shadow-vendorCard text-sm font-semibold`}
+                    >
+                      {order.publish.name}
+                    </span>
                   </td>
                   <td className="px-4 py-5 ltr:text-left rtl:text-right lg:text-center text-heading">
                     {order.memo}
@@ -73,7 +94,7 @@ const OrdersTable: React.FC = () => {
                   </td>
                   <td className="px-4 py-5 ltr:text-right rtl:text-left text-heading">
                     <Link
-                      href={'/my-account/orders/' + order.id}
+                      href={`/my-account/orders/${order.id}`}
                       className="text-sm leading-4 bg-heading text-white px-4 py-2.5 inline-block rounded-md hover:text-white hover:bg-gray-600"
                     >
                       <FaEye />
@@ -85,13 +106,16 @@ const OrdersTable: React.FC = () => {
           </table>
         ) : (
           <div className="w-full space-y-4">
-            {data && data.orders.map((order: any) => (
-              <ul className="flex flex-col px-4 pt-5 pb-6 space-y-5 text-sm font-semibold border border-gray-300 rounded-md text-heading" key={order.id}>
+            {orders.map((order: any) => (
+              <ul
+                className="flex flex-col px-4 pt-5 pb-6 space-y-5 text-sm font-semibold border border-gray-300 rounded-md text-heading"
+                key={order.id}
+              >
                 <li className="flex items-center justify-between">
                   Order
                   <span className="font-normal">
                     <Link
-                      href={'/my-account/orders/' + order.id}
+                      href={`/my-account/orders/${order.id}`}
                       className="underline hover:no-underline text-body"
                     >
                       {order.order_code}
@@ -118,7 +142,7 @@ const OrdersTable: React.FC = () => {
                   Actions
                   <span className="font-normal">
                     <Link
-                      href={'/my-account/orders/' + order.id}
+                      href={`/my-account/orders/${order.id}`}
                       className="text-sm leading-4 bg-heading text-white px-4 py-2.5 inline-block rounded-md hover:text-white hover:bg-gray-600"
                     >
                       View

@@ -11,13 +11,13 @@ export const useAuth = () => {
                 const data = await me();
                 setUser(data);
             } catch (error) {
-                Cookies.remove('access_token');
-                Cookies.remove('refresh_token');
+                Cookies.remove('client_access_token');
+                Cookies.remove('client_refresh_token');
             } finally {
                 setLoading(false);
             }
         };
-        const token = Cookies.get('access_token');
+        const token = Cookies.get('client_access_token');
         if (token) fetchUser();
         else setLoading(false);
     }, []);

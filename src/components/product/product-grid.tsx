@@ -1,33 +1,70 @@
 import ProductCard from "@components/product/product-card";
 import React, { useEffect, useMemo, type FC } from "react";
 import { useProductsQuery } from "@framework/product/get-all-products";
-import { useRouter } from "next/router";
-import { Product } from "@framework/types";
+import { Product, QueryOptionsType } from "@framework/types";
 import ProductFeedLoader from "@components/ui/loaders/product-feed-loader";
 import { useInView } from "react-intersection-observer";
+import { useRouter } from "next/router";
 
 interface ProductGridProps {
   className?: string;
-  slug?: string;
+  queryOptions?: QueryOptionsType & { locale?: string };
 }
 
-export const ProductGrid: FC<ProductGridProps> = React.memo(({ className = "" }) => {
-  const { query } = useRouter();
-  const {
-    data,
-    isFetching,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    error,
-  } = useProductsQuery({ limit: 8, ...query });
+export const ProductGrid: FC<ProductGridProps> = React.memo(
+  ({ className = "", queryOptions }) => {
+    const { query: routerQuery, locale } = useRouter();
+    const normalizedOptions = useMemo<QueryOptionsType & { locale?: string }>(() => {
+      const baseOptions = {
+        ...(queryOptions ?? {}),
+        ...routerQuery,
+      } as QueryOptionsType & { locale?: string };
+      const sanitizedEntries = Object.entries(baseOptions).reduce<
+        Record<string, string | string[] | number>
+      >((acc, [key, value]) => {
+        if (value === undefined || value === null) {
+          return acc;
+        }
+        if (Array.isArray(value)) {
+          const filtered = value.filter((item) => !!item);
+          if (!filtered.length) {
+            return acc;
+          }
+          acc[key] = filtered.length === 1 ? filtered[0] : filtered;
+          return acc;
+        }
+        if (value === "") {
+          return acc;
+        }
+        if (key === "page" || key === "limit") {
+          const parsedNumber = Number(value);
+          if (!Number.isNaN(parsedNumber)) {
+            acc[key] = parsedNumber;
+          }
+          return acc;
+        }
+        acc[key] = value as string | number;
+        return acc;
+      }, {});
+      const nextOptions = {
+        limit: 8,
+        ...sanitizedEntries,
+        locale: sanitizedEntries.locale
+          ? (sanitizedEntries.locale as string)
+          : locale,
+      };
+      return nextOptions as QueryOptionsType & { locale?: string };
+    }, [locale, queryOptions, routerQuery]);
+
+    const { data, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
+      useProductsQuery(normalizedOptions);
 
   const { ref, inView } = useInView();
   useEffect(() => {
     if (inView && !isFetchingNextPage && hasNextPage) {
       fetchNextPage();
     }
-  }, [inView, isFetchingNextPage, hasNextPage]);
+    }, [fetchNextPage, hasNextPage, inView, isFetchingNextPage]);
   
   const allProducts: Product[] = useMemo(
     () => data?.pages?.flatMap((page) => page.products ?? []) ?? [],
@@ -44,7 +81,7 @@ export const ProductGrid: FC<ProductGridProps> = React.memo(({ className = "" })
         ) : (
           allProducts.map((product) => (
             <ProductCard
-              key={`product--key-${product.id}`}
+                key={`product--key-${product.id ?? product.slug}`}
               product={product}
               variant="grid"
             />
@@ -61,6 +98,7 @@ export const ProductGrid: FC<ProductGridProps> = React.memo(({ className = "" })
       </div>
     </>
   );
-});
+  }
+);
 
-ProductGrid.displayName = 'ProductGrid';
+ProductGrid.displayName = "ProductGrid";

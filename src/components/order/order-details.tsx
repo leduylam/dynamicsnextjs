@@ -1,7 +1,8 @@
-import { useOrderQuery } from '@framework/order/get-order';
-import { OrderItem } from '@framework/types';
-import { useRouter } from 'next/router';
-import { number_format } from 'src/helpers/my-helper';
+import { useOrderQuery } from "@framework/order/get-order";
+import { OrderItem } from "@framework/types";
+import { useRouter } from "next/router";
+import { number_format } from "src/helpers/my-helper";
+
 const OrderItemCard = ({ product }: { product: OrderItem }) => {
   return (
     <tr
@@ -15,14 +16,38 @@ const OrderItemCard = ({ product }: { product: OrderItem }) => {
     </tr>
   );
 };
+
 const OrderDetails: React.FC<{ className?: string }> = ({
-  className = 'pt-10 lg:pt-12',
+  className = "pt-10 lg:pt-12",
 }) => {
   const {
     query: { id },
   } = useRouter();
-  const { data: order, isLoading } = useOrderQuery(id?.toString()!);
-  if (isLoading) return <p>Loading...</p>;
+
+  const orderId = Array.isArray(id) ? id[0] : id;
+  const {
+    data: order,
+    isLoading,
+    isFetching,
+  } = useOrderQuery(orderId?.toString());
+
+  if (!order && (isLoading || isFetching)) {
+    return <p className={className}>Loading...</p>;
+  }
+
+  if (!order) {
+    return (
+      <div className={className}>
+        <h2 className="mb-6 text-lg font-bold md:text-xl xl:text-2xl text-heading xl:mb-8">
+          Order Details:
+        </h2>
+        <p className="text-sm text-body">
+          We could not find details for this order. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <h2 className="mb-6 text-lg font-bold md:text-xl xl:text-2xl text-heading xl:mb-8">
@@ -40,22 +65,22 @@ const OrderDetails: React.FC<{ className?: string }> = ({
           </tr>
         </thead>
         <tbody>
-          {order?.order_items.map((product, index) => (
+          {order.order_items.map((product, index) => (
             <OrderItemCard key={index} product={product} />
           ))}
         </tbody>
         <tfoot>
           <tr className="odd:bg-gray-150">
             <td className="p-4 italic"> Sub total:</td>
-            <td className="p-4">{order?.grand_total}</td>
+            <td className="p-4">{order.grand_total}</td>
           </tr>
           <tr className="odd:bg-gray-150">
             <td className="p-4 italic">Total:</td>
-            <td className="p-4">{order?.grand_total}</td>
+            <td className="p-4">{order.grand_total}</td>
           </tr>
           <tr className="odd:bg-gray-150">
             <td className="p-4 italic">Note:</td>
-            <td className="p-4">{order?.memo}</td>
+            <td className="p-4">{order.memo}</td>
           </tr>
         </tfoot>
       </table>

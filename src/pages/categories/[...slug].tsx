@@ -10,12 +10,18 @@ import { fetchProducts } from "@framework/product/get-all-products";
 import Breadcrumb from "@components/common/breadcrumb";
 import StickyBox from "react-sticky-box";
 
-export default function Category({ slug }: { slug: string }) {
+export default function Category({
+  slug,
+  categoryName,
+}: {
+  slug: string;
+  categoryName?: string;
+}) {
   return (
     <div className="border-t-2 border-borderBottom">
       <Container>
         <div className="pt-8">
-          <Breadcrumb />
+          <Breadcrumb currentCategoryName={categoryName} />
         </div>
         <div className={`flex pt-8 pb-16 lg:pb-20`}>
           <div className="flex-shrink-0 ltr:pr-24 rtl:pl-24 hidden lg:block w-96">
@@ -24,7 +30,10 @@ export default function Category({ slug }: { slug: string }) {
             </StickyBox>
           </div>
           <div className="w-full ltr:lg:-ml-9 rtl:lg:-mr-9">
-            <ProductGrid className="3xl:grid-cols-6" slug={slug} />
+            <ProductGrid
+              className="3xl:grid-cols-6"
+              queryOptions={{ slug }}
+            />
           </div>
         </div>
       </Container>
@@ -33,21 +42,36 @@ export default function Category({ slug }: { slug: string }) {
 }
 
 Category.Layout = Layout;
-export const getServerSideProps: GetServerSideProps = async ({
+export const getServerSideProps: GetServerSideProps<{
+  slug: string;
+  categoryName?: string;
+}> = async ({
   locale,
   params,
 }) => {
-  const slug = params?.slug;
+  const slugParam = params?.slug;
+  const slugValue = Array.isArray(slugParam)
+    ? slugParam[0]
+    : typeof slugParam === "string"
+    ? slugParam
+    : "";
+  const categoryName =
+    typeof slugParam === "string"
+      ? slugParam.split("/").pop()?.replace(/-/g, " ")
+      : Array.isArray(slugParam)
+      ? slugParam[slugParam.length - 1]?.replace(/-/g, " ")
+      : undefined;
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [API_ENDPOINTS.PRODUCTS, { slug, limit: 8, locale }],
+    queryKey: [API_ENDPOINTS.PRODUCTS, { slug: slugParam, limit: 8, locale }],
     queryFn: fetchProducts,
   });
   return {
     props: {
       ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
       dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
-      slug,
+      slug: slugValue,
+      categoryName,
     },
   };
 };

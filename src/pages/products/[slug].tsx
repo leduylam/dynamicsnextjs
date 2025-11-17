@@ -7,7 +7,7 @@ import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { fetchProduct } from "@framework/product/get-product";
 import { fetchRelatedProducts } from "@framework/product/get-related-product";
-import { QueryClient } from "@tanstack/react-query";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import ProductSingleDetails from "@components/product/product-single-details";
 import RelatedProducts from "@containers/related-products";
@@ -24,7 +24,7 @@ export default function ProductPage({ slug }: any) {
         </div>
         <ProductSingleDetails slug={slug} />
         <div className="mt-20" />
-        <RelatedProducts sectionHeading="Related Products" />
+        <RelatedProducts sectionHeading="Related Products" slug={slug} />
         {/* <Subscription /> */}
         <BrandBlock sectionHeading="text-brands" />
       </Container>
@@ -40,19 +40,27 @@ export const getServerSideProps: GetServerSideProps = async ({
   const { slug } = params as { slug: string };
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
+  await Promise.all([
+    queryClient.prefetchQuery({
     queryKey: [API_ENDPOINTS.PRODUCT, { slug }],
     queryFn: fetchProduct,
-  });
-  await queryClient.prefetchQuery({
-    queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, { slug }],
-    queryFn: fetchRelatedProducts,
-  });
+    }),
+    queryClient.prefetchInfiniteQuery({
+      queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, { text: slug }],
+      queryFn: ({ pageParam = 1 }) =>
+        fetchRelatedProducts({
+          pageParam,
+          queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, { text: slug }],
+        }),
+      initialPageParam: 1,
+    }),
+  ]);
 
   return {
     props: {
       ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
       slug,
+      dehydratedState: dehydrate(queryClient),
     },
   };
 };

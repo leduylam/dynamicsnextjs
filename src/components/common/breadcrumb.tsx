@@ -55,8 +55,18 @@ export const BreadcrumbItems = (props: any) => {
   );
 };
 
-const Breadcrumb: React.FC<{ separator?: string }> = ({ separator = "/" }) => {
-  const breadcrumbs = useBreadcrumb();
+type BreadcrumbProps = {
+  separator?: string;
+  currentCategoryName?: string;
+};
+
+const Breadcrumb: React.FC<BreadcrumbProps> = ({
+  separator = "/",
+  currentCategoryName,
+}) => {
+  const breadcrumbs = useBreadcrumb(
+    currentCategoryName ? { name: currentCategoryName } : undefined
+  );
   return (
     <BreadcrumbItems separator={separator}>
       <ActiveLink href={"/"} activeClassName="font-semibold text-heading">

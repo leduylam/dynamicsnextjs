@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { useRouter } from "next/router";
-import { getVariations } from "@framework/utils/get-variations";
 import usePrice from "@framework/product/use-price";
-import { generateCartItem } from "@utils/generate-cart-item";
 import { ProductAttributes } from "./product-attributes";
-import isEmpty from "lodash/isEmpty";
 import Link from "@components/ui/link";
 import { useWindowSize } from "@utils/use-window-size";
 import Carousel from "@components/ui/carousel/carousel";
@@ -14,11 +11,7 @@ import { SwiperSlide } from "swiper/react";
 import ProductMetaReview from "@components/product/product-meta-review";
 import { useSsrCompatible } from "@utils/use-ssr-compatible";
 import { useUI } from "@contexts/ui.context";
-import {
-  calculateTotalQuantity,
-  cleanSku,
-  number_format,
-} from "src/helpers/my-helper";
+import { number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
 import { useAuth } from "@contexts/auth/auth-context";
@@ -26,6 +19,9 @@ import Lightbox from "./lightbox/Lightbox";
 import { motion } from "framer-motion";
 import { useProductQuery } from "@framework/product/get-product";
 import { getAllImageSizes } from "@utils/use-image";
+import useProductVariant from "./hooks/use-product-variant";
+import { buildCartItemWithPrice } from "@utils/cart";
+import useQuantityInput from "./hooks/use-quantity-input";
 import Image from "next/image";
 
 const productGalleryCarouselResponsive = {
@@ -45,14 +41,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
   const { isAuthorized } = useUI();
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
   const { mutate: updateCart } = useCartMutation();
-  const [attributes, setAttributes] = useState<{ [key: string]: string }>({});
-  const [quantity, setQuantity] = useState(1);
   const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
-  const [activeState, setActiveState] = useState<number | undefined>(
-    data?.attributes[0].id ?? undefined
-  );
-  const [subActive, setSubActive] = useState<number>();
-  const [chooseQuantity, setChooseQuantity] = useState<number>();
   const { price, price_sale, percent } = usePrice(data);
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -62,67 +51,189 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     setLightboxOpen(true);
   };
 
-  const mergeAttributes = (attributes: any) => {
-    return attributes?.flatMap((attribute: { sub_attributes: any }) => [
-      attribute, // Thêm attribute gốc
-      ...attribute.sub_attributes, // Thêm tất cả sub_attributes
-    ]);
-  };
-  const allAttribute = mergeAttributes(data?.attributes);
-  const variations = getVariations(allAttribute);
+  const {
+    variations,
+    attributes,
+    isSelected,
+    activeState,
+    subActive,
+    chooseQuantity,
+    activeAttributes,
+    productSku,
+    productQuantity,
+    handleAttributeParent,
+    handleAttributeChildren,
+    selectVariantById,
+    selectSubVariantById,
+    setAttributesMap,
+  } = useProductVariant(data);
+
+  const availableQuantity = useMemo(() => {
+    const parsedChoose =
+      typeof chooseQuantity === "number"
+        ? chooseQuantity
+        : Number(chooseQuantity);
+    if (Number.isFinite(parsedChoose) && parsedChoose > 0) {
+      return parsedChoose;
+    }
+    const parsedProduct =
+      typeof productQuantity === "number"
+        ? productQuantity
+        : Number(productQuantity);
+    return Number.isFinite(parsedProduct) && parsedProduct > 0
+      ? parsedProduct
+      : undefined;
+  }, [chooseQuantity, productQuantity]);
+
+  const {
+    quantity,
+    inputValue,
+    increment,
+    decrement,
+    handleInputChange,
+    handleInputBlur,
+    disableDecrement,
+    disableIncrement,
+  } = useQuantityInput({
+    initial: 1,
+    min: 1,
+    max: availableQuantity,
+  });
+
+  const variantParam = router.query["variant"];
+  const normalizedVariantParam = Array.isArray(variantParam)
+    ? variantParam[0]
+    : variantParam;
+  const subVariantParam = router.query["subVariant"];
+  const normalizedSubVariantParam = Array.isArray(subVariantParam)
+    ? subVariantParam[0]
+    : subVariantParam;
+
+  const variantParamRef = useRef<string | undefined>(undefined);
+  const hasInitializedVariantRef = useRef(false);
+
   useEffect(() => {
-    if (data && data.attributes.length > 0) {
-      const variant = router.query["variant"];
-      if (variant) {
-        const variantId =
-          typeof variant === "string" ? parseInt(variant) : variant;
-        const attributeItem = data.attributes.find(
-          (attr: any) => attr.id === variantId
-        );
-        if (attributeItem) {
-          setAttributes((prev) => ({
-            ...prev,
-            [attributeItem.name]: attributeItem.value, // Cập nhật giá trị của thuộc tính
-          }));
-          setActiveState(attributeItem.id);
-        }
-      } else {
-        const initialAttributes = data?.attributes.reduce(
+    if (!data || !Array.isArray(data.attributes) || data.attributes.length === 0)
+      return;
+
+    if (normalizedVariantParam) {
+      if (variantParamRef.current === normalizedVariantParam) {
+        return;
+      }
+      variantParamRef.current = normalizedVariantParam;
+      const variantId = Number(normalizedVariantParam);
+      if (!Number.isNaN(variantId)) {
+        selectVariantById(variantId);
+        hasInitializedVariantRef.current = true;
+      }
+      return;
+    }
+
+    variantParamRef.current = undefined;
+
+    if (!hasInitializedVariantRef.current) {
+      const initialAttributes = data.attributes.reduce(
           (
-            acc: { [x: string]: any },
-            attribute: { name: string | number; value: any }
+          acc: Record<string, string>,
+          attribute: { name: string; value: string }
           ) => {
             acc[attribute.name] = attribute.value;
             return acc;
           },
-          {} as { [key: string]: string }
-        );
-        setAttributes(initialAttributes);
-        setActiveState(data?.attributes[0].id);
-        const currentQuery = {
-          ...router.query,
-          variant: data.attributes[0].id,
-        };
+        {}
+      );
+      setAttributesMap(initialAttributes);
+      selectVariantById(data.attributes[0]?.id ?? null);
+      hasInitializedVariantRef.current = true;
+    }
+  }, [data, normalizedVariantParam, selectVariantById, setAttributesMap]);
+
+  const subVariantParamRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (
+      !data ||
+      !Array.isArray(data.attributes) ||
+      data.attributes.length === 0
+    )
+      return;
+
+    if (!normalizedSubVariantParam) {
+      subVariantParamRef.current = undefined;
+      return;
+    }
+
+    if (subVariantParamRef.current === normalizedSubVariantParam) {
+      return;
+    }
+
+    subVariantParamRef.current = normalizedSubVariantParam;
+
+    const subVariantId = Number(normalizedSubVariantParam);
+    if (Number.isNaN(subVariantId)) return;
+
+    selectSubVariantById(subVariantId);
+  }, [data, normalizedSubVariantParam, selectSubVariantById]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const currentVariant =
+      typeof normalizedVariantParam === "string"
+        ? normalizedVariantParam
+        : undefined;
+    const desiredVariant =
+      activeState !== null ? String(activeState) : undefined;
+
+    const currentSubVariant =
+      typeof normalizedSubVariantParam === "string"
+        ? normalizedSubVariantParam
+        : undefined;
+    const desiredSubVariant =
+      subActive !== null ? String(subActive) : undefined;
+
+    const nextQuery = { ...router.query };
+    let changed = false;
+
+    if (desiredVariant) {
+      if (currentVariant !== desiredVariant) {
+        nextQuery.variant = desiredVariant;
+        changed = true;
+      }
+    } else if (currentVariant) {
+      delete nextQuery.variant;
+      changed = true;
+    }
+
+    if (desiredSubVariant) {
+      if (currentSubVariant !== desiredSubVariant) {
+        nextQuery.subVariant = desiredSubVariant;
+        changed = true;
+      }
+    } else if (currentSubVariant) {
+      delete nextQuery.subVariant;
+      changed = true;
+    }
+
+    if (changed) {
         router.replace(
           {
             pathname: router.pathname,
-            query: currentQuery,
+          query: nextQuery,
           },
           undefined,
-          { shallow: true }
+        { shallow: true, scroll: false }
         );
-      }
     }
-  }, [data, router]);
+  }, [
+    router,
+    activeState,
+    subActive,
+    normalizedVariantParam,
+    normalizedSubVariantParam,
+  ]);
 
   if (isLoading) return <p>Loading...</p>;
-
-  const isSelected = !isEmpty(variations)
-    ? !isEmpty(attributes) &&
-      Object.keys(variations).every((variation) =>
-        attributes.hasOwnProperty(variation)
-      )
-    : true;
 
   function addToCart() {
     if (!isSelected) return;
@@ -131,49 +242,16 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     setTimeout(() => {
       setAddToCartLoader(false);
     }, 600);
-    const item = {
-      ...generateCartItem(
+    const item = buildCartItemWithPrice(
         data!,
         attributes,
         activeState,
         subActive,
         canWholeSalePrice
-      ),
-      price:
-        generateCartItem(
-          data!,
-          attributes,
-          activeState,
-          subActive,
-          canWholeSalePrice
-        ).price ?? 0,
-    };
+    );
     updateCart({ item, quantity });
   }
-  function handleAttributeParent(attribute: any, attributeId: number) {
-    const quantities = allAttribute.find(
-      (attr: any) => attr.id === attributeId
-    );
-    setAttributes((prev) => ({
-      ...prev,
-      ...attribute,
-    }));
-    if (attributeId) {
-      setChooseQuantity(quantities.quantity);
-      setActiveState(attributeId);
-      const currentQuery = { ...router.query, variant: attributeId };
-      router.replace(
-        {
-          pathname: router.pathname,
-          query: currentQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
-    }
-  }
-  const activeAttributes =
-    data?.attributes.find((attr: any) => attr.id === activeState) || null;
+
   const parseAlbum = (album: any): any[] => {
     if (!album) return [];
     if (typeof album === "string") {
@@ -248,32 +326,6 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     const allSizes = getAllImageSizes(item);
     return allSizes; // full object
   });
-  const productSku =
-    activeAttributes?.sub_attributes.length > 0
-      ? cleanSku(activeAttributes?.sub_attributes[0].product_attribute_sku)
-      : activeAttributes?.product_attribute_sku;
-  const getProductQuantity = () => {
-    if (activeAttributes) {
-      return calculateTotalQuantity(activeAttributes);
-    }
-    return 0;
-  };
-
-  // Lấy giá trị số lượng khi cần sử dụng
-  const productQuantity = getProductQuantity();
-  function handleAttributeChildren(attribute: any, attributeId: number) {
-    const quantities = allAttribute.find(
-      (attr: any) => attr.id === attributeId
-    );
-    setAttributes((prev) => ({
-      ...prev,
-      ...attribute,
-    }));
-    if (attributeId) {
-      setChooseQuantity(quantities.quantity);
-      setSubActive(attributeId);
-    }
-  }
   return (
     <>
       <div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">
@@ -417,22 +469,24 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
               (productQuantity === 0 ? (
                 <div className="text-red-600">Out of stock</div>
               ) : (
-                <div>Quantity avaiable: {chooseQuantity}</div>
+                <div>
+                  Quantity avaiable:{" "}
+                  {availableQuantity ?? chooseQuantity ?? productQuantity}
+                </div>
               ))}
           </div>
           {isAuthorized && (
             <div className="flex items-center gap-x-4 ltr:md:pr-32 rtl:md:pl-32 ltr:lg:pr-12 rtl:lg:pl-12 ltr:2xl:pr-32 rtl:2xl:pl-32 ltr:3xl:pr-48 rtl:3xl:pl-48  border-b border-gray-300 py-8">
               <Counter
                 quantity={quantity}
-                onIncrement={() =>
-                  setQuantity((prev) =>
-                    prev < (chooseQuantity ?? 0) ? prev + 1 : prev
-                  )
-                }
-                onDecrement={() =>
-                  setQuantity((prev) => (prev !== 1 ? prev - 1 : 1))
-                }
-                disableDecrement={quantity === 1}
+                quantityInput={inputValue}
+                onIncrement={increment}
+                onDecrement={decrement}
+                onInputChange={handleInputChange}
+                onInputBlur={handleInputBlur}
+                disableDecrement={disableDecrement}
+                disableIncrement={disableIncrement}
+                inputAriaLabel="Product quantity"
               />
               <Button
                 onClick={addToCart}
