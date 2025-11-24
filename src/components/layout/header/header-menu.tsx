@@ -4,6 +4,7 @@ import { FaChevronDown } from "react-icons/fa";
 import MegaMenu from "@components/ui/mega-menu";
 import classNames from "classnames";
 import ListMenu from "@components/ui/list-menu";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MenuProps {
   data: any;
@@ -102,20 +103,22 @@ const HeaderMenuItem: React.FC<{
       )}
     </div>
     {
-      hasChildren && shouldRenderMegaMenu && isActive && (
-        <div 
-          className="absolute top-full transition-all duration-200 bg-white shadow-lg"
-          style={{ 
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '100vw',
-            maxWidth: '1920px'
-          }}
-          onMouseEnter={() => onHoverChange?.(item.id)}
-          onMouseLeave={() => onHoverChange?.(null)}
-        >
-          <MegaMenu columns={children} />
-        </div>
+      hasChildren && shouldRenderMegaMenu && (
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute top-full left-0 bg-white shadow-lg"
+              onMouseEnter={() => onHoverChange?.(item.id)}
+              onMouseLeave={() => onHoverChange?.(null)}
+            >
+              <MegaMenu columns={children} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       )
     }
   </>

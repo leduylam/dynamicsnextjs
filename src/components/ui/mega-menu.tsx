@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "@components/ui/link";
+import { motion } from "framer-motion";
 
 type CategoryNode = {
   id: number | string;
@@ -62,23 +63,26 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ columns }) => {
 
   if (!normalizedColumns.length) {
     return (
-      <div className="megaMenu !opacity-100 shadow-header w-full p-6">
+      <div className="megaMenu !opacity-100 shadow-header p-6">
         <p className="text-sm text-body">No categories available</p>
       </div>
     );
   }
 
   return (
-    <div className="megaMenu !opacity-100 shadow-header w-full min-h-[200px] z-[9999]">
-      <div className="mx-auto px-4 py-6">
+    <div className="megaMenu !opacity-100 shadow-header min-h-[200px] z-[9999]">
+      <div className="px-4 py-6">
         <div className="grid gap-x-6" style={{ gridTemplateColumns }}>
-          {normalizedColumns.map((column) => (
-            <ul
+          {normalizedColumns.map((column, index) => (
+            <motion.ul
               key={column.id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
               className="pt-2 pb-4 2xl:pb-6 2xl:pt-4 even:bg-gray-150 space-y-1"
             >
               {renderNestedItems(column)}
-            </ul>
+            </motion.ul>
           ))}
         </div>
       </div>
