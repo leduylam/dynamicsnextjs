@@ -50,11 +50,6 @@ const HeaderMenuItem: React.FC<{
   const depth = useMemo(() => getCategoryDepth(item), [item]);
   const shouldRenderMegaMenu = depth > 2;
 
-  // Debug log
-  if (shouldRenderMegaMenu) {
-    console.log(`${item.name}: depth=${depth}, children count=${children.length}`, children);
-  }
-
   const href = isFullLink(item.slug)
     ? item.slug
     : `/categories/${item.slug}`;

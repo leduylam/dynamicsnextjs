@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "@components/ui/link";
 import Scrollbar from "@components/common/scrollbar";
 import { IoIosArrowDown } from "react-icons/io";
@@ -46,7 +46,11 @@ const MobileMenu = () => {
   });
 
   const { closeSidebar } = useUI();
-  const handleArrowClick = (menuName: string) => {
+  const handleArrowClick = (menuName: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     let newActiveMenus = [...activeMenus];
     if (newActiveMenus.includes(menuName)) {
       var index = newActiveMenus.indexOf(menuName);
@@ -59,29 +63,46 @@ const MobileMenu = () => {
     setActiveMenus(newActiveMenus);
   };
 
+  const hasSubMenu = (menu: any): boolean => {
+    const subCategory = menu.subCategory || menu.sub_category;
+    return Array.isArray(subCategory) && subCategory.length > 0;
+  };
+
   const ListMenu = ({
     dept,
     data,
-    hasSubMenu,
+    hasSubMenu: hasSubMenuProp,
     menuName,
     menuIndex,
     className = "",
-  }: any) =>
-    data && (
+  }: any) => {
+    const menuHasSubMenu = hasSubMenuProp ?? hasSubMenu(data);
+    
+    return data ? (
       <li className={`mb-0.5 ${className}`}>
         <div className="relative flex items-center justify-between">
-          <Link
-            href={`/categories/${data.slug}`}
-            className="w-full text-[15px] menu-item relative py-3 ltr:pl-5 rtl:pr-5 ltr:md:pl-6 rtl:md:pr-6 ltr:pr-4 rtl:pl-4 transition duration-300 ease-in-out"
-          >
-            <span className="block w-full" onClick={closeSidebar}>
-              {`${data.name}`}
-            </span>
-          </Link>
-          {hasSubMenu && (
+          {menuHasSubMenu ? (
             <div
-              className="absolute top-0 flex items-center justify-end w-full h-full text-lg cursor-pointer ltr:left-0 rtl:right-0 ltr:pr-5 rtl:pl-5"
-              onClick={() => handleArrowClick(menuName)}
+              className="w-full text-[15px] menu-item relative py-3 ltr:pl-5 rtl:pr-5 ltr:md:pl-6 rtl:md:pr-6 ltr:pr-4 rtl:pl-4 transition duration-300 ease-in-out cursor-pointer"
+              onClick={(e) => handleArrowClick(menuName, e)}
+            >
+              <span className="block w-full">
+                {`${data.name}`}
+              </span>
+            </div>
+          ) : (
+            <Link
+              href={`/categories/${data.slug}`}
+              className="w-full text-[15px] menu-item relative py-3 ltr:pl-5 rtl:pr-5 ltr:md:pl-6 rtl:md:pr-6 ltr:pr-4 rtl:pl-4 transition duration-300 ease-in-out"
+            >
+              <span className="block w-full" onClick={closeSidebar}>
+                {`${data.name}`}
+              </span>
+            </Link>
+          )}
+          {menuHasSubMenu && (
+            <div
+              className="absolute top-0 flex items-center justify-end w-full h-full text-lg ltr:left-0 rtl:right-0 ltr:pr-5 rtl:pl-5 pointer-events-none"
             >
               <IoIosArrowDown
                 className={`transition duration-200 ease-in-out transform text-heading ${
@@ -91,7 +112,7 @@ const MobileMenu = () => {
             </div>
           )}
         </div>
-        {hasSubMenu && (
+        {menuHasSubMenu && (
           <SubMenu
             dept={dept}
             data={data.subCategory || data.sub_category}
@@ -100,7 +121,8 @@ const MobileMenu = () => {
           />
         )}
       </li>
-    );
+    ) : null;
+  };
 
   const SubMenu = ({ dept, data, toggle, menuIndex }: any) => {
     if (!toggle) {
@@ -117,7 +139,7 @@ const MobileMenu = () => {
             <ListMenu
               dept={dept}
               data={menu}
-              hasSubMenu={menu.sub_category.length > 0}
+              hasSubMenu={hasSubMenu(menu)}
               menuName={menuName}
               key={menuName}
               menuIndex={index}
@@ -146,14 +168,14 @@ const MobileMenu = () => {
         <Scrollbar className="flex-grow mb-auto menu-scrollbar">
           <div className="flex flex-col px-0 py-7 lg:px-2 text-heading">
             <ul className="mobileMenu">
-              {category.categories.map((menu: any, index: number) => {
+              {category?.categories?.map((menu: any, index: number) => {
                 const dept: number = 1;
                 const menuName: string = `sidebar-menu-${dept}-${index}`;
                 return (
                   <ListMenu
                     dept={dept}
                     data={menu}
-                    hasSubMenu={menu.subCategory}
+                    hasSubMenu={hasSubMenu(menu)}
                     menuName={menuName}
                     key={menuName}
                     menuIndex={index}
