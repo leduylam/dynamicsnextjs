@@ -30,7 +30,7 @@ export default function Home() {
     if (!data?.item) return [];
     
     const ratio = 800 / 1800;
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com";
     
     return data.item.map((banner: any) => ({
       id: banner.id,

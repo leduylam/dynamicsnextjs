@@ -41,14 +41,14 @@ const BannerCarouselBlock: React.FC<BannerProps> = ({
         image: {
           mobile: {
             url: `${
-              process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"
+              process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"
             }/${collection.album.mobile.toString()}`,
             width: 768,
             height: Math.round(768 * (800 / 1800)),
           },
           desktop: {
             url: `${
-              process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"
+              process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"
             }/${collection.album.desktop.toString()}`,
             width: 1800,
             height: 800,

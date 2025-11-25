@@ -38,7 +38,7 @@ const CollectionCard: React.FC<Props> = ({
       <div className="flex mx-auto flex-col relative">
         <div className="flex">
           <Image
-            src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${representative_image_url}` || "/assets/placeholder/collection.svg"}
+            src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${representative_image_url}` || "/assets/placeholder/collection.svg"}
             alt={name}
             width={Number(imgWidth)}
             height={Number(imgHeight)}

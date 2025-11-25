@@ -23,7 +23,7 @@ const CollectionTopBar = ({ data }: any) => {
       {/* Header with Logo */}
       <header className="py-6 px-10 bg-white shadow-md flex justify-center">
         <Image
-          src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${data.image}`}
+          src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${data.image}`}
           alt="Brand Logo"
           width={150}
           height={50}
@@ -57,7 +57,7 @@ const CollectionTopBar = ({ data }: any) => {
           <li>
             {imagesBanner && imagesBanner[0]?.src && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${imagesBanner[0].src}`}
+                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${imagesBanner[0].src}`}
                 alt="Image 1"
                 width={500} // Thay bằng kích thước thực tế
                 height={300} // Thay bằng kích thước thực tế
@@ -66,7 +66,7 @@ const CollectionTopBar = ({ data }: any) => {
             )}
             {imagesBanner && imagesBanner[3]?.src && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${imagesBanner[3].src}`}
+                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${imagesBanner[3].src}`}
                 alt="Image 1"
                 width={500} // Thay bằng kích thước thực tế
                 height={300} // Thay bằng kích thước thực tế
@@ -77,7 +77,7 @@ const CollectionTopBar = ({ data }: any) => {
           <li>
             {imagesBanner && imagesBanner[1]?.src && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${imagesBanner[1].src}`}
+                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${imagesBanner[1].src}`}
                 alt="Image 1"
                 width={500} // Thay bằng kích thước thực tế
                 height={300} // Thay bằng kích thước thực tế
@@ -86,7 +86,7 @@ const CollectionTopBar = ({ data }: any) => {
             )}
             {imagesBanner && imagesBanner[4]?.src && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${imagesBanner[4].src}`}
+                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${imagesBanner[4].src}`}
                 alt="Image 1"
                 width={500} // Thay bằng kích thước thực tế
                 height={300} // Thay bằng kích thước thực tế
@@ -97,7 +97,7 @@ const CollectionTopBar = ({ data }: any) => {
           <li className="hidden lg:block">
             {imagesBanner && imagesBanner[2]?.src && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${imagesBanner[2].src}`}
+                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${imagesBanner[2].src}`}
                 alt="Image 1"
                 width={500} // Thay bằng kích thước thực tế
                 height={300} // Thay bằng kích thước thực tế
@@ -106,7 +106,7 @@ const CollectionTopBar = ({ data }: any) => {
             )}
             {imagesBanner && imagesBanner[5]?.src && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}/${imagesBanner[5].src}`}
+                src={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}/${imagesBanner[5].src}`}
                 alt="Image 1"
                 width={500} // Thay bằng kích thước thực tế
                 height={300} // Thay bằng kích thước thực tế

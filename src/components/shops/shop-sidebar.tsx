@@ -22,7 +22,7 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({ data }) => {
   const {
     query: { slug },
   } = useRouter();
-  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8000"}${ROUTES.SHOPS}/${slug}`;
+  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com"}${ROUTES.SHOPS}/${slug}`;
   const [follow, setFollow] = useState(Boolean(false));
 
   const followHandel = () => {
