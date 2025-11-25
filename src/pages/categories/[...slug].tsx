@@ -50,6 +50,12 @@ export const getServerSideProps: GetServerSideProps<{
   params,
 }) => {
   const slugParam = params?.slug;
+  // Normalize slug to match the format used in useProductsQuery
+  const normalizedSlug = Array.isArray(slugParam)
+    ? slugParam.join("/")
+    : typeof slugParam === "string"
+    ? slugParam
+    : "";
   const slugValue = Array.isArray(slugParam)
     ? slugParam[0]
     : typeof slugParam === "string"
@@ -62,9 +68,12 @@ export const getServerSideProps: GetServerSideProps<{
       ? slugParam[slugParam.length - 1]?.replace(/-/g, " ")
       : undefined;
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: [API_ENDPOINTS.PRODUCTS, { slug: slugParam, limit: 8, locale }],
+  // Use normalized slug to match the query key format in useProductsQuery
+  // Use prefetchInfiniteQuery to match useInfiniteQuery in useProductsQuery
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: [API_ENDPOINTS.PRODUCTS, { slug: normalizedSlug, limit: 8, locale }],
     queryFn: fetchProducts,
+    initialPageParam: 1,
   });
   return {
     props: {

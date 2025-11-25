@@ -26,8 +26,19 @@ const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
 };
 
 const useProductsQuery = (options: QueryOptionsType) => {
+  // Normalize slug for consistent query key
+  const normalizedSlug = Array.isArray(options.slug)
+    ? options.slug.join("/")
+    : options.slug;
+  
+  // Create stable query key with normalized slug
+  const stableOptions = {
+    ...options,
+    slug: normalizedSlug,
+  };
+  
   return useInfiniteQuery<PaginatedProduct, Error>({
-    queryKey: [API_ENDPOINTS.PRODUCTS, options],
+    queryKey: [API_ENDPOINTS.PRODUCTS, stableOptions],
     queryFn: fetchProducts,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
@@ -35,6 +46,10 @@ const useProductsQuery = (options: QueryOptionsType) => {
       const totalPages = lastPage.last_page ?? 1;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
+    // Disable cache to ensure fresh data when switching categories
+    staleTime: 0,
+    gcTime: 0, // cacheTime in v4
+    refetchOnMount: true,
   });
 };
 

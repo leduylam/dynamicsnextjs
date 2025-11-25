@@ -15,9 +15,11 @@ export const ProductGrid: FC<ProductGridProps> = React.memo(
   ({ className = "", queryOptions }) => {
     const { query: routerQuery, locale } = useRouter();
     const normalizedOptions = useMemo<QueryOptionsType & { locale?: string }>(() => {
+      // Priority: queryOptions > routerQuery
+      // This ensures that when slug is explicitly passed via queryOptions, it won't be overridden by routerQuery
       const baseOptions = {
-        ...(queryOptions ?? {}),
         ...routerQuery,
+        ...(queryOptions ?? {}),
       } as QueryOptionsType & { locale?: string };
       const sanitizedEntries = Object.entries(baseOptions).reduce<
         Record<string, string | string[] | number>
