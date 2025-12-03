@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { useEffect, useState, type FC } from "react";
+import { useEffect, useState, useMemo, type FC } from "react";
 import { useUI } from "@contexts/ui.context";
 import usePrice from "@framework/product/use-price";
 import { Product } from "@framework/types";
@@ -57,7 +57,12 @@ const ProductCard: FC<ProductProps> = ({
   const { accessRights } = useAuth();
   const placeholderImage = `/assets/placeholder/products/product-${variant}.svg`;
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
-  const canWholeSalePrice = accessRights.canWholeSalePrice || false;
+  
+  // Use useMemo to re-calculate when accessRights changes
+  const canWholeSalePrice = useMemo(() => {
+    return accessRights?.canWholeSalePrice ?? false;
+  }, [accessRights?.canWholeSalePrice]);
+  
   function handlePopupView() {
     setModalData({ data: product });
     setModalView("PRODUCT_VIEW");

@@ -46,7 +46,7 @@ const toSlug = (v: any): string =>
     .replace(/\s+/g, "-");
 
 const normalizeRolesToSlugs = (roles: any[]): string[] => {
-  return (roles ?? [])
+  const normalized = (roles ?? [])
     .map((r: any) => {
       if (!r) return null;
       if (typeof r === "string") return toSlug(r);
@@ -57,6 +57,14 @@ const normalizeRolesToSlugs = (roles: any[]): string[] => {
       return null;
     })
     .filter(Boolean) as string[];
+
+  // Debug log để kiểm tra role normalization
+  console.log('[Auth] Role normalization:', {
+    input: roles,
+    output: normalized
+  });
+
+  return normalized;
 };
 
 export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
@@ -84,6 +92,9 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     const hasPermission = requiredPermissions.some(
       (perm) => checkPermissions?.includes(perm) ?? false
     );
+
+
+
     setAccessRights((prev) => ({ ...prev, [key]: hasRole || hasPermission }));
   };
 
@@ -91,19 +102,21 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     checkRoles: string[],
     checkPermissions: string[]
   ) => {
+    const wholesaleRoles = [
+      "admin",
+      "user",
+      "super-admin",
+      "corporate",
+      "sale",
+      "sales-manager",
+      "accounting",
+      "warehouse",
+      "designer",
+    ];
+
     setAccessRight(
       "canWholeSalePrice",
-      [
-        "admin",
-        "user",
-        "super-admin",
-        "corporate",
-        "sale",
-        "sales-manager",
-        "accounting",
-        "warehouse",
-        "designer",
-      ],
+      wholesaleRoles,
       [],
       checkRoles,
       checkPermissions
@@ -115,6 +128,7 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
       checkRoles,
       checkPermissions
     );
+
   };
 
   useEffect(() => {
@@ -131,30 +145,30 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
 
     const initializeAuth = async () => {
       if (!mounted) return;
-      
+
       try {
         setLoading(true);
-        
+
         const res = await http.get(API_ENDPOINTS.ME, {
           signal: abortController.signal,
         });
-        
+
         if (!mounted) return;
-        
+
         const data = res.data as UserData;
         const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
         setUser(data.user ?? null);
         setRoles(roleSlugs);
         setPermissions(data.permissions ?? []);
         checkAllAccessRights(roleSlugs, data.permissions ?? []);
-        
+
       } catch (error: any) {
         if (error.name === 'AbortError' || error.name === 'CanceledError') {
           return;
         }
-        
+
         if (!mounted) return;
-        
+
         const status = error.response?.status;
 
         if (status === 401 || status === 419) {
@@ -163,25 +177,25 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
               signal: abortController.signal,
               withCredentials: true,
             });
-            
+
             if (!mounted) return;
-            
+
             const meRes = await http.get(API_ENDPOINTS.ME, {
               signal: abortController.signal,
             });
-            
+
             if (!mounted) return;
-            
+
             const data = meRes.data as UserData;
             const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
             setUser(data.user ?? null);
             setRoles(roleSlugs);
             setPermissions(data.permissions ?? []);
             checkAllAccessRights(roleSlugs, data.permissions ?? []);
-            
+
             if (mounted) setLoading(false);
             return;
-            
+
           } catch (refreshError: any) {
             if (refreshError.name === 'AbortError' || refreshError.name === 'CanceledError') {
               return;
@@ -197,20 +211,20 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
             }
           }
         }
-        
+
         if (!mounted) return;
         setUser(null);
         setRoles([]);
         setPermissions([]);
         setAccessRights({});
-        
+
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
     initializeAuth();
-    
+
     return () => {
       mounted = false;
       abortController.abort();

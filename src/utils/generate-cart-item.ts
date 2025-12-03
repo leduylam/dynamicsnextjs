@@ -109,6 +109,22 @@ export function generateCartItem(
   const promotion_price = item.promotions
     ? item?.product_price! - item.promotions.discount
     : null;
+  
+  // Calculate price với fallback logic
+  let finalPrice: number | undefined;
+  if (canWholeSalePrice) {
+    // User có quyền xem giá sỉ
+    finalPrice = promotion_price || product_price;
+  } else {
+    // User không có quyền, dùng giá lẻ
+    finalPrice = product_retail_price;
+    // Fallback: nếu product_retail_price = 0/null, dùng product_price
+    if (!finalPrice || finalPrice === 0) {
+      finalPrice = product_price;
+    }
+  }
+
+  
   return {
     id: !isEmpty(attributes)
       ? `${id}.${Object.values(attributes).join(".")}`
@@ -120,11 +136,7 @@ export function generateCartItem(
     product_retail_price,
     sku: itemSku,
     image: image,
-    price: canWholeSalePrice
-      ? promotion_price
-        ? promotion_price
-        : product_price
-      : product_retail_price,
+    price: finalPrice,
     attributes,
   };
 }

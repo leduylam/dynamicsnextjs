@@ -37,7 +37,11 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
   const [imagesLoaded, setImagesLoaded] = useState(0);
   const router = useRouter();
   const { accessRights } = useAuth();
-  const canWholeSalePrice = accessRights.canWholeSalePrice || false;
+  
+  // Use useMemo to re-calculate when accessRights changes
+  const canWholeSalePrice = useMemo(() => {
+    return accessRights?.canWholeSalePrice ?? false;
+  }, [accessRights?.canWholeSalePrice]);
   const { isAuthorized } = useUI();
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
   const { mutate: updateCart } = useCartMutation();

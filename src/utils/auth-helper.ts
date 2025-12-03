@@ -5,13 +5,18 @@ export const handleLoginSuccess = async (
   authLogin: Function,
   authorize: Function
 ) => {
-  const { access_token, refresh_token, expires_in, context } = data.data;
+  const loginData = data.data;
+  const { context } = loginData;
   
   if (context && context !== 'client') {
     throw new Error(`Invalid token context: ${context}. Expected: client`);
   }
-
-  const user = await me();
-  authLogin(user, access_token, refresh_token, expires_in);
-  authorize(user);
+  if (loginData.user && loginData.roles) {
+    authLogin(loginData);
+    authorize(loginData.user);
+  } else {
+    const user = await me();
+    authLogin(user);
+    authorize(user.user || user);
+  }
 };

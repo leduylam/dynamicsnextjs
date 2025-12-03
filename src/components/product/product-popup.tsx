@@ -24,7 +24,11 @@ export default function ProductPopup() {
   } = useUI();
   const { accessRights } = useAuth();
   const { price, price_sale, percent } = usePrice(data);
-  const canWholeSalePrice = accessRights.canWholeSalePrice || false;
+  
+  // Use useMemo to re-calculate when accessRights changes
+  const canWholeSalePrice = useMemo(() => {
+    return accessRights?.canWholeSalePrice ?? false;
+  }, [accessRights?.canWholeSalePrice]);
   // const { addItemToCart } = useCart();
   const { mutate: updateCart } = useCartMutation();
   const [viewCartBtn, setViewCartBtn] = useState<boolean>(false);
