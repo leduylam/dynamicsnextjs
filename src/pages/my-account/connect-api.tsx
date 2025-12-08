@@ -11,48 +11,51 @@ type ConnectApiPageProps = {
   error?: string | null;
 };
 
+// ✅ OPTIMIZE: Component không có props nên không cần memo
 export default function ConnectApiPage({ apiKeys, error }: ConnectApiPageProps) {
-    return (
-        <AccountLayout>
+  return (
+    <AccountLayout>
       <ConnectApi apiKey={apiKeys} error={error} />
-        </AccountLayout>
-    );
+    </AccountLayout>
+  );
 }
 
+ConnectApiPage.Layout = Layout;
+
+// ✅ OPTIMIZE: Chạy translations và API call song song
 export const getServerSideProps: GetServerSideProps = async ({
   req,
   res,
   locale,
 }) => {
-  try {
-    const response = await http.get(API_ENDPOINTS.APIKEY, {
-        headers: {
-            Authorization: `Bearer ${req.cookies.client_access_token}`,
+  // ✅ OPTIMIZE: Chạy song song translations và API call
+  const [translations, apiResponse] = await Promise.allSettled([
+    serverSideTranslations(locale!, ["common", "forms", "footer"]),
+    http.get(API_ENDPOINTS.APIKEY, {
+      headers: {
+        Authorization: `Bearer ${req.cookies.client_access_token}`,
         Cookie: req.headers.cookie || "",
-        },
-        withCredentials: true,
-    });
-
-    if (res) {
-      res.setHeader("Cache-Control", "private, max-age=60");
-    }
-
-    return {
-      props: {
-        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-        apiKeys: response.data ?? null,
-        error: null,
       },
-    };
-  } catch (error) {
-    return {
-        props: {
-            ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-        apiKeys: null,
-        error: (error as Error)?.message ?? "Unable to load API keys",
-        },
-    };
-  }
-};
+      withCredentials: true,
+    }),
+  ]);
 
-ConnectApiPage.Layout = Layout;
+  if (res) {
+    res.setHeader("Cache-Control", "private, max-age=60");
+  }
+
+  const apiKeys = apiResponse.status === 'fulfilled'
+    ? apiResponse.value.data ?? null
+    : null;
+  const error = apiResponse.status === 'rejected'
+    ? (apiResponse.reason as Error)?.message ?? "Unable to load API keys"
+    : null;
+
+  return {
+    props: {
+      ...(translations.status === 'fulfilled' ? translations.value : {}),
+      apiKeys,
+      error,
+    },
+  };
+};

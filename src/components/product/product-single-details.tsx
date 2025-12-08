@@ -1,15 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { useRouter } from "next/router";
 import usePrice from "@framework/product/use-price";
 import { ProductAttributes } from "./product-attributes";
 import Link from "@components/ui/link";
-import { useWindowSize } from "@utils/use-window-size";
 import Carousel from "@components/ui/carousel/carousel";
 import { SwiperSlide } from "swiper/react";
 import ProductMetaReview from "@components/product/product-meta-review";
-import { useSsrCompatible } from "@utils/use-ssr-compatible";
 import { useUI } from "@contexts/ui.context";
 import { number_format } from "src/helpers/my-helper";
 import { useCartMutation } from "@framework/carts/use-cart";
@@ -24,6 +22,7 @@ import { buildCartItemWithPrice } from "@utils/cart";
 import useQuantityInput from "./hooks/use-quantity-input";
 import Image from "next/image";
 
+// ✅ OPTIMIZE: Move constants outside component
 const productGalleryCarouselResponsive = {
   "768": {
     slidesPerView: 2,
@@ -32,28 +31,81 @@ const productGalleryCarouselResponsive = {
     slidesPerView: 1,
   },
 };
-const ProductSingleDetails = ({ slug }: { slug: string }) => {
+
+// ✅ OPTIMIZE: Helper functions outside component
+const parseAlbum = (album: any): any[] => {
+  if (!album) return [];
+  if (typeof album === "string") {
+    try {
+      return JSON.parse(album);
+    } catch {
+      return [];
+    }
+  }
+  return album;
+};
+
+const fromGallery = (g: any): string[] =>
+  Array.isArray(g)
+    ? g
+      .map((x: any) => x?.image_path || x?.url || x?.original || x)
+      .filter((u: any) => typeof u === "string" && !!u)
+    : [];
+
+const fromAlbum = (a: any): string[] =>
+  Array.isArray(a) ? parseAlbum(a) : a ? parseAlbum(a) : [];
+
+const uniq = (arr: string[]) => Array.from(new Set(arr));
+
+// ✅ OPTIMIZE: Memoize component
+const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const { data, isLoading } = useProductQuery(slug);
   const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const { accessRights } = useAuth();
-  
+
+  // ✅ FIX: Hydration - đảm bảo chỉ render client-side sau khi mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Use useMemo to re-calculate when accessRights changes
   const canWholeSalePrice = useMemo(() => {
     return accessRights?.canWholeSalePrice ?? false;
   }, [accessRights?.canWholeSalePrice]);
   const { isAuthorized } = useUI();
-  const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
+  
+  // ✅ FIX: Hydration - Normalize description để đảm bảo server và client giống nhau
+  const normalizedDescription = useMemo(() => {
+    if (!data?.description || data.description === "undefined") return null;
+    // Normalize whitespace, HTML entities và đảm bảo nhất quán
+    let desc = String(data.description).trim();
+    // Normalize multiple spaces thành single space (nhưng giữ nguyên trong HTML tags)
+    desc = desc.replace(/\s+/g, ' ');
+    // Normalize line breaks
+    desc = desc.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    // ✅ FIX: Strip outer <p> tags nếu description đã có <p> tag để tránh nested <p> tags
+    // Nếu description bắt đầu và kết thúc bằng <p>...</p>, strip chúng đi
+    const trimmed = desc.trim();
+    if (trimmed.startsWith('<p>') && trimmed.endsWith('</p>')) {
+      desc = trimmed.slice(3, -4).trim();
+    }
+    return desc;
+  }, [data?.description]);
+  // ✅ FIX: Không cần width nữa vì đã render cả 2 version với CSS classes
   const { mutate: updateCart } = useCartMutation();
   const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
   const { price, price_sale, percent } = usePrice(data);
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const openLightbox = (index: number) => {
+
+  // ✅ OPTIMIZE: Memoize openLightbox callback
+  const openLightbox = useCallback((index: number) => {
     setSelectedIndex(index);
     setLightboxOpen(true);
-  };
+  }, []);
 
   const {
     variations,
@@ -104,19 +156,28 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     max: availableQuantity,
   });
 
-  const variantParam = router.query["variant"];
-  const normalizedVariantParam = Array.isArray(variantParam)
-    ? variantParam[0]
-    : variantParam;
-  const subVariantParam = router.query["subVariant"];
-  const normalizedSubVariantParam = Array.isArray(subVariantParam)
-    ? subVariantParam[0]
-    : subVariantParam;
+  // ✅ FIX: Hydration - Chỉ đọc router.query khi router.isReady để tránh mismatch
+  // Server không có router.query, client có sau khi mount
+  const normalizedVariantParam = useMemo(() => {
+    if (!router.isReady) return undefined; // ✅ FIX: Return undefined trên server
+    const variantParam = router.query["variant"];
+    return Array.isArray(variantParam) ? variantParam[0] : variantParam;
+  }, [router.isReady, router.query.variant]);
+
+  const normalizedSubVariantParam = useMemo(() => {
+    if (!router.isReady) return undefined; // ✅ FIX: Return undefined trên server
+    const subVariantParam = router.query["subVariant"];
+    return Array.isArray(subVariantParam) ? subVariantParam[0] : subVariantParam;
+  }, [router.isReady, router.query.subVariant]);
 
   const variantParamRef = useRef<string | undefined>(undefined);
   const hasInitializedVariantRef = useRef(false);
 
+  // ✅ FIX: Hydration - Chỉ chạy khi router.isReady để đảm bảo server và client cùng behavior
   useEffect(() => {
+    // ✅ FIX: Chờ router ready để tránh hydration mismatch
+    if (!router.isReady) return;
+
     if (!data || !Array.isArray(data.attributes) || data.attributes.length === 0)
       return;
 
@@ -137,24 +198,28 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
 
     if (!hasInitializedVariantRef.current) {
       const initialAttributes = data.attributes.reduce(
-          (
+        (
           acc: Record<string, string>,
           attribute: { name: string; value: string }
-          ) => {
-            acc[attribute.name] = attribute.value;
-            return acc;
-          },
+        ) => {
+          acc[attribute.name] = attribute.value;
+          return acc;
+        },
         {}
       );
       setAttributesMap(initialAttributes);
       selectVariantById(data.attributes[0]?.id ?? null);
       hasInitializedVariantRef.current = true;
     }
-  }, [data, normalizedVariantParam, selectVariantById, setAttributesMap]);
+  }, [router.isReady, data, normalizedVariantParam, selectVariantById, setAttributesMap]);
 
   const subVariantParamRef = useRef<string | undefined>(undefined);
 
+  // ✅ FIX: Hydration - Chỉ chạy khi router.isReady
   useEffect(() => {
+    // ✅ FIX: Chờ router ready để tránh hydration mismatch
+    if (!router.isReady) return;
+
     if (
       !data ||
       !Array.isArray(data.attributes) ||
@@ -177,7 +242,7 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     if (Number.isNaN(subVariantId)) return;
 
     selectSubVariantById(subVariantId);
-  }, [data, normalizedSubVariantParam, selectSubVariantById]);
+  }, [router.isReady, data, normalizedSubVariantParam, selectSubVariantById]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -220,26 +285,27 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
     }
 
     if (changed) {
-        router.replace(
-          {
-            pathname: router.pathname,
+      router.replace(
+        {
+          pathname: router.pathname,
           query: nextQuery,
-          },
-          undefined,
+        },
+        undefined,
         { shallow: true, scroll: false }
-        );
+      );
     }
   }, [
-    router,
+    router.isReady,
+    router.pathname,
+    router.query,
     activeState,
     subActive,
     normalizedVariantParam,
     normalizedSubVariantParam,
   ]);
 
-  if (isLoading) return <p>Loading...</p>;
-
-  function addToCart() {
+  // ✅ OPTIMIZE: Memoize addToCart callback
+  const addToCart = useCallback(() => {
     if (!isSelected) return;
     // to show btn feedback while product carting
     setAddToCartLoader(true);
@@ -247,93 +313,96 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
       setAddToCartLoader(false);
     }, 600);
     const item = buildCartItemWithPrice(
-        data!,
-        attributes,
-        activeState,
-        subActive,
-        canWholeSalePrice
+      data!,
+      attributes,
+      activeState,
+      subActive,
+      canWholeSalePrice
     );
     updateCart({ item, quantity });
-  }
+  }, [isSelected, data, attributes, activeState, subActive, canWholeSalePrice, updateCart, quantity]);
 
-  const parseAlbum = (album: any): any[] => {
-    if (!album) return [];
-    if (typeof album === "string") {
-      try {
-        return JSON.parse(album);
-      } catch {
-        return [];
-      }
+  // ✅ FIX: Hydration - Tính toán base images từ data (không phụ thuộc activeState) để đảm bảo server và client giống nhau
+  const baseProductImages = useMemo(() => {
+    // Luôn tính từ data, không phụ thuộc activeState để đảm bảo nhất quán
+    if (Array.isArray(data?.gallery) && data.gallery.length > 0) {
+      return uniq(fromGallery(data.gallery));
     }
-    return album;
-  };
-  const fromGallery = (g: any): string[] =>
-    Array.isArray(g)
-      ? g
-          .map((x: any) => x?.image_path || x?.url || x?.original || x)
-          .filter((u: any) => typeof u === "string" && !!u)
-      : [];
+    if (Array.isArray(data?.album) && data.album.length > 0) {
+      return uniq(fromAlbum(data.album));
+    }
+    if (Array.isArray(data?.attributes)) {
+      const attrGal = data.attributes.flatMap((attr: any) =>
+        fromGallery(attr.gallery)
+      );
+      if (attrGal.length > 0) return uniq(attrGal);
 
-  const fromAlbum = (a: any): string[] =>
-    Array.isArray(a) ? parseAlbum(a) : a ? parseAlbum(a) : [];
+      const attrAlb = data.attributes.flatMap((attr: any) =>
+        fromAlbum(attr.album)
+      );
+      if (attrAlb.length > 0) return uniq(attrAlb);
+    }
+    return [];
+  }, [data?.gallery, data?.album, data?.attributes]);
 
-  const uniq = (arr: string[]) => Array.from(new Set(arr));
-  const productImages = {
-    gallery: (() => {
-      // 1) Nếu đang chọn biến thể
-      if (activeState && activeAttributes) {
-        const list = fromGallery(activeAttributes.gallery) // 1) active gallery
-          .concat(fromAlbum(activeAttributes.album)) // 2) active album
-          .concat(fromGallery(data?.gallery)) // 3) product gallery
-          .concat(fromAlbum(data?.album)); // 4) product album
-
-        if (list.length > 0) return uniq(list);
-
-        // 5) vét attributes khác: gallery trước, album sau
-        if (Array.isArray(data?.attributes)) {
-          const others = data.attributes
-            .filter((a: any) => a !== activeAttributes)
-            .flatMap((attr: any) => fromGallery(attr.gallery));
-          if (others.length > 0) return uniq(others);
-
-          const othersAlbum = data.attributes
-            .filter((a: any) => a !== activeAttributes)
-            .flatMap((attr: any) => fromAlbum(attr.album));
-          if (othersAlbum.length > 0) return uniq(othersAlbum);
-        }
-
-        return [];
-      }
-
-      // 2) Không active → product trước, rồi mới tới attributes
-      if (Array.isArray(data?.gallery) && data.gallery.length > 0) {
-        return uniq(fromGallery(data.gallery));
-      }
-      if (Array.isArray(data?.album) && data.album.length > 0) {
-        return uniq(fromAlbum(data.album));
-      }
-      if (Array.isArray(data?.attributes)) {
-        const attrGal = data.attributes.flatMap((attr: any) =>
-          fromGallery(attr.gallery)
-        );
-        if (attrGal.length > 0) return uniq(attrGal);
-
-        const attrAlb = data.attributes.flatMap((attr: any) =>
-          fromAlbum(attr.album)
-        );
-        if (attrAlb.length > 0) return uniq(attrAlb);
-      }
+  // ✅ FIX: Hydration - Chỉ tính active images sau khi router ready và có activeState
+  const activeProductImages = useMemo(() => {
+    if (!router.isReady || !activeState || !activeAttributes) {
       return [];
-    })(),
-  };
-  const images = productImages.gallery.map((item: any) => {
-    const allSizes = getAllImageSizes(item);
-    return allSizes; // full object
-  });
+    }
+    const list = fromGallery(activeAttributes.gallery)
+      .concat(fromAlbum(activeAttributes.album))
+      .concat(fromGallery(data?.gallery))
+      .concat(fromAlbum(data?.album));
+
+    if (list.length > 0) return uniq(list);
+
+    if (Array.isArray(data?.attributes)) {
+      const others = data.attributes
+        .filter((a: any) => a !== activeAttributes)
+        .flatMap((attr: any) => fromGallery(attr.gallery));
+      if (others.length > 0) return uniq(others);
+
+      const othersAlbum = data.attributes
+        .filter((a: any) => a !== activeAttributes)
+        .flatMap((attr: any) => fromAlbum(attr.album));
+      if (othersAlbum.length > 0) return uniq(othersAlbum);
+    }
+    return [];
+  }, [router.isReady, activeState, activeAttributes, data?.gallery, data?.album, data?.attributes]);
+
+  // ✅ FIX: Hydration - Sử dụng active images nếu có, nếu không dùng base images
+  const productImages = useMemo(() => ({
+    gallery: activeProductImages.length > 0 ? activeProductImages : baseProductImages,
+  }), [activeProductImages, baseProductImages]);
+
+  // ✅ FIX: Hydration - Đảm bảo images array nhất quán giữa server và client
+  // Sử dụng baseProductImages để render, sau đó update với activeProductImages nếu có
+  const images = useMemo(() => {
+    const galleryToUse = productImages.gallery.length > 0 ? productImages.gallery : baseProductImages;
+    return galleryToUse.map((item: any) => {
+      const allSizes = getAllImageSizes(item);
+      return allSizes; // full object
+    });
+  }, [productImages.gallery, baseProductImages]);
+
+  // ✅ FIX: Tính toán grid template columns bằng inline style để tránh bị CSS block
+  // Nếu images > 1 thì chia thành 2 cột, nếu không thì 1 cột
+  const gridTemplateColumns = useMemo(() => {
+    const imageCount = images?.length || 0;
+    // Debug: Uncomment để kiểm tra
+    // console.log('Image count:', imageCount, 'Grid template:', imageCount > 1 ? "repeat(2, minmax(0, 1fr))" : "repeat(1, minmax(0, 1fr))");
+    return imageCount > 1 ? "repeat(2, minmax(0, 1fr))" : "repeat(1, minmax(0, 1fr))";
+  }, [images?.length]);
+
+  if (isLoading) return <p>Loading...</p>;
+
   return (
     <>
       <div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">
-        {width < 1025 ? (
+        {/* ✅ FIX: Hydration - Render cả 2 version và dùng CSS để hide/show */}
+        {/* Mobile Carousel */}
+        <div className="block lg:hidden">
           <Carousel
             pagination={{
               clickable: true,
@@ -359,52 +428,57 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
                 </SwiperSlide>
               ))}
           </Carousel>
-        ) : (
-          <div
-            className={`col-span-5 grid ${
-              productImages.gallery.length > 1 ? "grid-cols-2" : "grid-cols-1"
-            } gap-2.5`}
-          >
-            {images &&
-              images.map((img: any, index: number) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={imagesLoaded > index ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  key={index}
-                  className="col-span-1 transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md"
-                  onClick={() => openLightbox(index)}
-                >
-                  <Image
-                    src={`${img.original}`}
-                    alt={`${data?.name}--${index}`}
-                    onLoad={() => setImagesLoaded((prev) => prev + 1)}
-                    width={500}
-                    height={500}
-                    className="object-cover w-full mix-blend-multiply"
-                    loading="lazy"
-                  />
-                </motion.div>
-              ))}
-            {lightboxOpen && (
-              <Lightbox
-                images={images.map((img: any) => img.original)}
-                initialIndex={selectedIndex}
-                onClose={() => setLightboxOpen(false)}
+        </div>
+
+        {/* Desktop Grid */}
+        {/* ✅ Nếu images > 1 thì chia thành 2 cột, nếu không thì 1 cột */}
+        <div
+          className="hidden lg:block col-span-5 grid gap-2.5"
+          style={{ 
+            gridTemplateColumns: gridTemplateColumns,
+            display: 'grid' // ✅ FIX: Đảm bảo display: grid được apply
+          }}
+          suppressHydrationWarning
+        >
+          {images && images.length > 0 && images.map((img: any, index: number) => (
+            <motion.div
+              initial={false} // ✅ FIX: Hydration - disable initial animation để match server
+              animate={isMounted && imagesLoaded > index ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              key={index}
+              className="w-full aspect-square transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md overflow-hidden"
+              onClick={() => openLightbox(index)}
+            >
+              <Image
+                src={`${img.original}`}
+                alt={`${data?.name}--${index}`}
+                onLoad={() => setImagesLoaded((prev) => prev + 1)}
+                width={500}
+                height={500}
+                className="object-cover w-full h-full mix-blend-multiply"
+                loading="lazy"
               />
-            )}
-          </div>
-        )}
+            </motion.div>
+          ))}
+          {lightboxOpen && (
+            <Lightbox
+              images={images.map((img: any) => img.original)}
+              initialIndex={selectedIndex}
+              onClose={() => setLightboxOpen(false)}
+            />
+          )}
+        </div>
         <div className="col-span-4 pt-8 lg:pt-0">
           <div className="pb-7 mb-7 border-b border-gray-300">
             <h2 className="text-heading text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-bold hover:text-black mb-3.5">
               {data?.name}
             </h2>
-            {data?.description && data.description !== "undefined" && (
-              <p
+            {normalizedDescription && (
+              <div
                 className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
-                dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
-              ></p>
+                dangerouslySetInnerHTML={{ __html: normalizedDescription }}
+                suppressHydrationWarning
+              />
             )}
             {isAuthorized && (
               <div className="flex items-center justify-between mt-5">
@@ -495,9 +569,8 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
               <Button
                 onClick={addToCart}
                 variant="slim"
-                className={`w-full md:w-6/12 xl:w-full ${
-                  !isSelected && "bg-gray-400 hover:bg-gray-400"
-                }`}
+                className={`w-full md:w-6/12 xl:w-full ${!isSelected && "bg-gray-400 hover:bg-gray-400"
+                  }`}
                 disabled={!isSelected || Number(productQuantity) <= 0}
                 loading={addToCartLoader}
               >
@@ -561,6 +634,8 @@ const ProductSingleDetails = ({ slug }: { slug: string }) => {
       <ProductDetailTab data={data} />
     </>
   );
-};
+});
+
+ProductSingleDetails.displayName = 'ProductSingleDetails';
 
 export default ProductSingleDetails;

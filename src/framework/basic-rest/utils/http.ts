@@ -130,7 +130,7 @@ const refreshAccessToken = async () => {
     });
 
     const response = await refreshClient.post(API_ENDPOINTS.REFRESH_TOKEN, {});
-    const { access_token } = response.data;
+    const { access_token, remember } = response.data;
     
     if (isLoggingOut) {
       isRefreshing = false;
@@ -138,7 +138,12 @@ const refreshAccessToken = async () => {
       throw new Error('User logged out during refresh');
     }
     
-    Cookies.set("client_access_token", access_token);
+    // ✅ FIX: Lưu token với cùng cấu hình như login
+    Cookies.set("client_access_token", access_token, {
+      expires: remember ? 7 : 1, // 7 ngày nếu remember, 1 ngày nếu không
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
     isRefreshing = false;
     onRefreshed(access_token);
     

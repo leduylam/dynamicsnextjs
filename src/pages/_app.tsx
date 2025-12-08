@@ -4,7 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { ManagedUIContext } from "@contexts/ui.context";
 import ManagedModal from "@components/common/modal/managed-modal";
 import ManagedDrawer from "@components/common/drawer/managed-drawer";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { QueryClient, QueryClientProvider, HydrationBoundary } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 // import { ReactQueryDevtools } from "@tanstack/react-query/devtools";
@@ -48,9 +48,17 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
     document.documentElement.dir = dir;
   }, [dir]);
   const Layout = (Component as any).Layout || Noop;
-  const authData = pageProps.__headers?.["x-auth-data"]
-    ? JSON.parse(pageProps.__headers["x-auth-data"])
-    : null;
+  // ✅ FIX: Hydration - Safely parse authData, handle case khi không có trên server
+  const authData = useMemo(() => {
+    try {
+      if (pageProps.__headers?.["x-auth-data"]) {
+        return JSON.parse(pageProps.__headers["x-auth-data"]);
+      }
+    } catch (error) {
+      console.error("Error parsing auth data:", error);
+    }
+    return null;
+  }, [pageProps.__headers]);
   return (
     <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
       <QueryClientProvider client={queryClientRef.current}>

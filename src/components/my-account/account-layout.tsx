@@ -1,10 +1,12 @@
 import Container from "@components/ui/container";
 import AccountNav from "@components/my-account/account-nav";
 import Breadcrumb from "@components/common/breadcrumb";
+import { memo } from "react";
 
-const AccountLayout: React.FunctionComponent<{ children: React.ReactNode }> = ({
+// ✅ OPTIMIZE: Memoize component để tránh re-render không cần thiết
+const AccountLayout = memo<{ children: React.ReactNode }>(function AccountLayout({
   children,
-}) => {
+}) {
   return (
     <>
       <Container>
@@ -17,10 +19,11 @@ const AccountLayout: React.FunctionComponent<{ children: React.ReactNode }> = ({
             <div className="md:w-4/6 2xl:w-8/12 mt-4 md:mt-0">{children}</div>
           </div>
         </div>
-
-        {/* <Subscription /> */}
       </Container>
     </>
   );
-};
+});
+
+AccountLayout.displayName = 'AccountLayout';
+
 export default AccountLayout;

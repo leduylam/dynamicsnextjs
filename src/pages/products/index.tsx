@@ -51,19 +51,13 @@ export default function Products() {
 }
 
 Products.Layout = Layout;
+
+// ✅ OPTIMIZE: Loại bỏ try-catch không cần thiết
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
-  try {
-    return {
-      props: {
-        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-      },
-    };
-  }
+  return {
+    props: {
+      ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+    },
+  };
 };
 

@@ -4,6 +4,8 @@ import AccountLayout from "@components/my-account/account-layout";
 import { ROUTES } from "@utils/routes";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
+
+// ✅ OPTIMIZE: Component không có props nên không cần memo
 export default function AccountPage() {
     return (
         <AccountLayout>
@@ -36,22 +38,16 @@ export default function AccountPage() {
             </p>
         </AccountLayout>
     );
-}
+    }
+
 AccountPage.Layout = Layout;
 
+// ✅ OPTIMIZE: Loại bỏ try-catch không cần thiết (catch block giống hệt try block)
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
-    try {
-        return {
-            props: {
-                ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-            },
-        };
-    } catch (error) {
-        return {
-            props: {
-                ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-            },
-        };
-    }
+    return {
+        props: {
+            ...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+        },
+    };
 };
 

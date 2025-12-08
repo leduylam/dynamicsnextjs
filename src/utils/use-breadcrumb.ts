@@ -21,27 +21,29 @@ type CategoryInfo = {
 
 export default function useBreadcrumb(currentCategory?: CategoryInfo | null) {
   const router = useRouter();
+  // ✅ FIX: Hydration - Initialize với empty array thay vì null để đảm bảo consistent render
   const [breadcrumbs, setBreadcrumbs] = useState<Breadcrumb[] | null>(null);
 
   useEffect(() => {
-    if (!router?.asPath) {
+    // ✅ FIX: Chỉ chạy khi router ready để tránh mismatch
+    if (!router.isReady || !router?.asPath) {
       setBreadcrumbs(null);
       return;
     }
 
-      const linkPath = router.asPath.split("/");
-      linkPath.shift();
+    const linkPath = router.asPath.split("/");
+    linkPath.shift();
 
     const pathArray = linkPath.map((segment, index) => {
       const pathSplit = segment.split("?")[0];
-        return {
-          breadcrumb: pathSplit,
+      return {
+        breadcrumb: pathSplit,
         href: "/" + linkPath.slice(0, index + 1).join("/"),
-        };
-      });
+      };
+    });
 
-      setBreadcrumbs(pathArray);
-  }, [router]);
+    setBreadcrumbs(pathArray);
+  }, [router.isReady, router.asPath]);
 
   return useMemo(() => {
     if (!breadcrumbs) return breadcrumbs;

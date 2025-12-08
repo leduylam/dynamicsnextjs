@@ -2,6 +2,7 @@ import { QueryOptionsType } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@contexts/auth/auth-context";
 
 export const fetchNewArrivalProducts = async () => {
   const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS);
@@ -20,12 +21,17 @@ type NewArrivalQueryOptions = QueryOptionsType & {
 export const useNewArrivalProductsQuery = (
   options: NewArrivalQueryOptions
 ) => {
+  const { user } = useAuth();
+  
   return useQuery({
-    queryKey: [API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT, options],
+    queryKey: [API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT, options, user?.id],
     queryFn:
       options.demoVariant === "ancient"
         ? fetchNewArrivalAncientProducts
         : fetchNewArrivalProducts,
     staleTime: 1000 * 60 * 10,
+    // ✅ FIX: Refetch khi user state thay đổi (từ null -> có user hoặc ngược lại)
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 };

@@ -161,7 +161,7 @@ const ProductCard: FC<ProductProps> = ({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={false} // ✅ FIX: Hydration - Disable initial animation để match server
           animate={{ opacity: isImageLoaded ? 1 : 0.3 }}
           transition={{ duration: 0.5 }} // 👈 tốc độ fade 0.5s
           className="w-full h-full"
@@ -171,7 +171,7 @@ const ProductCard: FC<ProductProps> = ({
               <MotionImage
                 key={hoverImage}
                 src={hoverImage ?? placeholderImage}
-                initial={{ opacity: 0 }}
+                initial={false} // ✅ FIX: Hydration - Disable initial animation để match server
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}

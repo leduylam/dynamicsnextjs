@@ -5,16 +5,23 @@ import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 
 export const fetchProduct = async ({
   queryKey,
-}: QueryFunctionContext): Promise<Product> => {
+  token,
+}: QueryFunctionContext & { token?: string | null }): Promise<Product> => {
   const [_key, { slug }] = queryKey as [string, { slug: string }];
   const { data } = await http.get(`${API_ENDPOINTS.PRODUCT}`, {
     params: { slug },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   return data;
 };
+
+// ✅ OPTIMIZE: Thêm staleTime và gcTime để cache tốt hơn
 export const useProductQuery = (slug: string) => {
   return useQuery<Product, Error>({
     queryKey: [API_ENDPOINTS.PRODUCT, { slug }],
     queryFn: fetchProduct,
+    staleTime: 1000 * 60 * 5, // Cache 5 phút
+    gcTime: 1000 * 60 * 10, // Giữ cache 10 phút
+    refetchOnWindowFocus: false,
   });
 };

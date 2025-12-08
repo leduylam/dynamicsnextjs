@@ -4,6 +4,7 @@ import ChangePassword from "@components/my-account/change-password";
 import { GetServerSideProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
+// ✅ OPTIMIZE: Component không có props nên không cần memo
 export default function ChangePasswordPage() {
 	return (
 		<AccountLayout>
@@ -13,19 +14,13 @@ export default function ChangePasswordPage() {
 }
 
 ChangePasswordPage.Layout = Layout;
+
+// ✅ OPTIMIZE: Loại bỏ try-catch không cần thiết
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
-	try {
-		return {
-			props: {
-				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-			},
-		};
-	} catch (error) {
-		return {
-			props: {
-				...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
-			},
-		};
-	}
+	return {
+		props: {
+			...(await serverSideTranslations(locale!, ["common", "forms", "footer"])),
+		},
+	};
 };
 

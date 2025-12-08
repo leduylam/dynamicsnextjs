@@ -1,26 +1,45 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { prepareTableHTML } from "@utils/prepareHTML";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
 export default function ProductDetailTab({ data }: any) {
-  const [processedContent, setProcessedContent] = useState(data?.content);
+  // ✅ FIX: Hydration - Initialize với giá trị từ props để đảm bảo server và client giống nhau
+  const [processedContent, setProcessedContent] = useState<string | null>(null);
   const [features, setFeatures] = useState<any[]>([]);
-  const allContent = features.flatMap((feature: any) => feature.content);
+  
+  // ✅ FIX: Hydration - Chỉ process content sau khi mount
   useEffect(() => {
-    const featured = data?.features ? JSON.parse(data?.features) : [];
-    const html = prepareTableHTML(data?.content);
-    setProcessedContent(html);
-    setFeatures([
-      {
-        id: 1,
-        title: "Features",
-        content: featured,
-      },
-    ]);
+    if (data?.content) {
+      const html = prepareTableHTML(data?.content);
+      setProcessedContent(html);
+    }
+    if (data?.features) {
+      try {
+        const featured = JSON.parse(data.features);
+        setFeatures([
+          {
+            id: 1,
+            title: "Features",
+            content: featured,
+          },
+        ]);
+      } catch (error) {
+        setFeatures([]);
+      }
+    }
   }, [data]);
+  
+  // ✅ FIX: Hydration - Memoize allContent để tránh tính toán lại không cần thiết
+  const allContent = useMemo(() => 
+    features.flatMap((feature: any) => feature.content || []),
+    [features]
+  );
   const half = Math.ceil(allContent.length / 2);
-  const columns = [allContent.slice(0, half), allContent.slice(half)];
+  const columns = useMemo(() => [
+    allContent.slice(0, half), 
+    allContent.slice(half)
+  ], [allContent, half]);
 
   return (
     <div className="mb-12 md:mb-14 xl:mb-16">
@@ -72,6 +91,7 @@ export default function ProductDetailTab({ data }: any) {
               <div
                 className="product-detail text-body text-sm leading-6"
                 dangerouslySetInnerHTML={{ __html: processedContent ?? "" }}
+                suppressHydrationWarning
               />
             </TabPanel>
           )}
@@ -80,14 +100,15 @@ export default function ProductDetailTab({ data }: any) {
               <p
                 className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
                 dangerouslySetInnerHTML={{ __html: data?.includes ?? "" }}
+                suppressHydrationWarning
               ></p>
             </TabPanel>
           )}
-          {features && (
+          {features && features.length > 0 && allContent.length > 0 && (
             <TabPanel key="features">
               <motion.div
                 key={JSON.stringify(allContent)} // Đổi key mỗi khi content thay đổi
-                initial={{ opacity: 0 }}
+                initial={false} // ✅ FIX: Hydration - Disable initial animation để match server
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}

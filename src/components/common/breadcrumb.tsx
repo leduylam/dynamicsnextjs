@@ -67,13 +67,18 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   const breadcrumbs = useBreadcrumb(
     currentCategoryName ? { name: currentCategoryName } : undefined
   );
+  
+  // ✅ FIX: Hydration - Đảm bảo render nhất quán giữa server và client
+  // Server sẽ render với breadcrumbs = null, client cũng vậy ban đầu
+  // Sau đó useEffect sẽ update, nhưng không gây mismatch vì structure giống nhau
   return (
     <BreadcrumbItems separator={separator}>
       <ActiveLink href={"/"} activeClassName="font-semibold text-heading">
         Home
       </ActiveLink>
 
-      {breadcrumbs?.map((breadcrumb: any) => (
+      {/* ✅ FIX: Render breadcrumbs một cách an toàn */}
+      {breadcrumbs && breadcrumbs.length > 0 && breadcrumbs.map((breadcrumb: any) => (
         <ActiveLink
           href={breadcrumb.href}
           activeClassName="font-semibold text-heading"

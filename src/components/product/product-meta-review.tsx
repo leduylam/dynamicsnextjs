@@ -44,9 +44,11 @@ const normalizeSpec = (specValue: unknown): any[] => {
 };
 
 const ProductMetaReview: React.FC<Props> = ({ data }) => {
+  // ✅ FIX: Hydration - Initialize với empty array để đảm bảo server và client giống nhau
   const [metas, setMetas] = useState<any[]>([]);
   const [expanded, setExpanded] = useState<number>(0);
 
+  // ✅ FIX: Hydration - Chỉ process sau khi mount
   useEffect(() => {
     const specs = normalizeSpec(data?.spec);
     setMetas([

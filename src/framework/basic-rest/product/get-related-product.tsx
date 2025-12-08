@@ -7,7 +7,8 @@ import { PaginatedProduct } from "./get-all-products";
 export const fetchRelatedProducts = async ({
   pageParam = 1,
   queryKey,
-}: any) => {
+  token,
+}: any & { token?: string | null }) => {
   const [_key, options] = queryKey as [string, QueryOptionsType];
   if (!options?.text) return [];
   const { data } = await http.get(API_ENDPOINTS.RELATED_PRODUCTS, {
@@ -15,6 +16,7 @@ export const fetchRelatedProducts = async ({
       ...options,
       page: pageParam,
     },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   return data;
 };
@@ -22,6 +24,7 @@ type RelatedProductsQueryConfig = {
   enabled?: boolean;
 };
 
+// ✅ OPTIMIZE: Thêm staleTime và gcTime để cache tốt hơn
 export const useRelatedProductsQuery = (
   options: QueryOptionsType,
   queryConfig?: RelatedProductsQueryConfig
@@ -36,5 +39,8 @@ export const useRelatedProductsQuery = (
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
     enabled: queryConfig?.enabled,
+    staleTime: 1000 * 60 * 5, // Cache 5 phút
+    gcTime: 1000 * 60 * 10, // Giữ cache 10 phút
+    refetchOnWindowFocus: false,
   });
 };

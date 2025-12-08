@@ -3,7 +3,7 @@ import ProductCard from "@components/product/product-card";
 import ProductFeedLoader from "@components/ui/loaders/product-feed-loader";
 import { useRelatedProductsQuery } from "@framework/product/get-related-product";
 import { Product } from "@framework/types";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback, memo } from "react";
 import { useInView } from "react-intersection-observer";
 
 interface ProductsProps {
@@ -19,20 +19,37 @@ interface Attribute {
   sub_attributes?: SubAttribute[];
 }
 
-const RelatedProducts: React.FC<ProductsProps> = ({
+// ✅ OPTIMIZE: Helper function để check product có quantity
+const hasAvailableQuantity = (product: any): boolean => {
+  const attrs: Attribute[] = product.attributes ?? [];
+  return attrs.some((attr) => {
+    const qty = Number(attr?.quantity ?? 0);
+    const hasSub =
+      Array.isArray(attr?.sub_attributes) &&
+      attr.sub_attributes.some((s) => Number(s?.quantity ?? 0) > 0);
+    return qty > 0 || hasSub;
+  });
+};
+
+// ✅ OPTIMIZE: Memoize component để tránh re-render không cần thiết
+const RelatedProducts: React.FC<ProductsProps> = memo(({
   sectionHeading,
   className = "mb-9 lg:mb-10 xl:mb-14",
   slug,
 }) => {
-  const normalizedSlug = typeof slug === "string" ? slug : "";
+  // ✅ OPTIMIZE: Memoize normalizedSlug
+  const normalizedSlug = useMemo(() => 
+    typeof slug === "string" ? slug : "", 
+    [slug]
+  );
   const shouldFetch = normalizedSlug.length > 0;
 
   const {
     data,
-    isFetching, // đang fetch (init hoặc next page)
+    isFetching,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage, // chỉ khi load thêm
+    isFetchingNextPage,
     error,
   } = useRelatedProductsQuery(
     { text: normalizedSlug },
@@ -41,33 +58,46 @@ const RelatedProducts: React.FC<ProductsProps> = ({
     }
   );
 
-  const { ref, inView } = useInView();
+  // ✅ OPTIMIZE: Tối ưu intersection observer với threshold và rootMargin
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: "100px", // Trigger sớm hơn 100px để load mượt hơn
+  });
 
-  // Auto load thêm khi đáy vào viewport
-  useEffect(() => {
+  // ✅ OPTIMIZE: Memoize fetchNextPage handler
+  const handleLoadMore = useCallback(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Chuẩn hoá dữ liệu
+  // Auto load thêm khi đáy vào viewport
+  useEffect(() => {
+    handleLoadMore();
+  }, [handleLoadMore]);
+
+  // ✅ OPTIMIZE: Tối ưu allProducts calculation - tách logic filter
   const allProducts: Product[] = useMemo(() => {
-    const pages: any[] = data?.pages ?? [];
+    if (!data?.pages) return [];
+    
+    const pages: any[] = data.pages;
     const flat = pages.flatMap((p) => p?.products ?? p?.data ?? []);
-    return (flat as any[]).filter((product: any) => {
-      const attrs: Attribute[] = product.attributes ?? [];
-      return attrs.some((attr) => {
-        const qty = Number(attr?.quantity ?? 0);
-        const hasSub =
-          Array.isArray(attr?.sub_attributes) &&
-          attr.sub_attributes.some((s) => Number(s?.quantity ?? 0) > 0);
-        return qty > 0 || hasSub;
-      });
-    });
+    
+    // ✅ OPTIMIZE: Filter một lần với helper function
+    return flat.filter(hasAvailableQuantity) as Product[];
   }, [data]);
 
-  const showInitialLoader =
-    isFetching && !(data?.pages && data.pages.length > 0);
+  // ✅ OPTIMIZE: Memoize showInitialLoader
+  const showInitialLoader = useMemo(() => 
+    isFetching && !(data?.pages && data.pages.length > 0),
+    [isFetching, data?.pages]
+  );
+
+  // ✅ OPTIMIZE: Memoize empty state check
+  const isEmpty = useMemo(() => 
+    !showInitialLoader && !isFetchingNextPage && allProducts.length === 0,
+    [showInitialLoader, isFetchingNextPage, allProducts.length]
+  );
 
   if (error)
     return <p className="text-red-500">{(error as any)?.message ?? "Error"}</p>;
@@ -88,6 +118,7 @@ const RelatedProducts: React.FC<ProductsProps> = ({
               imgWidth={340}
               imgHeight={340}
               variant="grid"
+              imgLoading="lazy" // ✅ OPTIMIZE: Lazy load images
             />
           ))
         )}
@@ -99,19 +130,19 @@ const RelatedProducts: React.FC<ProductsProps> = ({
       {/* Loader khi load thêm (không che grid) */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-x-3 md:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8">
         {isFetchingNextPage && (
-          <ProductFeedLoader limit={5} uniqueKey="related-init" />
+          <ProductFeedLoader limit={5} uniqueKey="related-next" />
         )}
-        {!showInitialLoader &&
-          !isFetchingNextPage &&
-          allProducts.length === 0 && (
-            <p className="text-sm text-gray-500">No products found.</p>
-          )}
+        {isEmpty && (
+          <p className="text-sm text-gray-500">No products found.</p>
+        )}
         {isFetching && !isFetchingNextPage && data?.pages?.length ? (
           <p className="text-center text-sm text-gray-400">Đang đồng bộ...</p>
         ) : null}
       </div>
     </div>
   );
-};
+});
+
+RelatedProducts.displayName = 'RelatedProducts';
 
 export default RelatedProducts;
