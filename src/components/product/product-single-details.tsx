@@ -22,7 +22,6 @@ import { buildCartItemWithPrice } from "@utils/cart";
 import useQuantityInput from "./hooks/use-quantity-input";
 import Image from "next/image";
 
-// ✅ OPTIMIZE: Move constants outside component
 const productGalleryCarouselResponsive = {
   "768": {
     slidesPerView: 2,
@@ -32,7 +31,6 @@ const productGalleryCarouselResponsive = {
   },
 };
 
-// ✅ OPTIMIZE: Helper functions outside component
 const parseAlbum = (album: any): any[] => {
   if (!album) return [];
   if (typeof album === "string") {
@@ -57,7 +55,6 @@ const fromAlbum = (a: any): string[] =>
 
 const uniq = (arr: string[]) => Array.from(new Set(arr));
 
-// ✅ OPTIMIZE: Memoize component
 const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const { data, isLoading } = useProductQuery(slug);
   const [imagesLoaded, setImagesLoaded] = useState(0);
@@ -65,35 +62,26 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const router = useRouter();
   const { accessRights } = useAuth();
 
-  // ✅ FIX: Hydration - đảm bảo chỉ render client-side sau khi mount
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Use useMemo to re-calculate when accessRights changes
   const canWholeSalePrice = useMemo(() => {
     return accessRights?.canWholeSalePrice ?? false;
   }, [accessRights?.canWholeSalePrice]);
   const { isAuthorized } = useUI();
   
-  // ✅ FIX: Hydration - Normalize description để đảm bảo server và client giống nhau
   const normalizedDescription = useMemo(() => {
     if (!data?.description || data.description === "undefined") return null;
-    // Normalize whitespace, HTML entities và đảm bảo nhất quán
     let desc = String(data.description).trim();
-    // Normalize multiple spaces thành single space (nhưng giữ nguyên trong HTML tags)
     desc = desc.replace(/\s+/g, ' ');
-    // Normalize line breaks
     desc = desc.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    // ✅ FIX: Strip outer <p> tags nếu description đã có <p> tag để tránh nested <p> tags
-    // Nếu description bắt đầu và kết thúc bằng <p>...</p>, strip chúng đi
     const trimmed = desc.trim();
     if (trimmed.startsWith('<p>') && trimmed.endsWith('</p>')) {
       desc = trimmed.slice(3, -4).trim();
     }
     return desc;
   }, [data?.description]);
-  // ✅ FIX: Không cần width nữa vì đã render cả 2 version với CSS classes
   const { mutate: updateCart } = useCartMutation();
   const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
   const { price, price_sale, percent } = usePrice(data);
@@ -101,7 +89,6 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // ✅ OPTIMIZE: Memoize openLightbox callback
   const openLightbox = useCallback((index: number) => {
     setSelectedIndex(index);
     setLightboxOpen(true);
@@ -156,16 +143,14 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     max: availableQuantity,
   });
 
-  // ✅ FIX: Hydration - Chỉ đọc router.query khi router.isReady để tránh mismatch
-  // Server không có router.query, client có sau khi mount
   const normalizedVariantParam = useMemo(() => {
-    if (!router.isReady) return undefined; // ✅ FIX: Return undefined trên server
+      if (!router.isReady) return undefined;
     const variantParam = router.query["variant"];
     return Array.isArray(variantParam) ? variantParam[0] : variantParam;
   }, [router.isReady, router.query.variant]);
 
   const normalizedSubVariantParam = useMemo(() => {
-    if (!router.isReady) return undefined; // ✅ FIX: Return undefined trên server
+    if (!router.isReady) return undefined;
     const subVariantParam = router.query["subVariant"];
     return Array.isArray(subVariantParam) ? subVariantParam[0] : subVariantParam;
   }, [router.isReady, router.query.subVariant]);
@@ -173,9 +158,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const variantParamRef = useRef<string | undefined>(undefined);
   const hasInitializedVariantRef = useRef(false);
 
-  // ✅ FIX: Hydration - Chỉ chạy khi router.isReady để đảm bảo server và client cùng behavior
   useEffect(() => {
-    // ✅ FIX: Chờ router ready để tránh hydration mismatch
     if (!router.isReady) return;
 
     if (!data || !Array.isArray(data.attributes) || data.attributes.length === 0)
@@ -215,9 +198,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
 
   const subVariantParamRef = useRef<string | undefined>(undefined);
 
-  // ✅ FIX: Hydration - Chỉ chạy khi router.isReady
   useEffect(() => {
-    // ✅ FIX: Chờ router ready để tránh hydration mismatch
     if (!router.isReady) return;
 
     if (
@@ -304,10 +285,8 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     normalizedSubVariantParam,
   ]);
 
-  // ✅ OPTIMIZE: Memoize addToCart callback
   const addToCart = useCallback(() => {
     if (!isSelected) return;
-    // to show btn feedback while product carting
     setAddToCartLoader(true);
     setTimeout(() => {
       setAddToCartLoader(false);
@@ -322,9 +301,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     updateCart({ item, quantity });
   }, [isSelected, data, attributes, activeState, subActive, canWholeSalePrice, updateCart, quantity]);
 
-  // ✅ FIX: Hydration - Tính toán base images từ data (không phụ thuộc activeState) để đảm bảo server và client giống nhau
   const baseProductImages = useMemo(() => {
-    // Luôn tính từ data, không phụ thuộc activeState để đảm bảo nhất quán
     if (Array.isArray(data?.gallery) && data.gallery.length > 0) {
       return uniq(fromGallery(data.gallery));
     }
@@ -345,7 +322,6 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     return [];
   }, [data?.gallery, data?.album, data?.attributes]);
 
-  // ✅ FIX: Hydration - Chỉ tính active images sau khi router ready và có activeState
   const activeProductImages = useMemo(() => {
     if (!router.isReady || !activeState || !activeAttributes) {
       return [];
@@ -371,27 +347,20 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     return [];
   }, [router.isReady, activeState, activeAttributes, data?.gallery, data?.album, data?.attributes]);
 
-  // ✅ FIX: Hydration - Sử dụng active images nếu có, nếu không dùng base images
   const productImages = useMemo(() => ({
     gallery: activeProductImages.length > 0 ? activeProductImages : baseProductImages,
   }), [activeProductImages, baseProductImages]);
 
-  // ✅ FIX: Hydration - Đảm bảo images array nhất quán giữa server và client
-  // Sử dụng baseProductImages để render, sau đó update với activeProductImages nếu có
   const images = useMemo(() => {
     const galleryToUse = productImages.gallery.length > 0 ? productImages.gallery : baseProductImages;
     return galleryToUse.map((item: any) => {
       const allSizes = getAllImageSizes(item);
-      return allSizes; // full object
+      return allSizes;
     });
   }, [productImages.gallery, baseProductImages]);
 
-  // ✅ FIX: Tính toán grid template columns bằng inline style để tránh bị CSS block
-  // Nếu images > 1 thì chia thành 2 cột, nếu không thì 1 cột
   const gridTemplateColumns = useMemo(() => {
     const imageCount = images?.length || 0;
-    // Debug: Uncomment để kiểm tra
-    // console.log('Image count:', imageCount, 'Grid template:', imageCount > 1 ? "repeat(2, minmax(0, 1fr))" : "repeat(1, minmax(0, 1fr))");
     return imageCount > 1 ? "repeat(2, minmax(0, 1fr))" : "repeat(1, minmax(0, 1fr))";
   }, [images?.length]);
 
@@ -400,8 +369,6 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   return (
     <>
       <div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">
-        {/* ✅ FIX: Hydration - Render cả 2 version và dùng CSS để hide/show */}
-        {/* Mobile Carousel */}
         <div className="block lg:hidden">
           <Carousel
             pagination={{
@@ -430,19 +397,17 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
           </Carousel>
         </div>
 
-        {/* Desktop Grid */}
-        {/* ✅ Nếu images > 1 thì chia thành 2 cột, nếu không thì 1 cột */}
         <div
           className="hidden lg:block col-span-5 grid gap-2.5"
           style={{ 
             gridTemplateColumns: gridTemplateColumns,
-            display: 'grid' // ✅ FIX: Đảm bảo display: grid được apply
+            display: 'grid'
           }}
           suppressHydrationWarning
         >
           {images && images.length > 0 && images.map((img: any, index: number) => (
             <motion.div
-              initial={false} // ✅ FIX: Hydration - disable initial animation để match server
+              initial={false}
               animate={isMounted && imagesLoaded > index ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
               key={index}

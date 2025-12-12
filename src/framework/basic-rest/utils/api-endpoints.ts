@@ -1,5 +1,4 @@
 export const API_ENDPOINTS = {
-  // Client Auth Endpoints - Dùng guard 'client' riêng
   REGISTERS: "/v1/client/auth/register",
   LOGIN: "/v1/client/auth/login",
   REFRESH_TOKEN: "/v1/client/auth/refresh",

@@ -11,7 +11,6 @@ type ConnectApiPageProps = {
   error?: string | null;
 };
 
-// ✅ OPTIMIZE: Component không có props nên không cần memo
 export default function ConnectApiPage({ apiKeys, error }: ConnectApiPageProps) {
   return (
     <AccountLayout>
@@ -22,13 +21,11 @@ export default function ConnectApiPage({ apiKeys, error }: ConnectApiPageProps) 
 
 ConnectApiPage.Layout = Layout;
 
-// ✅ OPTIMIZE: Chạy translations và API call song song
 export const getServerSideProps: GetServerSideProps = async ({
   req,
   res,
   locale,
 }) => {
-  // ✅ OPTIMIZE: Chạy song song translations và API call
   const [translations, apiResponse] = await Promise.allSettled([
     serverSideTranslations(locale!, ["common", "forms", "footer"]),
     http.get(API_ENDPOINTS.APIKEY, {

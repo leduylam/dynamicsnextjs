@@ -32,67 +32,67 @@ const initialState = {
 
 type Action =
   | {
-      type: "SET_AUTHORIZED";
-    }
+    type: "SET_AUTHORIZED";
+  }
   | {
-      type: "SET_UNAUTHORIZED";
-    }
+    type: "SET_UNAUTHORIZED";
+  }
   | {
-      type: "OPEN_SIDEBAR";
-    }
+    type: "OPEN_SIDEBAR";
+  }
   | {
-      type: "CLOSE_SIDEBAR";
-    }
+    type: "CLOSE_SIDEBAR";
+  }
   | {
-      type: "OPEN_CART";
-    }
+    type: "OPEN_CART";
+  }
   | {
-      type: "CLOSE_CART";
-    }
+    type: "CLOSE_CART";
+  }
   | {
-      type: "OPEN_SEARCH";
-    }
+    type: "OPEN_SEARCH";
+  }
   | {
-      type: "CLOSE_SEARCH";
-    }
+    type: "CLOSE_SEARCH";
+  }
   | {
-      type: "SET_TOAST_TEXT";
-      text: ToastText;
-    }
+    type: "SET_TOAST_TEXT";
+    text: ToastText;
+  }
   | {
-      type: "OPEN_FILTER";
-    }
+    type: "OPEN_FILTER";
+  }
   | {
-      type: "CLOSE_FILTER";
-    }
+    type: "CLOSE_FILTER";
+  }
   | {
-      type: "OPEN_SHOP";
-    }
+    type: "OPEN_SHOP";
+  }
   | {
-      type: "CLOSE_SHOP";
-    }
+    type: "CLOSE_SHOP";
+  }
   | {
-      type: "OPEN_MODAL";
-    }
+    type: "OPEN_MODAL";
+  }
   | {
-      type: "CLOSE_MODAL";
-    }
+    type: "CLOSE_MODAL";
+  }
   | {
-      type: "SET_MODAL_VIEW";
-      view: MODAL_VIEWS;
-    }
+    type: "SET_MODAL_VIEW";
+    view: MODAL_VIEWS;
+  }
   | {
-      type: "SET_DRAWER_VIEW";
-      view: DRAWER_VIEWS;
-    }
+    type: "SET_DRAWER_VIEW";
+    view: DRAWER_VIEWS;
+  }
   | {
-      type: "SET_MODAL_DATA";
-      data: any;
-    }
+    type: "SET_MODAL_DATA";
+    data: any;
+  }
   | {
-      type: "SET_USER_AVATAR";
-      value: string;
-    };
+    type: "SET_USER_AVATAR";
+    value: string;
+  };
 
 type MODAL_VIEWS =
   | "SIGN_UP_VIEW"
@@ -227,11 +227,10 @@ function uiReducer(state: State, action: Action) {
   }
 }
 
-export const UIProvider: React.FC = (props) => {
+export const UIProvider: React.FC<React.PropsWithChildren> = (props) => {
   const [state, dispatch] = React.useReducer(uiReducer, initialState);
   const { user, loading } = useAuth();
-  
-  // ✅ FIX: useCallback để stable function references (tránh infinite loop)
+
   const authorize = React.useCallback(() => dispatch({ type: "SET_AUTHORIZED" }), []);
   const unauthorize = React.useCallback(() => dispatch({ type: "SET_UNAUTHORIZED" }), []);
   const openSidebar = React.useCallback(() => dispatch({ type: "OPEN_SIDEBAR" }), []);
@@ -270,7 +269,7 @@ export const UIProvider: React.FC = (props) => {
     dispatch({ type: "SET_DRAWER_VIEW", view }), []);
   const setModalData = React.useCallback((data: any) =>
     dispatch({ type: "SET_MODAL_DATA", data }), []);
-    
+
   useEffect(() => {
     if (loading) return;
     if (user) authorize();
@@ -303,8 +302,6 @@ export const UIProvider: React.FC = (props) => {
       setUserAvatar,
       setModalData,
     }),
-    // ✅ FIX: state thay đổi → value update
-    // dispatch từ useReducer là stable, không cần include trong deps
     [state]
   );
   return <UIContext.Provider value={value} {...props} />;
@@ -318,11 +315,14 @@ export const useUI = () => {
   return context;
 };
 
-// @ts-ignore
-export const ManagedUIContext: React.FC = ({ children, initialAuthData }) => (
+interface ManagedUIContextProps {
+  children: React.ReactNode;
+  initialAuthData?: any;
+}
+
+export const ManagedUIContext = ({ children, initialAuthData }: ManagedUIContextProps) => (
   <AuthProvider initialData={initialAuthData}>
     <CartProvider>
-      {/* @ts-ignore */}
       <UIProvider>{children}</UIProvider>
     </CartProvider>
   </AuthProvider>

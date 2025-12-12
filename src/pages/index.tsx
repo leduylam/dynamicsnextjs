@@ -13,7 +13,6 @@ import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
 
-// ✅ OPTIMIZE: Lazy load components với loading states
 const BrandBlock = dynamic(() => import("@containers/brand-block"), {
   ssr: true,
   loading: () => <div className="h-32 animate-pulse bg-gray-200 rounded" />,
@@ -27,20 +26,17 @@ const NewArrivalsProductFeed = dynamic(
   }
 );
 
-// ✅ OPTIMIZE: Cache siteUrl constant
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com";
 const BANNER_RATIO = 800 / 1800;
 
-// ✅ OPTIMIZE: Component được Next.js tự động optimize, không cần memo
 function Home() {
   const { data } = useQuery({
     queryKey: [API_ENDPOINTS.SECOND_BANNER],
     queryFn: getSecondBanner,
-    staleTime: 1000 * 60 * 5, // Cache 5 phút
-    gcTime: 1000 * 60 * 10, // Giữ cache 10 phút
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
   
-  // ✅ OPTIMIZE: Memoize banner transformation
   const banner = useMemo(() => {
     if (!data?.item?.length) return [];
     
@@ -93,14 +89,12 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 5, // Cache 5 phút
+        staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
       },
     },
   });
 
-  // ✅ OPTIMIZE: Chạy prefetch queries song song thay vì tuần tự
-  // Giảm thời gian load từ ~800ms xuống ~200ms (nếu 4 queries)
   const [translations] = await Promise.all([
     serverSideTranslations(locale!, ["common", "forms", "footer"]),
     queryClient.prefetchQuery({
@@ -125,8 +119,6 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     }),
   ]);
 
-  // ✅ OPTIMIZE: Loại bỏ JSON.parse(JSON.stringify()) - dehydrate đã trả về serializable object
-  // Giảm thời gian serialize từ ~50ms xuống ~5ms
   return {
     props: {
       ...translations,

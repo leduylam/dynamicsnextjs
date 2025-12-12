@@ -12,10 +12,8 @@ import RelatedProducts from "@containers/related-products";
 import { fetchProduct } from "@framework/product/get-product";
 import { fetchRelatedProducts } from "@framework/product/get-related-product";
 
-// ✅ FIX: Hydration - Enable SSR để tránh hydration mismatch
-// BrandBlock không có client-only logic nên có thể SSR
 const BrandBlock = dynamic(() => import("@containers/brand-block"), {
-  ssr: true, // ✅ FIX: Enable SSR để match server và client
+  ssr: true,
   loading: () => <div className="h-32 animate-pulse bg-gray-200 rounded" />,
 });
 
@@ -45,20 +43,17 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   const { slug } = params as { slug: string };
   
-  // ✅ FIX: Đọc access token từ cookies trong server-side
   const accessToken = req.cookies['client_access_token'] || null;
   
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 5, // Cache 5 phút
+        staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
       },
     },
   });
 
-  // ✅ OPTIMIZE: Chạy translations và prefetch queries song song
-  // Giảm thời gian từ ~400ms xuống ~200ms
   const [translations] = await Promise.all([
     serverSideTranslations(locale!, ["common", "forms", "footer"]),
     queryClient.prefetchQuery({
@@ -67,7 +62,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         queryKey: [API_ENDPOINTS.PRODUCT, { slug }],
         token: accessToken,
       } as any),
-      staleTime: 1000 * 60 * 5, // Cache 5 phút
+      staleTime: 1000 * 60 * 5,
     }),
     queryClient.prefetchInfiniteQuery({
       queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, { text: slug }],
@@ -78,11 +73,10 @@ export const getServerSideProps: GetServerSideProps = async ({
           token: accessToken,
         }),
       initialPageParam: 1,
-      staleTime: 1000 * 60 * 5, // Cache 5 phút
+      staleTime: 1000 * 60 * 5,
     }),
   ]);
 
-  // ✅ OPTIMIZE: dehydrate đã trả về serializable object, không cần JSON.parse
   return {
     props: {
       ...translations,

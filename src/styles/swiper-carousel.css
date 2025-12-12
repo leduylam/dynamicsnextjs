@@ -201,3 +201,34 @@
 .swiper-button-lock {
   @apply !hidden;
 }
+
+/* Brand carousel peeking style for mobile only */
+@media screen and (max-width: 767px) {
+  .brand-carousel {
+    overflow: visible !important;
+  }
+
+  .brand-carousel .carouselWrapper {
+    overflow: visible !important;
+  }
+
+  .brand-carousel .swiper {
+    overflow: visible !important;
+  }
+
+  .brand-carousel .swiper-wrapper {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .brand-carousel .swiper-slide {
+    width: auto;
+  }
+}
+
+/* Ensure uniform card sizes */
+.brand-carousel .swiper-slide > div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

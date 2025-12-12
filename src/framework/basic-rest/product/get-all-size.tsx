@@ -9,7 +9,7 @@ export const fetchSizes = async (options: QueryOptionsType = {}) => {
   const { data } = await http.get(API_ENDPOINTS.SIZES, {
     params: {
       ...(normalizedSlug ? { slug: normalizedSlug } : {}),
-      ...query, // brand, category, q,...
+      ...query,
     },
   });
   return data;

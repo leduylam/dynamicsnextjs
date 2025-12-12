@@ -5,7 +5,6 @@ import { ROUTES } from "@utils/routes";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
 
-// ✅ OPTIMIZE: Component không có props nên không cần memo
 export default function AccountPage() {
     return (
         <AccountLayout>
@@ -42,7 +41,6 @@ export default function AccountPage() {
 
 AccountPage.Layout = Layout;
 
-// ✅ OPTIMIZE: Loại bỏ try-catch không cần thiết (catch block giống hệt try block)
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
     return {
         props: {

@@ -7,23 +7,19 @@ import ManagedDrawer from "@components/common/drawer/managed-drawer";
 import { useEffect, useRef, useMemo } from "react";
 import { QueryClient, QueryClientProvider, HydrationBoundary } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
-// import { ReactQueryDevtools } from "@tanstack/react-query/devtools";
 import { DefaultSeo } from "@components/common/default-seo";
 
-// Load Open Sans and satisfy typeface font
 import "@fontsource/open-sans";
 import "@fontsource/open-sans/600.css";
 import "@fontsource/open-sans/700.css";
 import "@fontsource/satisfy";
-// external
 import "react-toastify/dist/ReactToastify.css";
-// base css file
 import "@styles/scrollbar.css";
 import "@styles/swiper-carousel.css";
 import "@styles/custom-plugins.css";
 import "@styles/tailwind.css";
 import "@styles/rc-drawer.css";
-import "@framework/utils/http"
+import "@framework/utils/http";
 import { getDirection } from "@utils/get-direction";
 import { appWithTranslation } from "next-i18next";
 
@@ -38,7 +34,7 @@ function Noop({ children }: React.PropsWithChildren<{}>) {
 }
 
 const CustomApp = ({ Component, pageProps }: AppProps) => {
-  const queryClientRef = useRef<any>();
+  const queryClientRef = useRef<QueryClient | null>(null);
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();
   }
@@ -48,7 +44,6 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
     document.documentElement.dir = dir;
   }, [dir]);
   const Layout = (Component as any).Layout || Noop;
-  // ✅ FIX: Hydration - Safely parse authData, handle case khi không có trên server
   const authData = useMemo(() => {
     try {
       if (pageProps.__headers?.["x-auth-data"]) {
@@ -62,9 +57,7 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
   return (
     <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
       <QueryClientProvider client={queryClientRef.current}>
-        {/* @ts-ignore */}
         <HydrationBoundary state={pageProps.dehydratedState}>
-          {/* @ts-ignore */}
           <ManagedUIContext initialAuthData={authData}>
             <Layout pageProps={pageProps}>
               <DefaultSeo />
@@ -75,7 +68,6 @@ const CustomApp = ({ Component, pageProps }: AppProps) => {
             <ManagedDrawer />
           </ManagedUIContext>
         </HydrationBoundary>
-        {/* <ReactQueryDevtools /> */}
       </QueryClientProvider>
     </AnimatePresence>
   );

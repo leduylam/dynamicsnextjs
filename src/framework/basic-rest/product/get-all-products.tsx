@@ -10,7 +10,7 @@ export type PaginatedProduct = {
   total: number;
   [key: string]: any;
 };
-const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
+const fetchProducts = async ({ pageParam = 1, queryKey, token }: any) => {
   const [_url, options] = queryKey;
   const normalizedSlug = Array.isArray(options.slug)
     ? options.slug.join("/")
@@ -21,22 +21,23 @@ const fetchProducts = async ({ pageParam = 1, queryKey }: any) => {
     page: pageParam,
     locale: options.locale || "en",
   };
-  const { data } = await http.get(API_ENDPOINTS.PRODUCTS, { params });
-  return data; // Giả định backend trả về { data, paginatorInfo }
+  const { data } = await http.get(API_ENDPOINTS.PRODUCTS, {
+    params,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return data;
 };
 
 const useProductsQuery = (options: QueryOptionsType) => {
-  // Normalize slug for consistent query key
   const normalizedSlug = Array.isArray(options.slug)
     ? options.slug.join("/")
     : options.slug;
-  
-  // Create stable query key with normalized slug
+
   const stableOptions = {
     ...options,
     slug: normalizedSlug,
   };
-  
+
   return useInfiniteQuery<PaginatedProduct, Error>({
     queryKey: [API_ENDPOINTS.PRODUCTS, stableOptions],
     queryFn: fetchProducts,
@@ -46,9 +47,8 @@ const useProductsQuery = (options: QueryOptionsType) => {
       const totalPages = lastPage.last_page ?? 1;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
-    // Disable cache to ensure fresh data when switching categories
     staleTime: 0,
-    gcTime: 0, // cacheTime in v4
+    gcTime: 0,
     refetchOnMount: true,
   });
 };

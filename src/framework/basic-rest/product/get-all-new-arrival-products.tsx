@@ -22,7 +22,7 @@ export const useNewArrivalProductsQuery = (
   options: NewArrivalQueryOptions
 ) => {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: [API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT, options, user?.id],
     queryFn:
@@ -30,7 +30,6 @@ export const useNewArrivalProductsQuery = (
         ? fetchNewArrivalAncientProducts
         : fetchNewArrivalProducts,
     staleTime: 1000 * 60 * 10,
-    // ✅ FIX: Refetch khi user state thay đổi (từ null -> có user hoặc ngược lại)
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });

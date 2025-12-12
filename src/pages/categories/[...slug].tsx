@@ -49,10 +49,10 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({
   locale,
   params,
+  req,
 }) => {
   const slugParam = params?.slug;
   
-  // ✅ OPTIMIZE: Tối ưu slug normalization - tính toán một lần
   const normalizedSlug = Array.isArray(slugParam)
     ? slugParam.join("/")
     : typeof slugParam === "string"
@@ -65,7 +65,6 @@ export const getServerSideProps: GetServerSideProps<{
     ? slugParam
     : "";
   
-  // ✅ OPTIMIZE: Tối ưu categoryName calculation - tính toán một lần
   const categoryName =
     typeof slugParam === "string"
       ? slugParam.split("/").pop()?.replace(/-/g, " ")
@@ -73,28 +72,31 @@ export const getServerSideProps: GetServerSideProps<{
       ? slugParam[slugParam.length - 1]?.replace(/-/g, " ")
       : undefined;
   
+  const accessToken = req.cookies['client_access_token'] || null;
+
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 5, // Cache 5 phút
+        staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
       },
     },
   });
 
-  // ✅ OPTIMIZE: Chạy prefetch và translations song song
   const [translations] = await Promise.all([
     serverSideTranslations(locale!, ["common", "forms", "footer"]),
     queryClient.prefetchInfiniteQuery({
       queryKey: [API_ENDPOINTS.PRODUCTS, { slug: normalizedSlug, limit: 8, locale }],
-      queryFn: fetchProducts,
+      queryFn: ({ pageParam = 1, queryKey }) => fetchProducts({
+        pageParam,
+        queryKey,
+        token: accessToken,
+      }),
       initialPageParam: 1,
-      staleTime: 1000 * 60 * 5, // Cache 5 phút
+      staleTime: 1000 * 60 * 5,
     }),
   ]);
 
-  // ✅ OPTIMIZE: Loại bỏ JSON.parse(JSON.stringify()) - dehydrate đã trả về serializable object
-  // Giảm thời gian serialize từ ~50ms xuống ~5ms
   return {
     props: {
       ...translations,
