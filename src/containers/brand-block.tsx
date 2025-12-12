@@ -76,12 +76,12 @@ const BrandBlock: React.FC<BrandProps> = React.memo(({
       spaceBetween: demoVariant === "ancient" ? 8 : 12,
     },
   }), [demoVariant]);
-  
+
   const { data, isLoading, error } = useBrandsQuery({
     limit: 8,
     demoVariant,
   } as any);
-  
+
   const brands = useMemo(() => {
     return data?.brands.map((brand) => mapBrandByLocale(brand)) ?? [];
   }, [data?.brands]);
@@ -100,26 +100,26 @@ const BrandBlock: React.FC<BrandProps> = React.memo(({
         >
           {isLoading && !data
             ? Array.from({ length: 10 }).map((_, idx) => (
-                <SwiperSlide key={idx}>
-                  <CardRoundedLoader uniqueKey={`category-${idx}`} />
-                </SwiperSlide>
-              ))
+              <SwiperSlide key={idx}>
+                <CardRoundedLoader uniqueKey={`category-${idx}`} />
+              </SwiperSlide>
+            ))
             : brands?.map((brand: Brand) => (
-                <SwiperSlide key={`brand--key${brand.id}`}>
-                  <Card
-                    showName={showName}
-                    item={brand}
-                    variant="rounded"
-                    size="medium"
-                    href={{
-                      pathname: ROUTES.SEARCH,
-                      query: { brand: brand.slug },
-                    }}
-                    imgSize="large"
-                    disableBorderRadius={disableBorderRadius}
-                  />
-                </SwiperSlide>
-              ))}
+              <SwiperSlide key={`brand--key${brand.id}`}>
+                <Card
+                  showName={showName}
+                  item={brand}
+                  variant="rounded"
+                  size="medium"
+                  href={{
+                    pathname: ROUTES.SEARCH,
+                    query: { brand: brand.slug },
+                  }}
+                  imgSize="large"
+                  disableBorderRadius={disableBorderRadius}
+                />
+              </SwiperSlide>
+            ))}
         </Carousel>
       )}
     </div>
