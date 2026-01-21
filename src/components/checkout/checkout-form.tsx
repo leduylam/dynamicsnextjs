@@ -9,8 +9,9 @@ import { useCompanyQuery } from "@framework/company/get-company";
 import { useEffect, useState } from "react";
 import CheckoutList from "./checkout-list";
 import { useCartQuery } from "@framework/carts/get-all-cart";
-import { clearItemFromCart } from "@framework/carts/get-delete-cart";
 import { useRouter } from "next/router";
+import { useQueryClient } from "@tanstack/react-query";
+import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { ROUTES } from "@utils/routes";
 import Select from "react-select";
 import { useCheckAccess } from "src/framework/auth/checkAccess";
@@ -31,6 +32,7 @@ interface CheckoutInputType {
 
 const CheckoutForm: React.FC = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { mutate: updateUser, isPending } = useCheckoutMutation();
   const {
     register,
@@ -46,7 +48,7 @@ const CheckoutForm: React.FC = () => {
   );
   const [addressId, setAddressId] = useState<number | null>(null);
   const [companyOptions, setCompanyOptions] = useState([
-    { value: "", label: "Select Company" },
+    { value: "", label: "— None (optional) —" },
   ]);
   const canSelectCompany = useCheckAccess(["admin", "super-admin", "sale"], []);
   function onSubmit(input: CheckoutInputType) {
@@ -58,11 +60,8 @@ const CheckoutForm: React.FC = () => {
     };
     updateUser(checkoutInput, {
       onSuccess: () => {
-        if (Array.isArray(data?.items)) {
-          for (const item of data?.items) {
-            clearItemFromCart(item.id);
-          }
-        }
+        // Backend đã xóa cart items trong OrderService::createOrderItem — chỉ cần invalidate để UI cập nhật (tránh 404 khi gọi DELETE cho item đã xóa)
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CARTS] });
         router.push(ROUTES.ORDERS);
       },
     });
@@ -73,8 +72,7 @@ const CheckoutForm: React.FC = () => {
         value: c.id.toString(),
         label: c.company_code,
       }));
-
-      setCompanyOptions(mapped);
+      setCompanyOptions([{ value: "", label: "— None (optional) —" }, ...mapped]);
     }
   }, [companyData]);
 
@@ -180,11 +178,10 @@ const CheckoutForm: React.FC = () => {
               <Controller
                 name="company_id"
                 control={control}
-                rules={{ required: "Company is required" }}
                 render={({ field }) => (
                   <Select
                     className="mt-0"
-                    placeholder="Select Company"
+                    placeholder="Select Company (optional)"
                     options={companyOptions ?? []}
                     onChange={(val) =>
                       field.onChange(val ? (val as any).value : null)

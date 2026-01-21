@@ -11,7 +11,7 @@ import cn from 'classnames';
 import { useCartQuery } from '@framework/carts/get-all-cart';
 import { number_format } from 'src/helpers/my-helper';
 export default function Cart() {
-  
+
   const { closeCart } = useUI();
   const { data } = useCartQuery()
   return (
@@ -42,12 +42,14 @@ export default function Cart() {
         </Scrollbar>
       ) : (
         <motion.div
-          layout
-          initial="from"
-          animate="to"
-          exit="from"
-          variants={fadeInOut(0.25)}
-          className="flex flex-col items-center justify-center px-5 pt-8 pb-5 md:px-7"
+          {...{
+            layout: true as const,
+            initial: "from" as const,
+            animate: "to" as const,
+            exit: "from" as const,
+            variants: fadeInOut(0.25),
+            className: "flex flex-col items-center justify-center px-5 pt-8 pb-5 md:px-7",
+          }}
         >
           <EmptyCart />
           <h3 className="pt-8 text-lg font-bold text-heading">

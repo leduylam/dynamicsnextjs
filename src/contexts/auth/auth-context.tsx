@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { ReactNode } from "react";
+import Cookies from "js-cookie";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 
@@ -173,10 +174,18 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
 
         if (status === 401 || status === 419) {
           try {
-            await http.post(API_ENDPOINTS.REFRESH_TOKEN, {}, {
+            const refreshRes = await http.post(API_ENDPOINTS.REFRESH_TOKEN, {}, {
               signal: abortController.signal,
               withCredentials: true,
             });
+            const { access_token, remember } = refreshRes?.data ?? {};
+            if (access_token && typeof window !== "undefined") {
+              Cookies.set("client_access_token", access_token, {
+                expires: remember ? 7 : 1,
+                sameSite: "Lax",
+                secure: process.env.NODE_ENV === "production",
+              });
+            }
 
             if (!mounted) return;
 

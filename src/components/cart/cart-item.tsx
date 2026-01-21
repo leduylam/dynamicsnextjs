@@ -10,25 +10,28 @@ import { useCartMutation } from '@framework/carts/use-cart';
 import { number_format } from 'src/helpers/my-helper';
 import { useClearItemFromCart } from '@framework/carts/get-delete-cart';
 import { useRemoveItemFromCart } from '@framework/carts/get-remove-cart';
+import { getEffectiveCartPrice } from '@framework/carts/get-all-cart';
 
 type CartItemProps = {
   item: any;
 };
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { mutate: updateCart } = useCartMutation()
-  const { mutate: clearItemFromCart } = useClearItemFromCart()
-  const { mutate: removeItemFromCart } = useRemoveItemFromCart()
-  const totalPrice = item.price * item.quantity
+  const { mutate: updateCart } = useCartMutation();
+  const { mutate: clearItemFromCart } = useClearItemFromCart();
+  const { mutate: removeItemFromCart } = useRemoveItemFromCart();
+  const unitPrice = getEffectiveCartPrice(item);
+  const totalPrice = unitPrice * (item.quantity || 0);
+  const motionProps = {
+    layout: true as const,
+    initial: "from" as const,
+    animate: "to" as const,
+    exit: "from" as const,
+    variants: fadeInOut(0.25),
+    className: "group w-full h-auto flex justify-start items-center bg-white py-4 md:py-7 border-b border-gray-100 relative last:border-b-0",
+    title: item?.name,
+  };
   return (
-    <motion.div
-      layout
-      initial="from"
-      animate="to"
-      exit="from"
-      variants={fadeInOut(0.25)}
-      className={`group w-full h-auto flex justify-start items-center bg-white py-4 md:py-7 border-b border-gray-100 relative last:border-b-0`}
-      title={item?.name}
-    >
+    <motion.div {...motionProps}>
       <div className="relative flex flex-shrink-0 w-24 h-24 overflow-hidden bg-gray-200 rounded-md cursor-pointer md:w-28 md:h-28 ltr:mr-4 rtl:ml-4">
         <Image
           src={`${item?.image}` || '/assets/placeholder/cart-item.svg'}
@@ -55,10 +58,8 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           {generateCartItemName(item.name, item.attributes)}
         </Link>
         <span className='text-sm'>{item.sku}</span>
-        {/* @ts-ignore */}
         <span className="text-sm text-gray-400 mb-2.5">
-          Unit Price : &nbsp;
-          {/* {price} */}
+          Unit Price: {number_format(unitPrice)}
         </span>
 
         <div className="flex items-end justify-between">
