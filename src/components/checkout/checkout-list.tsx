@@ -4,8 +4,9 @@ interface DeliveryAddressProps {
     items: any,
     handleOtherAddress: () => void
     handleChangeRadios: (id: number | null) => void
+    addressId: number | null
 }
-const CheckoutList = ({ items, handleOtherAddress, handleChangeRadios }: DeliveryAddressProps) => {
+const CheckoutList = ({ items, handleOtherAddress, handleChangeRadios, addressId }: DeliveryAddressProps) => {
     const handleDeleteAddress = (id: number) => {
         deleteAddress(id)
     }
@@ -20,6 +21,7 @@ const CheckoutList = ({ items, handleOtherAddress, handleChangeRadios }: Deliver
                             className='w-4 h-4'
                             value={address.id}
                             name="address_id"
+                            checked={addressId === address.id}
                             onChange={() => handleChangeRadios(address.id)}
                         />
                         <label htmlFor={'delivery_address_' + address.id} className='text-sm'>

@@ -76,6 +76,12 @@ const CheckoutForm: React.FC = () => {
     }
   }, [companyData]);
 
+  useEffect(() => {
+    if (deliveryAddress && deliveryAddress.length > 0 && addressId === null) {
+      setAddressId(deliveryAddress[0].id);
+    }
+  }, [deliveryAddress, addressId]);
+
   const handleChangeRadios = (id: number | null) => {
     setAddressId(id);
   };
@@ -102,6 +108,7 @@ const CheckoutForm: React.FC = () => {
               items={deliveryAddress}
               handleOtherAddress={handleOtherAddress}
               handleChangeRadios={handleChangeRadios}
+              addressId={addressId}
             />
           ) : (
             <>
