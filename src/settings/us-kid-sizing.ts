@@ -215,7 +215,7 @@ export const usKidSizingChart = [
                   },
                   {
                     bg: "",
-                    content: "40'<br> <strong>39' - 107cm</strong><br> 38'",
+                    content: "40'<br> <strong>39' - 100cm</strong><br> 38'",
                     img: "",
                   },
                 ],

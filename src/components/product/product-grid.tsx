@@ -14,7 +14,9 @@ interface ProductGridProps {
 export const ProductGrid: FC<ProductGridProps> = React.memo(
   ({ className = "", queryOptions }) => {
     const { query: routerQuery, locale } = useRouter();
-    const normalizedOptions = useMemo<QueryOptionsType & { locale?: string }>(() => {
+    const normalizedOptions = useMemo<
+      QueryOptionsType & { locale?: string }
+    >(() => {
       // Priority: queryOptions > routerQuery
       // This ensures that when slug is explicitly passed via queryOptions, it won't be overridden by routerQuery
       const baseOptions = {
@@ -58,49 +60,55 @@ export const ProductGrid: FC<ProductGridProps> = React.memo(
       return nextOptions as QueryOptionsType & { locale?: string };
     }, [locale, queryOptions, routerQuery]);
 
-    const { data, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
-      useProductsQuery(normalizedOptions);
+    const {
+      data,
+      isFetching,
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+      error,
+    } = useProductsQuery(normalizedOptions);
 
-  const { ref, inView } = useInView();
-  useEffect(() => {
-    if (inView && !isFetchingNextPage && hasNextPage) {
-      fetchNextPage();
-    }
+    const { ref, inView } = useInView();
+    useEffect(() => {
+      if (inView && !isFetchingNextPage && hasNextPage) {
+        fetchNextPage();
+      }
     }, [fetchNextPage, hasNextPage, inView, isFetchingNextPage]);
-  
-  const allProducts: Product[] = useMemo(
-    () => data?.pages?.flatMap((page) => page.products ?? []) ?? [],
-    [data?.pages]
-  );
-  if (error) return <p>{error.message}</p>;
-  return (
-    <>
-      <div
-        className={`grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-x-3 lg:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8 ${className}`}
-      >
-        {isFetching && !data?.pages?.length ? (
-          <ProductFeedLoader limit={8} uniqueKey="search-product" />
-        ) : (
-          allProducts.map((product) => (
-            <ProductCard
+
+    const allProducts: Product[] = useMemo(
+      () => data?.pages?.flatMap((page) => page.products ?? []) ?? [],
+      [data?.pages],
+    );
+    if (error) return <p>{error.message}</p>;
+    return (
+      <>
+        <div
+          className={`grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-x-3 lg:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8 ${className}`}
+        >
+          {isFetching && !data?.pages?.length ? (
+            <ProductFeedLoader limit={8} uniqueKey="search-product" />
+          ) : (
+            allProducts.map((product) => (
+              <ProductCard
                 key={`product--key-${product.id ?? product.slug}`}
-              product={product}
-              variant="grid"
-            />
-          ))
-        )}
-      </div>
-      <div ref={ref} className="h-10" />
-      <div
-        className={`grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-x-3 lg:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8 ${className}`}
-      >
-        {isFetching && (
-          <ProductFeedLoader limit={4} uniqueKey="search-product" />
-        )}
-      </div>
-    </>
-  );
-  }
+                product={product}
+                variant="grid"
+              />
+            ))
+          )}
+        </div>
+        <div ref={ref} className="h-10" />
+        <div
+          className={`grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-x-3 lg:gap-x-5 xl:gap-x-7 gap-y-3 xl:gap-y-5 2xl:gap-y-8 ${className}`}
+        >
+          {isFetching && (
+            <ProductFeedLoader limit={4} uniqueKey="search-product" />
+          )}
+        </div>
+      </>
+    );
+  },
 );
 
 ProductGrid.displayName = "ProductGrid";
