@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useUI } from "@contexts/ui.context";
 import { useAuth } from "@contexts/auth/auth-context";
-import Cookies from "js-cookie";
+import { setAccessToken, setRefreshToken } from "@framework/utils/get-token";
 import { me } from "./use-login";
 
 export interface ResetPasswordType {
@@ -25,8 +25,10 @@ export const useResetPasswordMutation = () => {
   return useMutation({
     mutationFn: (values: ResetPasswordType) => resetPassword(values),
     onSuccess: async (_data) => {
-      Cookies.set("client_access_token", _data.access_token);
-      Cookies.set("client_refresh_token", _data.refresh_token);
+      // Set token qua helper chung (secure/sameSite/expires nhất quán với login),
+      // thay cho Cookies.set trần thiếu thuộc tính bảo mật trước đây.
+      setAccessToken(_data.access_token);
+      if (_data.refresh_token) setRefreshToken(_data.refresh_token);
       const res = await me();
       authLogin(res);
       authorize();

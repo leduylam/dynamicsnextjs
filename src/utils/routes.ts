@@ -11,7 +11,6 @@ export const ROUTES = {
   ORDERS: "/my-account/orders",
   ACCOUNT_DETAILS: "/my-account/account-details",
   CHANGE_PASSWORD: "/my-account/change-password",
-  CONNECT: "/my-account/connect-api",
   SHOPS: "/shops",
   LOGIN: "/signin",
   SIGN_UP: "/signup",
@@ -19,6 +18,5 @@ export const ROUTES = {
   COLLECTIONS: "/collections",
   CATEGORY: "/category",
   ORDER: "/order",
-  REGISTER_API: "register-api",
   REGISTER: "register-dynamics-access",
 };

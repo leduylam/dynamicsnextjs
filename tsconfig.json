@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "ES6",
     "lib": [
       "dom",
@@ -18,34 +17,40 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "paths": {
       "@components/*": [
-        "src/components/*"
+        "./src/components/*"
       ],
       "@containers/*": [
-        "src/containers/*"
+        "./src/containers/*"
       ],
       "@contexts/*": [
-        "src/contexts/*"
+        "./src/contexts/*"
       ],
       "@framework/*": [
-        "src/framework/basic-rest/*"
+        "./src/framework/basic-rest/*"
       ],
       "@settings/*": [
-        "src/settings/*"
+        "./src/settings/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "./src/styles/*"
       ],
       "@utils/*": [
-        "src/utils/*"
+        "./src/utils/*"
       ],
       "@public/*": [
-        "public/*"
+        "./public/*"
+      ],
+      "src/*": [
+        "./src/*"
+      ],
+      "public/*": [
+        "./public/*"
       ]
     },
     "incremental": true

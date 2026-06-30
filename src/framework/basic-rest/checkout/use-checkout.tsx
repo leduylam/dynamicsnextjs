@@ -3,17 +3,21 @@ import http from "@framework/utils/http";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
+// Contract khớp admin-vgd `CheckoutRequest` (POST /api/v1/checkout). Cart server-side
+// (resolve theo user/site) → KHÔNG gửi items/total/address_id. Mirror client-vgd.
 export interface CheckoutInputType {
-  address_id?: number | null;
   name: string;
-  phone: string;
   email: string;
-  address: string;
-  save: boolean;
-  note: string;
-  orderItem: []
+  phone: string;
+  shippingAddressLine1: string;
+  shippingAddressLine2?: string;
+  shippingCity: string;
+  shippingStateProvince: string;
+  shippingCountry: string; // ISO-2 (vd "VN")
+  company?: string | null;
+  customerNote?: string;
+  saveAddress?: boolean;
 }
-
 
 async function checkout(input: CheckoutInputType) {
   return http.post(API_ENDPOINTS.CHECKOUT, input);

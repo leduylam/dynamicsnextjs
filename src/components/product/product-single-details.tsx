@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { useRouter } from "next/router";
@@ -19,6 +19,7 @@ import { useProductQuery } from "@framework/product/get-product";
 import { getAllImageSizes } from "@utils/use-image";
 import useProductVariant from "./hooks/use-product-variant";
 import { buildCartItemWithPrice } from "@utils/cart";
+import { sanitizeHtml } from "@utils/sanitize-html";
 import useQuantityInput from "./hooks/use-quantity-input";
 import Image from "next/image";
 
@@ -46,8 +47,8 @@ const parseAlbum = (album: any): any[] => {
 const fromGallery = (g: any): string[] =>
   Array.isArray(g)
     ? g
-      .map((x: any) => x?.image_path || x?.url || x?.original || x)
-      .filter((u: any) => typeof u === "string" && !!u)
+        .map((x: any) => x?.image_path || x?.url || x?.original || x)
+        .filter((u: any) => typeof u === "string" && !!u)
     : [];
 
 const fromAlbum = (a: any): string[] =>
@@ -70,14 +71,14 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     return accessRights?.canWholeSalePrice ?? false;
   }, [accessRights?.canWholeSalePrice]);
   const { isAuthorized } = useUI();
-  
+
   const normalizedDescription = useMemo(() => {
     if (!data?.description || data.description === "undefined") return null;
     let desc = String(data.description).trim();
-    desc = desc.replace(/\s+/g, ' ');
-    desc = desc.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    desc = desc.replace(/\s+/g, " ");
+    desc = desc.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
     const trimmed = desc.trim();
-    if (trimmed.startsWith('<p>') && trimmed.endsWith('</p>')) {
+    if (trimmed.startsWith("<p>") && trimmed.endsWith("</p>")) {
       desc = trimmed.slice(3, -4).trim();
     }
     return desc;
@@ -144,7 +145,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   });
 
   const normalizedVariantParam = useMemo(() => {
-      if (!router.isReady) return undefined;
+    if (!router.isReady) return undefined;
     const variantParam = router.query["variant"];
     return Array.isArray(variantParam) ? variantParam[0] : variantParam;
   }, [router.isReady, router.query.variant]);
@@ -152,7 +153,9 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const normalizedSubVariantParam = useMemo(() => {
     if (!router.isReady) return undefined;
     const subVariantParam = router.query["subVariant"];
-    return Array.isArray(subVariantParam) ? subVariantParam[0] : subVariantParam;
+    return Array.isArray(subVariantParam)
+      ? subVariantParam[0]
+      : subVariantParam;
   }, [router.isReady, router.query.subVariant]);
 
   const variantParamRef = useRef<string | undefined>(undefined);
@@ -161,7 +164,11 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   useEffect(() => {
     if (!router.isReady) return;
 
-    if (!data || !Array.isArray(data.attributes) || data.attributes.length === 0)
+    if (
+      !data ||
+      !Array.isArray(data.attributes) ||
+      data.attributes.length === 0
+    )
       return;
 
     if (normalizedVariantParam) {
@@ -183,18 +190,24 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
       const initialAttributes = data.attributes.reduce(
         (
           acc: Record<string, string>,
-          attribute: { name: string; value: string }
+          attribute: { name: string; value: string },
         ) => {
           acc[attribute.name] = attribute.value;
           return acc;
         },
-        {}
+        {},
       );
       setAttributesMap(initialAttributes);
       selectVariantById(data.attributes[0]?.id ?? null);
       hasInitializedVariantRef.current = true;
     }
-  }, [router.isReady, data, normalizedVariantParam, selectVariantById, setAttributesMap]);
+  }, [
+    router.isReady,
+    data,
+    normalizedVariantParam,
+    selectVariantById,
+    setAttributesMap,
+  ]);
 
   const subVariantParamRef = useRef<string | undefined>(undefined);
 
@@ -272,7 +285,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
           query: nextQuery,
         },
         undefined,
-        { shallow: true, scroll: false }
+        { shallow: true, scroll: false },
       );
     }
   }, [
@@ -296,10 +309,19 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
       attributes,
       activeState,
       subActive,
-      canWholeSalePrice
+      canWholeSalePrice,
     );
     updateCart({ item, quantity });
-  }, [isSelected, data, attributes, activeState, subActive, canWholeSalePrice, updateCart, quantity]);
+  }, [
+    isSelected,
+    data,
+    attributes,
+    activeState,
+    subActive,
+    canWholeSalePrice,
+    updateCart,
+    quantity,
+  ]);
 
   const baseProductImages = useMemo(() => {
     if (Array.isArray(data?.gallery) && data.gallery.length > 0) {
@@ -310,12 +332,12 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     }
     if (Array.isArray(data?.attributes)) {
       const attrGal = data.attributes.flatMap((attr: any) =>
-        fromGallery(attr.gallery)
+        fromGallery(attr.gallery),
       );
       if (attrGal.length > 0) return uniq(attrGal);
 
       const attrAlb = data.attributes.flatMap((attr: any) =>
-        fromAlbum(attr.album)
+        fromAlbum(attr.album),
       );
       if (attrAlb.length > 0) return uniq(attrAlb);
     }
@@ -345,14 +367,30 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
       if (othersAlbum.length > 0) return uniq(othersAlbum);
     }
     return [];
-  }, [router.isReady, activeState, activeAttributes, data?.gallery, data?.album, data?.attributes]);
+  }, [
+    router.isReady,
+    activeState,
+    activeAttributes,
+    data?.gallery,
+    data?.album,
+    data?.attributes,
+  ]);
 
-  const productImages = useMemo(() => ({
-    gallery: activeProductImages.length > 0 ? activeProductImages : baseProductImages,
-  }), [activeProductImages, baseProductImages]);
+  const productImages = useMemo(
+    () => ({
+      gallery:
+        activeProductImages.length > 0
+          ? activeProductImages
+          : baseProductImages,
+    }),
+    [activeProductImages, baseProductImages],
+  );
 
   const images = useMemo(() => {
-    const galleryToUse = productImages.gallery.length > 0 ? productImages.gallery : baseProductImages;
+    const galleryToUse =
+      productImages.gallery.length > 0
+        ? productImages.gallery
+        : baseProductImages;
     return galleryToUse.map((item: any) => {
       const allSizes = getAllImageSizes(item);
       return allSizes;
@@ -361,7 +399,9 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
 
   const gridTemplateColumns = useMemo(() => {
     const imageCount = images?.length || 0;
-    return imageCount > 1 ? "repeat(2, minmax(0, 1fr))" : "repeat(1, minmax(0, 1fr))";
+    return imageCount > 1
+      ? "repeat(2, minmax(0, 1fr))"
+      : "repeat(1, minmax(0, 1fr))";
   }, [images?.length]);
 
   if (isLoading) return <p>Loading...</p>;
@@ -399,32 +439,38 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
 
         <div
           className="hidden lg:block col-span-5 grid gap-2.5"
-          style={{ 
+          style={{
             gridTemplateColumns: gridTemplateColumns,
-            display: 'grid'
+            display: "grid",
           }}
           suppressHydrationWarning
         >
-          {images && images.length > 0 && images.map((img: any, index: number) => (
-            <motion.div
-              initial={false}
-              animate={isMounted && imagesLoaded > index ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              key={index}
-              className="w-full aspect-square transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md overflow-hidden"
-              onClick={() => openLightbox(index)}
-            >
-              <Image
-                src={`${img.original}`}
-                alt={`${data?.name}--${index}`}
-                onLoad={() => setImagesLoaded((prev) => prev + 1)}
-                width={500}
-                height={500}
-                className="object-cover w-full h-full mix-blend-multiply"
-                loading="lazy"
-              />
-            </motion.div>
-          ))}
+          {images &&
+            images.length > 0 &&
+            images.map((img: any, index: number) => (
+              <motion.div
+                initial={false}
+                animate={
+                  isMounted && imagesLoaded > index
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 1, y: 0 }
+                }
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                key={index}
+                className="w-full aspect-square transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md overflow-hidden"
+                onClick={() => openLightbox(index)}
+              >
+                <Image
+                  src={`${img.original}`}
+                  alt={`${data?.name}--${index}`}
+                  onLoad={() => setImagesLoaded((prev) => prev + 1)}
+                  width={500}
+                  height={500}
+                  className="object-cover w-full h-full mix-blend-multiply"
+                  loading="lazy"
+                />
+              </motion.div>
+            ))}
           {lightboxOpen && (
             <Lightbox
               images={images.map((img: any) => img.original)}
@@ -441,7 +487,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
             {normalizedDescription && (
               <div
                 className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
-                dangerouslySetInnerHTML={{ __html: normalizedDescription }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizedDescription) }}
                 suppressHydrationWarning
               />
             )}
@@ -534,8 +580,9 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
               <Button
                 onClick={addToCart}
                 variant="slim"
-                className={`w-full md:w-6/12 xl:w-full ${!isSelected && "bg-gray-400 hover:bg-gray-400"
-                  }`}
+                className={`w-full md:w-6/12 xl:w-full ${
+                  !isSelected && "bg-gray-400 hover:bg-gray-400"
+                }`}
                 disabled={!isSelected || Number(productQuantity) <= 0}
                 loading={addToCartLoader}
               >
@@ -587,7 +634,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
                         {tag.name}
                         <span className="text-heading">,</span>
                       </Link>
-                    )
+                    ),
                   )}
                 </li>
               )}
@@ -601,6 +648,6 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   );
 });
 
-ProductSingleDetails.displayName = 'ProductSingleDetails';
+ProductSingleDetails.displayName = "ProductSingleDetails";
 
 export default ProductSingleDetails;

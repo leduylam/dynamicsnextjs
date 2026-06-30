@@ -1,5 +1,6 @@
 import React, { JSXElementConstructor, CSSProperties } from 'react';
 import cn from 'classnames';
+import { sanitizeHtml } from '@utils/sanitize-html';
 
 interface Props {
   variant?: Variant;
@@ -26,7 +27,7 @@ const Text: React.FC<Props> = ({ style, className, variant = 'body', children, h
 
   const htmlContentProps = html
     ? {
-        dangerouslySetInnerHTML: { __html: html },
+        dangerouslySetInnerHTML: { __html: sanitizeHtml(html) },
       }
     : {};
 

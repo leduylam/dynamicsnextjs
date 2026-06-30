@@ -49,7 +49,7 @@ function getFirstImageFromGallery(gallery: any): string | null {
 function getImage(
   subAttribute: any,
   attribute: any,
-  item: Item
+  item: Item,
 ): string | undefined {
   // Priority 1: subAttribute image or gallery[0]
   if (subAttribute) {
@@ -90,15 +90,15 @@ export function generateCartItem(
   attributes: Record<string, string>,
   activeState: number | undefined,
   subActive: number | undefined,
-  canWholeSalePrice: boolean
+  canWholeSalePrice: boolean,
 ) {
   const { id, name, slug, product_price, product_retail_price } = item;
   const attribute = item.attributes?.find(
-    (attr: any) => attr.id === activeState
+    (attr: any) => attr.id === activeState,
   );
 
   const subAttribute = attribute?.sub_attributes?.find(
-    (subAttr: any) => subAttr.id === subActive
+    (subAttr: any) => subAttr.id === subActive,
   );
   const itemSku = subAttribute
     ? subAttribute.product_attribute_sku
@@ -109,7 +109,7 @@ export function generateCartItem(
   const promotion_price = item.promotions
     ? item?.product_price! - item.promotions.discount
     : null;
-  
+
   // Calculate price với fallback logic
   let finalPrice: number | undefined;
   if (canWholeSalePrice) {
@@ -124,13 +124,17 @@ export function generateCartItem(
     }
   }
 
-  
+  // variant_id để gửi lên admin-vgd /cart/items: ưu tiên sub-variant, sau đó variant.
+  const variant_id =
+    subActive ?? activeState ?? subAttribute?.id ?? attribute?.id ?? null;
+
   return {
     id: !isEmpty(attributes)
       ? `${id}.${Object.values(attributes).join(".")}`
       : id,
     name,
     product_id: id,
+    variant_id,
     slug,
     product_price,
     product_retail_price,

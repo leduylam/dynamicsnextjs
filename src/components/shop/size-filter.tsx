@@ -1,7 +1,7 @@
 import { CheckBox } from "@components/ui/checkbox";
 import { buildColorBuckets, buildSizeBuckets } from "@utils/color-bucket";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BucketList from "./bucket-list";
 
 interface Item {

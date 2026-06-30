@@ -1,6 +1,7 @@
 import { QueryOptionsType } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { adaptAttributes } from "@framework/utils/adapt";
 import { useQuery } from "@tanstack/react-query";
 
 export const fetchSizes = async (options: QueryOptionsType = {}) => {
@@ -12,7 +13,8 @@ export const fetchSizes = async (options: QueryOptionsType = {}) => {
       ...query,
     },
   });
-  return data;
+  // Mảng phẳng [{id,name,value,label}] để getVariations() groupBy "name".
+  return adaptAttributes(data);
 };
 
 export const useSizeQuery = (options: QueryOptionsType = {}) => {

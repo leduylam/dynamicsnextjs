@@ -50,8 +50,8 @@ export default function Modal({
   variant = "center",
 }: React.PropsWithChildren<ModalProps>) {
   const { closeModal } = useUI();
-  const modalRootRef = useRef() as DivElementRef;
-  const modalInnerRef = useRef() as DivElementRef;
+  const modalRootRef = useRef<HTMLDivElement>(null) as DivElementRef;
+  const modalInnerRef = useRef<HTMLDivElement>(null) as DivElementRef;
   useOnClickOutside(modalInnerRef, () => closeModal());
   useEffect(() => {
     if (modalInnerRef.current) {
@@ -80,7 +80,7 @@ export default function Modal({
               "modal-root fixed bg-black bg-opacity-70 inset-0 z-50 cursor-pointer",
               useBlurBackdrop && "backdrop-filter backdrop-blur-sm",
               rootClasses[variant],
-              rootClassName
+              rootClassName,
             )}
           >
             <motion.div
@@ -94,7 +94,7 @@ export default function Modal({
                 className={cn(
                   "w-full md:w-auto absolute left-1/2 transform -translate-x-1/2 shadow-xl",
                   containerClasses[variant],
-                  containerClassName
+                  containerClassName,
                 )}
               >
                 <button
@@ -102,7 +102,7 @@ export default function Modal({
                   aria-label="Close panel"
                   className={cn(
                     "fixed z-10 inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-white shadow text-gray-600 transition duration-200 focus:outline-none focus:text-gray-800 focus:shadow-md hover:text-gray-800 hover:shadow-md",
-                    closeBtnClasses[variant]
+                    closeBtnClasses[variant],
                   )}
                 >
                   <IoClose className="text-xl" />

@@ -22,8 +22,8 @@ const Header: React.FC = () => {
     staleTime: 1000 * 60 * 10,
   });
   const { openSearch, openModal, setModalView, isAuthorized } = useUI();
-  
-  const siteHeaderRef = useRef() as DivElementRef;
+
+  const siteHeaderRef = useRef<HTMLDivElement>(null) as DivElementRef;
   useAddActiveScroll(siteHeaderRef);
 
   function handleLogin() {
@@ -72,9 +72,7 @@ const Header: React.FC = () => {
                 Account
               </AuthMenu>
             </div>
-            {isAuthorized && (
-              <CartButton />
-            )}
+            {isAuthorized && <CartButton />}
           </div>
         </div>
       </div>

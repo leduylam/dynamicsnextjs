@@ -6,6 +6,7 @@ import { useSsrCompatible } from "@utils/use-ssr-compatible";
 import React, { useMemo } from "react";
 import { ROUTES } from "@utils/routes";
 import { useBannersQuery } from "@framework/banner/get-banner";
+import { joinMedia } from "@framework/utils/adapt";
 
 interface Props {
   hideProductDescription?: boolean;
@@ -30,25 +31,26 @@ const HeroBlock: React.FC<Props> = React.memo(() => {
   const { data } = useBannersQuery({
     limit: 8,
   });
-  
+
   const banners = useMemo(() => {
     if (!data?.item) return [];
-    
+
     const ratio = 800 / 1800;
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com";
-    
+
+    // album.mobile/desktop từ adaptBanner đã là URL tuyệt đối → joinMedia giữ
+    // nguyên (absolute-safe). KHÔNG tự ghép `${siteUrl}/${...}` → double-prefix.
     return data.item.map((banner: any) => ({
       id: banner.id,
       title: banner.title,
       slug: banner.url,
       image: {
         mobile: {
-          url: `${siteUrl}/${banner?.album?.mobile?.toString()}`,
+          url: joinMedia(banner?.album?.mobile),
           width: 768,
           height: Math.round(768 * ratio),
         },
         desktop: {
-          url: `${siteUrl}/${banner?.album?.desktop?.toString()}`,
+          url: joinMedia(banner?.album?.desktop),
           width: 1800,
           height: 800,
         },
@@ -58,7 +60,7 @@ const HeroBlock: React.FC<Props> = React.memo(() => {
 
   const minSlides = Math.max(
     ...Object.values(breakpoints).map((bp) => bp.slidesPerView),
-    1
+    1,
   );
   return (
     <div className="heroBannerOne relative max-w-[1920px] mb-5 md:mb-12 lg:mb-14 2xl:mb-16 mx-auto overflow-hidden px-4 md:px-8 2xl:px-0">
@@ -94,6 +96,6 @@ const HeroBlock: React.FC<Props> = React.memo(() => {
   );
 });
 
-HeroBlock.displayName = 'HeroBlock';
+HeroBlock.displayName = "HeroBlock";
 
 export default HeroBlock;

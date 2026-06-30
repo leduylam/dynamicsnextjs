@@ -1,36 +1,32 @@
-import { API_ENDPOINTS } from "@framework/utils/api-endpoints"
-import http from "@framework/utils/http"
+import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import http from "@framework/utils/http";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const clearItemFromCart = async (id: string | number): Promise<any> => {
-    return await http.delete(`${API_ENDPOINTS.CARTS}/${id}`, {
-        method: 'DELETE'
-    })
+interface CartResponse {
+  success: boolean;
+  data?: unknown;
+  message?: string;
 }
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+/** Xoá hẳn 1 cart item (admin-vgd DELETE /cart/items/{id}). */
+export const clearItemFromCart = async (
+  id: string | number,
+): Promise<CartResponse> => {
+  const { data } = await http.delete<CartResponse>(
+    API_ENDPOINTS.CART_REMOVE_ITEM(id),
+  );
+  return data;
+};
 
 export const useClearItemFromCart = () => {
-    const queryClient = useQueryClient();
-    return useMutation(
-        {
-            mutationFn: (id: any) => clearItemFromCart(id),
-            onSuccess: (data) => {
-                toast(data.message, {
-                    progressClassName: "fancy-progress-bar",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                });
-                queryClient.invalidateQueries({
-                    queryKey: [API_ENDPOINTS.CARTS]
-                })
-            },
-            onError: (data) => {
-                console.log(data, "Checkout error response");
-            },
-        }
-    );
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number | string) => clearItemFromCart(id),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CARTS] });
+    },
+    onError: (error) => {
+      console.log(error, "Remove cart item error response");
+    },
+  });
 };

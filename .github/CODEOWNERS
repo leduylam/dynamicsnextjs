@@ -1,0 +1,3 @@
+# Default owner for everything in this repo.
+# Required reviewer once branch protection enables "require review from Code Owners".
+* @leduylam

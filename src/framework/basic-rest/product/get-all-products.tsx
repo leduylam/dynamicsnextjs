@@ -1,6 +1,7 @@
 import { QueryOptionsType, Product } from "@framework/types";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import http from "@framework/utils/http";
+import { adaptProductList } from "@framework/utils/adapt";
 import { useInfiniteQuery } from "@tanstack/react-query";
 export type PaginatedProduct = {
   data: Product[];
@@ -12,20 +13,22 @@ export type PaginatedProduct = {
 };
 const fetchProducts = async ({ pageParam = 1, queryKey, token }: any) => {
   const [_url, options] = queryKey;
-  const normalizedSlug = Array.isArray(options.slug)
-    ? options.slug.join("/")
-    : options.slug;
+  const { slug, ...restOptions } = options;
+  const normalizedSlug = Array.isArray(slug) ? slug.join("/") : slug;
   const params = {
-    ...options,
-    slug: normalizedSlug,
+    ...restOptions,
     page: pageParam,
     locale: options.locale || "en",
+    card: 1, // admin-vgd: chế độ grid card (bỏ load variant nặng)
+    // BE lọc category qua `category_slug` (ProductFilterBuilder), KHÔNG đọc `slug`.
+    // Trước đây gửi `slug` → BE bỏ qua → category page trả TẤT CẢ product.
+    ...(normalizedSlug ? { category_slug: normalizedSlug } : {}),
   };
   const { data } = await http.get(API_ENDPOINTS.PRODUCTS, {
     params,
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
-  return data;
+  return adaptProductList(data);
 };
 
 const useProductsQuery = (options: QueryOptionsType) => {

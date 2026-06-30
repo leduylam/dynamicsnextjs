@@ -1,24 +1,44 @@
 import { QueryOptionsType } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { adaptProductArray } from "@framework/utils/adapt";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { PaginatedProduct } from "./get-all-products";
 
 export const fetchRelatedProducts = async ({
-  pageParam = 1,
   queryKey,
   token,
 }: any & { token?: string | null }) => {
   const [_key, options] = queryKey as [string, QueryOptionsType];
-  if (!options?.text) return [];
-  const { data } = await http.get(API_ENDPOINTS.RELATED_PRODUCTS, {
-    params: {
-      ...options,
-      page: pageParam,
+  // options.text = product slug (xem related-products.tsx).
+  const slug = options?.text;
+  if (!slug) {
+    return {
+      data: [],
+      products: [],
+      current_page: 1,
+      last_page: 1,
+      per_page: 0,
+      total: 0,
+    };
+  }
+  const { data } = await http.get(
+    `${API_ENDPOINTS.RELATED_PRODUCTS}/${encodeURIComponent(String(slug))}/related`,
+    {
+      params: { limit: 10, locale: "en" },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     },
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  return data;
+  );
+  const items = adaptProductArray(data);
+  // admin-vgd related trả mảng phẳng (không phân trang) → gói 1 page.
+  return {
+    data: items,
+    products: items,
+    current_page: 1,
+    last_page: 1,
+    per_page: items.length,
+    total: items.length,
+  };
 };
 type RelatedProductsQueryConfig = {
   enabled?: boolean;
@@ -27,7 +47,7 @@ type RelatedProductsQueryConfig = {
 // ✅ OPTIMIZE: Thêm staleTime và gcTime để cache tốt hơn
 export const useRelatedProductsQuery = (
   options: QueryOptionsType,
-  queryConfig?: RelatedProductsQueryConfig
+  queryConfig?: RelatedProductsQueryConfig,
 ) => {
   return useInfiniteQuery<PaginatedProduct, Error>({
     queryKey: [API_ENDPOINTS.RELATED_PRODUCTS, options],

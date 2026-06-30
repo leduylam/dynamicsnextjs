@@ -1,10 +1,26 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { getToken } from "./get-token";
-import Cookies from "js-cookie";
+import {
+  getToken,
+  getRefreshToken,
+  setAccessToken,
+  clearAuthCookies,
+} from "./get-token";
 import { API_ENDPOINTS } from "./api-endpoints";
+import { getSiteSlug, SITE_HEADER } from "./site";
+import { adaptRefresh } from "./adapt";
+
+/**
+ * REST API base URL (Laravel backend admin-vgd).
+ * Set NEXT_PUBLIC_REST_API_ENDPOINT đúng host (vd http://localhost:80 hoặc
+ * https://admin.vgd.vn). Strip trailing slash để tránh `//` khi nối path.
+ */
+export function getBaseURL(): string {
+  const url = process.env.NEXT_PUBLIC_REST_API_ENDPOINT || "http://localhost";
+  return url.replace(/\/+$/, "");
+}
 
 const http = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
+  baseURL: getBaseURL(),
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -26,13 +42,21 @@ export const setLoggingOut = (value: boolean) => {
 
 http.interceptors.request.use(
   (config) => {
+    // Site (tenant) scoping — gắn header X-Site-Id cho mọi call public API,
+    // giống client-vgd. Single source: getSiteSlug() (env NEXT_PUBLIC_SITE_SLUG).
+    // Không override khi caller đã set header tường minh.
+    const siteSlug = getSiteSlug();
+    if (siteSlug && !config.headers[SITE_HEADER]) {
+      config.headers[SITE_HEADER] = siteSlug;
+    }
+
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 http.interceptors.response.use(
@@ -41,20 +65,24 @@ http.interceptors.response.use(
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
     };
-    
-    const isRefreshEndpoint = originalRequest.url?.includes(API_ENDPOINTS.REFRESH_TOKEN);
-    const isLogoutEndpoint = originalRequest.url?.includes(API_ENDPOINTS.LOGOUT);
+
+    const isRefreshEndpoint = originalRequest.url?.includes(
+      API_ENDPOINTS.REFRESH_TOKEN,
+    );
+    const isLogoutEndpoint = originalRequest.url?.includes(
+      API_ENDPOINTS.LOGOUT,
+    );
     const isMeEndpoint = originalRequest.url?.includes(API_ENDPOINTS.ME);
     const status = error.response?.status;
-    
+
     if (isLoggingOut) {
-      return Promise.reject(new Error('User is logging out'));
+      return Promise.reject(new Error("User is logging out"));
     }
-    
+
     if (isMeEndpoint && (status === 401 || status === 419)) {
       return Promise.reject(error);
     }
-    
+
     if (
       (status === 401 || status === 419) &&
       !originalRequest._retry &&
@@ -79,7 +107,7 @@ http.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 const subscribeTokenRefresh = (cb: (token: string) => void) => {
@@ -93,16 +121,16 @@ const onRefreshed = (token: string) => {
 
 const refreshAccessToken = async () => {
   if (isLoggingOut) {
-    throw new Error('User is logging out - refresh cancelled');
+    throw new Error("User is logging out - refresh cancelled");
   }
 
-  const refreshToken = Cookies.get('client_refresh_token');
+  const refreshToken = getRefreshToken();
   if (!refreshToken) {
-    Cookies.remove('client_access_token');
-    if (typeof window !== 'undefined' && !isLoggingOut) {
-      window.location.href = '/signin';
+    clearAuthCookies();
+    if (typeof window !== "undefined" && !isLoggingOut) {
+      window.location.href = "/signin";
     }
-    throw new Error('No refresh token available');
+    throw new Error("No refresh token available");
   }
 
   if (isRefreshing) {
@@ -111,7 +139,7 @@ const refreshAccessToken = async () => {
         if (token) {
           resolve(token);
         } else {
-          reject(new Error('Refresh failed'));
+          reject(new Error("Refresh failed"));
         }
       });
     });
@@ -120,46 +148,43 @@ const refreshAccessToken = async () => {
   isRefreshing = true;
 
   try {
+    const siteSlug = getSiteSlug();
     const refreshClient = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT,
+      baseURL: getBaseURL(),
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        ...(siteSlug ? { [SITE_HEADER]: siteSlug } : {}),
       },
     });
 
     const response = await refreshClient.post(API_ENDPOINTS.REFRESH_TOKEN, {});
-    const { access_token, remember } = response.data;
-    
+    const { access_token, remember } = adaptRefresh(response.data);
+
     if (isLoggingOut) {
       isRefreshing = false;
       refreshSubscribers = [];
-      throw new Error('User logged out during refresh');
+      throw new Error("User logged out during refresh");
     }
-    
-    // ✅ FIX: Lưu token với cùng cấu hình như login
-    Cookies.set("client_access_token", access_token, {
-      expires: remember ? 7 : 1, // 7 ngày nếu remember, 1 ngày nếu không
-      sameSite: 'Lax',
-      secure: process.env.NODE_ENV === 'production',
-    });
+
+    // Lưu token với cùng cấu hình như login (helper chung)
+    setAccessToken(access_token, remember);
     isRefreshing = false;
     onRefreshed(access_token);
-    
+
     return access_token;
   } catch (error) {
     isRefreshing = false;
     refreshSubscribers = [];
-    
+
     if (!isLoggingOut) {
-      Cookies.remove('client_access_token');
-      Cookies.remove('client_refresh_token');
-      if (typeof window !== 'undefined') {
-        window.location.href = '/signin';
+      clearAuthCookies();
+      if (typeof window !== "undefined") {
+        window.location.href = "/signin";
       }
     }
-    
+
     throw error;
   }
 };

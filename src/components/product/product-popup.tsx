@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ROUTES } from "@utils/routes";
 import { useUI } from "@contexts/ui.context";
 import Button from "@components/ui/button";
@@ -14,6 +14,7 @@ import { MdContentCopy, MdCheck } from "react-icons/md";
 import useProductVariant from "./hooks/use-product-variant";
 import useQuantityInput from "./hooks/use-quantity-input";
 import { buildCartItemWithPrice } from "@utils/cart";
+import { sanitizeHtml } from "@utils/sanitize-html";
 
 export default function ProductPopup() {
   const {
@@ -24,7 +25,7 @@ export default function ProductPopup() {
   } = useUI();
   const { accessRights } = useAuth();
   const { price, price_sale, percent } = usePrice(data);
-  
+
   // Use useMemo to re-calculate when accessRights changes
   const canWholeSalePrice = useMemo(() => {
     return accessRights?.canWholeSalePrice ?? false;
@@ -37,7 +38,7 @@ export default function ProductPopup() {
   const [showShareUrl, setShowShareUrl] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "success">(
-    "idle"
+    "idle",
   );
   const {
     variations,
@@ -95,11 +96,11 @@ export default function ProductPopup() {
       setViewCartBtn(true);
     }, 600);
     const item = buildCartItemWithPrice(
-        data!,
-        attributes,
+      data!,
+      attributes,
       activeState,
       subActive,
-        canWholeSalePrice
+      canWholeSalePrice,
     );
     updateCart({ item, quantity });
   }
@@ -186,15 +187,15 @@ export default function ProductPopup() {
     () => () => {
       clearCopyTimeout();
     },
-    []
+    [],
   );
   const [delayedImage, setDelayedImage] = useState<any>(null);
   const image =
     activeState && activeAttributes
-    ? Object.keys(activeAttributes?.image || {}).length > 0
-      ? activeAttributes.image
-      : data.image
-    : data.image;
+      ? Object.keys(activeAttributes?.image || {}).length > 0
+        ? activeAttributes.image
+        : data.image
+      : data.image;
 
   useEffect(() => {
     if (!image) return;
@@ -256,7 +257,7 @@ export default function ProductPopup() {
               {data.description && data.description !== "undefined" && (
                 <p
                   className="text-sm leading-6 md:text-body md:leading-7"
-                  dangerouslySetInnerHTML={{ __html: data?.description ?? "" }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(data?.description) }}
                 />
               )}
 
@@ -417,7 +418,9 @@ export default function ProductPopup() {
                     )}
                   </button>
                   {copyStatus === "copying" && (
-                    <span className="text-xs text-heading font-medium">Copy</span>
+                    <span className="text-xs text-heading font-medium">
+                      Copy
+                    </span>
                   )}
                 </div>
               )}

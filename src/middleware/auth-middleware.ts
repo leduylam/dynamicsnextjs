@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { SITE_HEADER, getSiteSlug } from "@framework/utils/site";
 
-const API_BASE = process.env.NEXT_PUBLIC_REST_API_ENDPOINT ?? "";
+const API_BASE = (process.env.NEXT_PUBLIC_REST_API_ENDPOINT ?? "").replace(
+  /\/+$/,
+  "",
+);
 const ACCESS_COOKIE_KEY = "client_access_token";
 const REFRESH_COOKIE_KEY = "client_refresh_token";
 
@@ -21,8 +25,12 @@ export async function middleware(request: NextRequest) {
         .filter(Boolean)
         .join("; ");
 
+      const siteSlug = getSiteSlug();
       const response = await fetch(`${API_BASE}${API_ENDPOINTS.ME}`, {
-        headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+        headers: {
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+          ...(siteSlug ? { [SITE_HEADER]: siteSlug } : {}),
+        },
         credentials: "include",
       });
 

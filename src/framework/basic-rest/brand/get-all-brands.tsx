@@ -1,11 +1,14 @@
 import { QueryOptionsType, Brand } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { unwrap, adaptBrand } from "@framework/utils/adapt";
 import { useQuery } from "@tanstack/react-query";
 
 export const fetchBrands = async () => {
   const { data } = await http.get(API_ENDPOINTS.BRANDS);
-  return data;
+  const list = unwrap<any[]>(data).map(adaptBrand);
+  // DSC consume 3 nhánh (block/grid/timer) từ cùng 1 list admin-vgd.
+  return { brands: list, brandsGrid: list, brandsTimer: list };
 };
 const fetchFilteredBrands = async (options: QueryOptionsType = {}) => {
   const { slug, ...query } = options;
@@ -13,7 +16,8 @@ const fetchFilteredBrands = async (options: QueryOptionsType = {}) => {
   const { data } = await http.get(API_ENDPOINTS.BRANDS_FILTERS, {
     params: { ...query, slug: normalizedSlug },
   });
-  return data;
+  const list = unwrap<any[]>(data).map(adaptBrand);
+  return { brands: list, brandsGrid: list, brandsTimer: list };
 };
 export const useBrandsQuery = (options: QueryOptionsType) => {
   const normalizedSlug = Array.isArray(options.slug)

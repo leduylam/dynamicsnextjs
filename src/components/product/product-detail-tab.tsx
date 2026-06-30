@@ -1,5 +1,6 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { prepareTableHTML } from "@utils/prepareHTML";
+import { sanitizeHtml } from "@utils/sanitize-html";
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
@@ -90,7 +91,7 @@ export default function ProductDetailTab({ data }: any) {
             <TabPanel key="description">
               <div
                 className="product-detail text-body text-sm leading-6"
-                dangerouslySetInnerHTML={{ __html: processedContent ?? "" }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(processedContent) }}
                 suppressHydrationWarning
               />
             </TabPanel>
@@ -99,7 +100,7 @@ export default function ProductDetailTab({ data }: any) {
             <TabPanel key="includes">
               <p
                 className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
-                dangerouslySetInnerHTML={{ __html: data?.includes ?? "" }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(data?.includes) }}
                 suppressHydrationWarning
               ></p>
             </TabPanel>

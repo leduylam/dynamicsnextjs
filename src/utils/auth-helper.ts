@@ -1,5 +1,5 @@
 import { me } from "@framework/auth/use-login";
-import Cookies from "js-cookie";
+import { setAccessToken } from "@framework/utils/get-token";
 
 export const handleLoginSuccess = async (
   data: any,
@@ -16,11 +16,7 @@ export const handleLoginSuccess = async (
   // ⚠️ Phải set cookie TRƯỚC mọi await/API để http interceptor (getToken) đọc được ngay
   // Backend có thể set httpOnly; ta set bản readable để Authorization: Bearer dùng được
   if (loginData.access_token) {
-    Cookies.set("client_access_token", loginData.access_token, {
-      expires: loginData.remember ? 7 : 1,
-      sameSite: "Lax",
-      secure: process.env.NODE_ENV === "production",
-    });
+    setAccessToken(loginData.access_token, loginData.remember);
   }
 
   if (loginData.user && loginData.roles) {

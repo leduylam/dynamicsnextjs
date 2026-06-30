@@ -1,6 +1,7 @@
 import { Product } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { unwrap, adaptProductDetail } from "@framework/utils/adapt";
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 
 export const fetchProduct = async ({
@@ -8,11 +9,14 @@ export const fetchProduct = async ({
   token,
 }: QueryFunctionContext & { token?: string | null }): Promise<Product> => {
   const [_key, { slug }] = queryKey as [string, { slug: string }];
-  const { data } = await http.get(`${API_ENDPOINTS.PRODUCT}`, {
-    params: { slug },
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  return data;
+  const { data } = await http.get(
+    `${API_ENDPOINTS.PRODUCT}/${encodeURIComponent(slug)}`,
+    {
+      params: { locale: "en" },
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+  );
+  return adaptProductDetail(unwrap(data)) as Product;
 };
 
 // ✅ OPTIMIZE: Thêm staleTime và gcTime để cache tốt hơn

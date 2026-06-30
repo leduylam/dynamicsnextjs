@@ -1,17 +1,22 @@
 import { QueryOptionsType } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { adaptProductArray } from "@framework/utils/adapt";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@contexts/auth/auth-context";
 
 export const fetchNewArrivalProducts = async () => {
-  const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS);
-  return data;
+  const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS, {
+    params: { limit: 10 },
+  });
+  return { products: adaptProductArray(data) };
 };
 
 export const fetchNewArrivalAncientProducts = async () => {
-  const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT);
-  return data;
+  const { data } = await http.get(API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS_ANCIENT, {
+    params: { limit: 10 },
+  });
+  return { products: adaptProductArray(data) };
 };
 
 type NewArrivalQueryOptions = QueryOptionsType & {

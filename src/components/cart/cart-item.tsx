@@ -1,16 +1,16 @@
-import Link from '@components/ui/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { fadeInOut } from '@utils/motion/fade-in-out';
-import { IoIosCloseCircle } from 'react-icons/io';
-import Counter from '@components/common/counter';
-import { ROUTES } from '@utils/routes';
-import { generateCartItemName } from '@utils/generate-cart-item-name';
-import { useCartMutation } from '@framework/carts/use-cart';
-import { number_format } from 'src/helpers/my-helper';
-import { useClearItemFromCart } from '@framework/carts/get-delete-cart';
-import { useRemoveItemFromCart } from '@framework/carts/get-remove-cart';
-import { getEffectiveCartPrice } from '@framework/carts/get-all-cart';
+import Link from "@components/ui/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { fadeInOut } from "@utils/motion/fade-in-out";
+import { IoIosCloseCircle } from "react-icons/io";
+import Counter from "@components/common/counter";
+import { ROUTES } from "@utils/routes";
+import { generateCartItemName } from "@utils/generate-cart-item-name";
+import { useCartMutation } from "@framework/carts/use-cart";
+import { number_format } from "src/helpers/my-helper";
+import { useClearItemFromCart } from "@framework/carts/get-delete-cart";
+import { useRemoveItemFromCart } from "@framework/carts/get-remove-cart";
+import { getEffectiveCartPrice } from "@framework/carts/get-all-cart";
 
 type CartItemProps = {
   item: any;
@@ -27,18 +27,19 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     animate: "to" as const,
     exit: "from" as const,
     variants: fadeInOut(0.25),
-    className: "group w-full h-auto flex justify-start items-center bg-white py-4 md:py-7 border-b border-gray-100 relative last:border-b-0",
+    className:
+      "group w-full h-auto flex justify-start items-center bg-white py-4 md:py-7 border-b border-gray-100 relative last:border-b-0",
     title: item?.name,
   };
   return (
     <motion.div {...motionProps}>
       <div className="relative flex flex-shrink-0 w-24 h-24 overflow-hidden bg-gray-200 rounded-md cursor-pointer md:w-28 md:h-28 ltr:mr-4 rtl:ml-4">
         <Image
-          src={`${item?.image}` || '/assets/placeholder/cart-item.svg'}
+          src={`${item?.image}` || "/assets/placeholder/cart-item.svg"}
           width={112}
           height={112}
           loading="eager"
-          alt={item.name || 'Product Image'}
+          alt={item.name || "Product Image"}
           className="object-cover bg-gray-300"
         />
         <div
@@ -57,7 +58,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         >
           {generateCartItemName(item.name, item.attributes)}
         </Link>
-        <span className='text-sm'>{item.sku}</span>
+        <span className="text-sm">{item.sku}</span>
         <span className="text-sm text-gray-400 mb-2.5">
           Unit Price: {number_format(unitPrice)}
         </span>
@@ -66,7 +67,16 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           <Counter
             quantity={item.quantity}
             onIncrement={() => updateCart({ item, quantity: 1 })}
-            onDecrement={() => removeItemFromCart({ id: item.id, quantity: 1 })}
+            onDecrement={() => {
+              const current = item.quantity || 0;
+              if (current > 1) {
+                // PATCH số lượng MỚI (absolute) = current - 1
+                removeItemFromCart({ id: item.id, quantity: current - 1 });
+              } else {
+                // Số lượng về 0 → xoá hẳn item
+                clearItemFromCart(item.id);
+              }
+            }}
             variant="dark"
           />
           <span className="text-sm font-semibold leading-5 md:text-base text-heading">

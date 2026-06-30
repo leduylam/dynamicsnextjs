@@ -1,14 +1,19 @@
 import Input from "@components/ui/input";
 import { Controller, useForm } from "react-hook-form";
 import TextArea from "@components/ui/text-area";
-import { useCheckoutMutation } from "@framework/checkout/use-checkout";
+import {
+  useCheckoutMutation,
+  CheckoutInputType,
+} from "@framework/checkout/use-checkout";
 import { CheckBox } from "@components/ui/checkbox";
 import Button from "@components/ui/button";
-import { useDeliveryAddressQuery } from "@framework/checkout/get-all-address";
+import {
+  useDeliveryAddressQuery,
+  Address,
+} from "@framework/checkout/get-all-address";
 import { useCompanyQuery } from "@framework/company/get-company";
 import { useEffect, useState } from "react";
 import CheckoutList from "./checkout-list";
-import { useCartQuery } from "@framework/carts/get-all-cart";
 import { useRouter } from "next/router";
 import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
@@ -17,73 +22,85 @@ import Select from "react-select";
 import { useCheckAccess } from "src/framework/auth/checkAccess";
 import Tooltip from "@components/ui/tooltip";
 
-interface CheckoutInputType {
-  address_id: number;
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  save: boolean;
-  note: string;
-  total: string;
-  company_id: string | null;
-  orderItem: [];
-}
-
 const CheckoutForm: React.FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { mutate: updateUser, isPending } = useCheckoutMutation();
+  const { mutate: placeOrder, isPending } = useCheckoutMutation();
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
-  } = useForm<CheckoutInputType>();
-  const { data } = useCartQuery();
+  } = useForm<CheckoutInputType>({
+    defaultValues: { shippingCountry: "VN", saveAddress: false },
+  });
   const { data: deliveryAddress } = useDeliveryAddressQuery();
   const { data: companyData } = useCompanyQuery();
   const [isFormVisible, setIsFormVisible] = useState(
-    deliveryAddress ? deliveryAddress.length === 0 : false
+    deliveryAddress ? deliveryAddress.length === 0 : false,
   );
   const [addressId, setAddressId] = useState<number | null>(null);
   const [companyOptions, setCompanyOptions] = useState([
     { value: "", label: "— None (optional) —" },
   ]);
   const canSelectCompany = useCheckAccess(["admin", "super-admin", "sale"], []);
+
+  // Đổ địa chỉ đã lưu vào form fields (BE đọc field, KHÔNG nhận address_id).
+  const populateFromAddress = (a: Address) => {
+    setValue(
+      "name",
+      a.name || `${a.first_name ?? ""} ${a.last_name ?? ""}`.trim(),
+    );
+    setValue("email", a.email ?? "");
+    setValue("phone", a.phone ?? "");
+    setValue("company", a.company ?? "");
+    setValue("shippingAddressLine1", a.address_line_1 ?? "");
+    setValue("shippingAddressLine2", a.address_line_2 ?? "");
+    setValue("shippingCity", a.city ?? "");
+    setValue("shippingStateProvince", a.state_province ?? "");
+    setValue("shippingCountry", a.country ?? "VN");
+  };
+
   function onSubmit(input: CheckoutInputType) {
-    const checkoutInput = {
-      ...input,
-      address_id: addressId,
-      items: data?.items,
-      total: data?.total,
-    };
-    updateUser(checkoutInput, {
+    // input đã đúng contract BE (shipping fields phẳng). Cart server-side.
+    placeOrder(input, {
       onSuccess: () => {
-        // Backend đã xóa cart items trong OrderService::createOrderItem — chỉ cần invalidate để UI cập nhật (tránh 404 khi gọi DELETE cho item đã xóa)
+        // BE xoá cart items trong checkout — chỉ invalidate để UI cập nhật.
         queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CARTS] });
         router.push(ROUTES.ORDERS);
       },
     });
   }
+
   useEffect(() => {
     if (companyData && Array.isArray(companyData.companies)) {
-      const mapped = companyData.companies.map((c: any) => ({
-        value: c.id.toString(),
-        label: c.company_code,
-      }));
-      setCompanyOptions([{ value: "", label: "— None (optional) —" }, ...mapped]);
+      const mapped = companyData.companies.map(
+        (c: { company_code: string }) => ({
+          value: c.company_code,
+          label: c.company_code,
+        }),
+      );
+      setCompanyOptions([
+        { value: "", label: "— None (optional) —" },
+        ...mapped,
+      ]);
     }
   }, [companyData]);
 
   useEffect(() => {
     if (deliveryAddress && deliveryAddress.length > 0 && addressId === null) {
       setAddressId(deliveryAddress[0].id);
+      populateFromAddress(deliveryAddress[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryAddress, addressId]);
 
   const handleChangeRadios = (id: number | null) => {
     setAddressId(id);
+    const a =
+      id != null ? deliveryAddress?.find((x) => x.id === id) : undefined;
+    if (a) populateFromAddress(a);
   };
   const handleOtherAddress = () => {
     setIsFormVisible(true);
@@ -115,34 +132,21 @@ const CheckoutForm: React.FC = () => {
               <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
                 <Input
                   labelKey="Name *"
-                  {...register("name", {
-                    required: "Name is required",
-                  })}
+                  {...register("name", { required: "Name is required" })}
                   errorKey={errors.name?.message}
                   variant="solid"
                   className="w-full"
                 />
               </div>
-              <Input
-                labelKey="Address *"
-                {...register("address", {
-                  required: "Address is required",
-                })}
-                errorKey={errors.address?.message}
-                variant="solid"
-              />
               <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
                 <Input
                   type="tel"
                   labelKey="Phone *"
-                  {...register("phone", {
-                    required: "Phone number is required",
-                  })}
+                  {...register("phone", { required: "Phone is required" })}
                   errorKey={errors.phone?.message}
                   variant="solid"
                   className="w-full lg:w-1/2 "
                 />
-
                 <Input
                   type="email"
                   labelKey="Email *"
@@ -159,10 +163,63 @@ const CheckoutForm: React.FC = () => {
                   className="w-full lg:w-1/2 ltr:lg:ml-3 rtl:lg:mr-3 mt-2 md:mt-0"
                 />
               </div>
+              <Input
+                labelKey="Address line 1 *"
+                {...register("shippingAddressLine1", {
+                  required: "Address is required",
+                })}
+                errorKey={errors.shippingAddressLine1?.message}
+                variant="solid"
+              />
+              <Input
+                labelKey="Address line 2"
+                {...register("shippingAddressLine2")}
+                variant="solid"
+              />
+              <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">
+                <Input
+                  labelKey="City *"
+                  {...register("shippingCity", {
+                    required: "City is required",
+                  })}
+                  errorKey={errors.shippingCity?.message}
+                  variant="solid"
+                  className="w-full lg:w-1/2 "
+                />
+                <Input
+                  labelKey="State / Province *"
+                  {...register("shippingStateProvince", {
+                    required: "State/Province is required",
+                  })}
+                  errorKey={errors.shippingStateProvince?.message}
+                  variant="solid"
+                  className="w-full lg:w-1/2 ltr:lg:ml-3 rtl:lg:mr-3 mt-2 md:mt-0"
+                />
+              </div>
+              <div className="w-full">
+                <label className="block text-body-dark font-semibold text-sm leading-none mb-3">
+                  Country *
+                </label>
+                <select
+                  {...register("shippingCountry", {
+                    required: "Country is required",
+                  })}
+                  className="px-4 h-12 flex items-center w-full rounded appearance-none transition duration-300 ease-in-out text-heading text-sm focus:outline-none focus:ring-0 border border-gray-300 focus:border-2 focus:border-heading"
+                >
+                  <option value="VN">Vietnam</option>
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                </select>
+                {errors.shippingCountry?.message && (
+                  <p className="my-2 text-xs text-red-500">
+                    {errors.shippingCountry.message}
+                  </p>
+                )}
+              </div>
               <div className="relative flex items-center justify-between ">
                 <CheckBox
                   labelKey="Save this information for next time"
-                  {...register("save")}
+                  {...register("saveAddress")}
                 />
                 {deliveryAddress && deliveryAddress.length && (
                   <p
@@ -183,16 +240,14 @@ const CheckoutForm: React.FC = () => {
                 </label>
               </Tooltip>
               <Controller
-                name="company_id"
+                name="company"
                 control={control}
                 render={({ field }) => (
                   <Select
                     className="mt-0"
                     placeholder="Select Company (optional)"
                     options={companyOptions ?? []}
-                    onChange={(val) =>
-                      field.onChange(val ? (val as any).value : null)
-                    }
+                    onChange={(val) => field.onChange(val ? val.value : null)}
                   />
                 )}
               />
@@ -201,7 +256,7 @@ const CheckoutForm: React.FC = () => {
 
           <TextArea
             labelKey="Order Notes (Optional)"
-            {...register("note")}
+            {...register("customerNote")}
             placeholderKey="Notes about your order, e.g. special notes for delivery"
             className="relative pt-3 xl:py-6 "
           />

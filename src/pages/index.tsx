@@ -10,6 +10,7 @@ import { fetchBrands } from "@framework/brand/get-all-brands";
 import { fetchNewArrivalAncientProducts } from "@framework/product/get-all-new-arrival-products";
 import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { joinMedia } from "@framework/utils/adapt";
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
 
@@ -23,10 +24,9 @@ const NewArrivalsProductFeed = dynamic(
   {
     ssr: true,
     loading: () => <div className="h-64 animate-pulse bg-gray-200 rounded" />,
-  }
+  },
 );
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://api.dynamicsportsvn.com";
 const BANNER_RATIO = 800 / 1800;
 
 function Home() {
@@ -36,29 +36,29 @@ function Home() {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 10,
   });
-  
+
   const banner = useMemo(() => {
     if (!data?.item?.length) return [];
-    
+
     return data.item.map((banner: any) => ({
       id: banner.id,
       title: banner.title,
       slug: banner.url,
       image: {
         mobile: {
-          url: `${SITE_URL}/${banner?.album?.mobile?.toString()}`,
+          url: joinMedia(banner?.album?.mobile),
           width: 768,
           height: Math.round(768 * BANNER_RATIO),
         },
         desktop: {
-          url: `${SITE_URL}/${banner?.album?.desktop?.toString()}`,
+          url: joinMedia(banner?.album?.desktop),
           width: 1800,
           height: 800,
         },
       },
     }));
   }, [data]);
-  
+
   return (
     <>
       <HeroBlock />

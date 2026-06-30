@@ -3,6 +3,8 @@ import { ReactNode } from "react";
 import Cookies from "js-cookie";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { adaptMe, adaptRefresh } from "@framework/utils/adapt";
+import { getToken, getRefreshToken } from "@framework/utils/get-token";
 
 // Types
 interface User {
@@ -29,7 +31,7 @@ interface AuthContextType {
   setAccessRight: (
     key: string,
     requiredRoles?: string[],
-    requiredPermissions?: string[]
+    requiredPermissions?: string[],
   ) => void;
 }
 
@@ -60,9 +62,9 @@ const normalizeRolesToSlugs = (roles: any[]): string[] => {
     .filter(Boolean) as string[];
 
   // Debug log để kiểm tra role normalization
-  console.log('[Auth] Role normalization:', {
+  console.log("[Auth] Role normalization:", {
     input: roles,
-    output: normalized
+    output: normalized,
   });
 
   return normalized;
@@ -71,10 +73,10 @@ const normalizeRolesToSlugs = (roles: any[]): string[] => {
 export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(initialData?.user || null);
   const [roles, setRoles] = useState<string[]>(
-    initialData?.roles ? normalizeRolesToSlugs(initialData.roles) : []
+    initialData?.roles ? normalizeRolesToSlugs(initialData.roles) : [],
   );
   const [permissions, setPermissions] = useState<string[]>(
-    initialData?.permissions || []
+    initialData?.permissions || [],
   );
   const [loading, setLoading] = useState<boolean>(!initialData);
   const [accessRights, setAccessRights] = useState<Record<string, boolean>>({});
@@ -84,24 +86,22 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     requiredRoles: string[] = [],
     requiredPermissions: string[] = [],
     checkRoles: string[] = roles,
-    checkPermissions: string[] = permissions
+    checkPermissions: string[] = permissions,
   ) => {
     const requiredRoleSlugs = requiredRoles.map(toSlug);
     const hasRole = requiredRoleSlugs.some(
-      (role) => checkRoles?.includes(role) ?? false
+      (role) => checkRoles?.includes(role) ?? false,
     );
     const hasPermission = requiredPermissions.some(
-      (perm) => checkPermissions?.includes(perm) ?? false
+      (perm) => checkPermissions?.includes(perm) ?? false,
     );
-
-
 
     setAccessRights((prev) => ({ ...prev, [key]: hasRole || hasPermission }));
   };
 
   const checkAllAccessRights = (
     checkRoles: string[],
-    checkPermissions: string[]
+    checkPermissions: string[],
   ) => {
     const wholesaleRoles = [
       "admin",
@@ -120,16 +120,15 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
       wholesaleRoles,
       [],
       checkRoles,
-      checkPermissions
+      checkPermissions,
     );
     setAccessRight(
       "canEdit",
       ["admin"],
       ["edit"],
       checkRoles,
-      checkPermissions
+      checkPermissions,
     );
-
   };
 
   useEffect(() => {
@@ -147,6 +146,16 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     const initializeAuth = async () => {
       if (!mounted) return;
 
+      // Guest (không có access lẫn refresh token) → bỏ probe ME, tránh 401 noise.
+      if (!getToken() && !getRefreshToken()) {
+        setUser(null);
+        setRoles([]);
+        setPermissions([]);
+        setAccessRights({});
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
 
@@ -156,15 +165,14 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
 
         if (!mounted) return;
 
-        const data = res.data as UserData;
+        const data = adaptMe(res.data) as UserData;
         const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
         setUser(data.user ?? null);
         setRoles(roleSlugs);
         setPermissions(data.permissions ?? []);
         checkAllAccessRights(roleSlugs, data.permissions ?? []);
-
       } catch (error: any) {
-        if (error.name === 'AbortError' || error.name === 'CanceledError') {
+        if (error.name === "AbortError" || error.name === "CanceledError") {
           return;
         }
 
@@ -174,11 +182,15 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
 
         if (status === 401 || status === 419) {
           try {
-            const refreshRes = await http.post(API_ENDPOINTS.REFRESH_TOKEN, {}, {
-              signal: abortController.signal,
-              withCredentials: true,
-            });
-            const { access_token, remember } = refreshRes?.data ?? {};
+            const refreshRes = await http.post(
+              API_ENDPOINTS.REFRESH_TOKEN,
+              {},
+              {
+                signal: abortController.signal,
+                withCredentials: true,
+              },
+            );
+            const { access_token, remember } = adaptRefresh(refreshRes?.data);
             if (access_token && typeof window !== "undefined") {
               Cookies.set("client_access_token", access_token, {
                 expires: remember ? 7 : 1,
@@ -195,7 +207,7 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
 
             if (!mounted) return;
 
-            const data = meRes.data as UserData;
+            const data = adaptMe(meRes.data) as UserData;
             const roleSlugs = normalizeRolesToSlugs(data.roles ?? []);
             setUser(data.user ?? null);
             setRoles(roleSlugs);
@@ -204,9 +216,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
 
             if (mounted) setLoading(false);
             return;
-
           } catch (refreshError: any) {
-            if (refreshError.name === 'AbortError' || refreshError.name === 'CanceledError') {
+            if (
+              refreshError.name === "AbortError" ||
+              refreshError.name === "CanceledError"
+            ) {
               return;
             }
             const refreshStatus = refreshError.response?.status;
@@ -226,7 +240,6 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         setRoles([]);
         setPermissions([]);
         setAccessRights({});
-
       } finally {
         if (mounted) setLoading(false);
       }

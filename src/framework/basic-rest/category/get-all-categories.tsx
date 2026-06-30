@@ -1,11 +1,14 @@
 import { CategoriesQueryOptionsType, Category } from "@framework/types";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
+import { unwrap, adaptCategory } from "@framework/utils/adapt";
 import { useQuery } from "@tanstack/react-query";
 
 export const fetchCategories = async () => {
-  const { data } = await http.get(API_ENDPOINTS.CATEGORIES);
-  return data;
+  const { data } = await http.get(API_ENDPOINTS.CATEGORIES, {
+    params: { include_all: true },
+  });
+  return { categories: unwrap<any[]>(data).map(adaptCategory) };
 };
 
 

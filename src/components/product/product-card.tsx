@@ -37,7 +37,7 @@ interface ProductProps {
   demoVariant?: "ancient";
   disableBorderRadius?: boolean;
 }
-const MotionImage = motion(Image);
+const MotionImage = motion.create(Image);
 const ProductCard: FC<ProductProps> = ({
   product,
   className = "",
@@ -57,12 +57,12 @@ const ProductCard: FC<ProductProps> = ({
   const { accessRights } = useAuth();
   const placeholderImage = `/assets/placeholder/products/product-${variant}.svg`;
   const { openModal, setModalView, setModalData, isAuthorized } = useUI();
-  
+
   // Use useMemo to re-calculate when accessRights changes
   const canWholeSalePrice = useMemo(() => {
     return accessRights?.canWholeSalePrice ?? false;
   }, [accessRights?.canWholeSalePrice]);
-  
+
   function handlePopupView() {
     setModalData({ data: product });
     setModalView("PRODUCT_VIEW");
@@ -135,7 +135,7 @@ const ProductCard: FC<ProductProps> = ({
             variant === "list",
           "!bg-transparent": variant === "grid" && bgTransparent === true,
         },
-        className
+        className,
       )}
       onClick={handlePopupView}
       onMouseEnter={() => setIsHovered(true)}
@@ -156,7 +156,7 @@ const ProductCard: FC<ProductProps> = ({
               variant === "gridModernWide" ||
               variant === "gridTrendy",
           },
-          imageContentClassName
+          imageContentClassName,
         )}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -181,7 +181,7 @@ const ProductCard: FC<ProductProps> = ({
                 loading={imgLoading} // Chuyển đổi loading
                 onLoad={() => setIsImageLoaded(true)}
                 className={cn(
-                  `bg-white rounded-s-md w-full h-full object-contain transition duration-200 ease-in rounded-md group-hover:rounded-b-none`
+                  `bg-white rounded-s-md w-full h-full object-contain transition duration-200 ease-in rounded-md group-hover:rounded-b-none`,
                 )}
               />
             ) : (
@@ -228,7 +228,7 @@ const ProductCard: FC<ProductProps> = ({
             "ltr:pl-0 rtl:pr-0": variant === "gridSlim",
             "px-4 lg:px-5 2xl:px-4": variant === "listSmall",
           },
-          contactClassName
+          contactClassName,
         )}
       >
         {(variant === "gridModern" ||
@@ -262,7 +262,7 @@ const ProductCard: FC<ProductProps> = ({
                   {
                     "text-white": bgTransparent,
                     "text-black/70": !bgTransparent,
-                  }
+                  },
                 )}
               >
                 Category

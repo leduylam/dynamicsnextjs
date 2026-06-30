@@ -6,10 +6,16 @@ export interface SignUpInputType {
   email: string;
   password: string;
   name: string;
-  confirmPassword: string
+  confirmPassword: string;
 }
 async function signUp(input: SignUpInputType) {
-  return http.post(API_ENDPOINTS.REGISTERS, input);
+  // admin-vgd kỳ vọng password_confirmation thay cho confirmPassword.
+  return http.post(API_ENDPOINTS.REGISTERS, {
+    name: input.name,
+    email: input.email,
+    password: input.password,
+    password_confirmation: input.confirmPassword,
+  });
 }
 export const useSignUpMutation = () => {
   return useMutation({

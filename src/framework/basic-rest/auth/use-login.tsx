@@ -6,17 +6,20 @@ import { toast } from 'react-toastify';
 import { AxiosError } from 'axios';
 import { useAuth } from '@contexts/auth/auth-context';
 import { handleLoginSuccess } from '@utils/auth-helper';
+import { adaptLogin, adaptMe } from "@framework/utils/adapt";
 export interface LoginInputType {
   email: string;
   password: string;
   remember_me: boolean;
 }
 async function login(input: LoginInputType) {
-  return http.post(API_ENDPOINTS.LOGIN, input);
+  const res = await http.post(API_ENDPOINTS.LOGIN, input);
+  // handleLoginSuccess đọc data.data → trả về shape DSC qua adaptLogin.
+  return { data: adaptLogin(res.data) };
 }
 export async function me(): Promise<any> {
   const response = await http.get(API_ENDPOINTS.ME);
-  return response.data;
+  return adaptMe(response.data);
 }
 export const useLoginMutation = () => {
   const { authorize, closeModal } = useUI();
