@@ -1,127 +1,151 @@
 import cn from "classnames";
-import Image from "next/image";
-interface AttributeOption {
-  id: number;
+import { getImageUrl } from "@utils/get-image-url";
+
+export type ColorwayForAttribute = {
   value: string;
-  image?: { [key: string]: any } | string;
-  parent_id?: number;
-  quantity?: number;
-  [key: string]: any;
-}
+  image?: string | null;
+  main_image?: string | null;
+  images?: Array<{
+    url?: string;
+    thumbnail?: string;
+    original?: string;
+    is_main?: boolean;
+  }>;
+  is_new?: boolean;
+};
 
 interface Props {
   className?: string;
   title: string;
-  attributes: AttributeOption[];
-  active?: any;
-  defuatlActive?: number | null;
-  subActive?: number | null;
-  activeAttributes?: any;
-  handleAttributeParent: (
-    attribute: Record<string, string>,
-    attributeId: number
-  ) => void;
-  handleAttributeChildren: (
-    attribute: Record<string, string>,
-    attributeId: number
-  ) => void;
+  attributes: {
+    id: number;
+    value: string;
+    meta: string;
+    isAvailable?: boolean;
+    stock?: number;
+  }[];
+  active: string;
+  onClick: (attribute: { name: string; value: string }) => void;
+  /** Khi có, hiển thị ảnh colorway thay vì text/màu nền (khớp theo value) */
+  colorways?: ColorwayForAttribute[];
 }
+
+function normalizeValue(v: string): string {
+  return v
+    .trim()
+    .toLowerCase()
+    .replace(/[\s/\\\-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function hasImageData(cw: ColorwayForAttribute): boolean {
+  return !!(cw.image || cw.main_image || (cw.images && cw.images.length > 0));
+}
+
+function findColorwayImage(
+  colorways: ColorwayForAttribute[],
+  value: string,
+): string | null {
+  const n = normalizeValue(value);
+  const c = colorways.find((cw) => {
+    if (!hasImageData(cw)) return false;
+    const cwNorm = normalizeValue(cw.value);
+    return cwNorm === n || cw.value.trim() === value.trim();
+  });
+  if (!c) return null;
+  // Ưu tiên ảnh trong images[] (gallery thực tế); main_image/image chỉ là fallback.
+  if (c.images?.length) {
+    const mainImg = c.images.find((i) => i.is_main);
+    const img = mainImg ?? c.images[0];
+    return img.thumbnail ?? img.original ?? img.url ?? null;
+  }
+  if (c.main_image) return c.main_image;
+  if (c.image) return c.image;
+  return null;
+}
+
+const isColorVariant = (title: string) => {
+  const t = title.toLowerCase();
+  return t === "color" || t.includes("màu") || t === "colour";
+};
 
 export const ProductAttributes: React.FC<Props> = ({
   className = "mb-4",
   title,
   attributes,
-  defuatlActive,
-  subActive,
   active,
-  handleAttributeParent,
-  handleAttributeChildren,
+  onClick,
+  colorways = [],
 }) => {
+  const useColorwayImages =
+    isColorVariant(title) && colorways && colorways.length > 0;
   return (
     <div className={className}>
       <h3 className="text-base md:text-lg text-heading font-semibold mb-2.5 capitalize">
-        {title}{" "}
-        <span className="text-sm font-normal italic">
-          :{defuatlActive ? active : ""}
-        </span>
+        {title}
+        {active && (
+          <>
+            {": "}
+            <span className="font-normal italic text-base">{active}</span>
+          </>
+        )}
       </h3>
       <ul className="flex flex-wrap colors ltr:-mr-3 rtl:-ml-3">
-        {attributes?.map(({ id, value, image, parent_id, quantity }) => {
-          const imageAttr = image;
+        {attributes?.map(({ id, value, meta, isAvailable, stock }) => {
+          const hasStock = stock !== undefined && stock > 0;
+          const isAvailableValue =
+            isAvailable !== undefined ? isAvailable : hasStock;
+          const isDisabled = isAvailableValue === false || !hasStock;
+          const imageUrl = useColorwayImages
+            ? findColorwayImage(colorways, value)
+            : null;
+          const matchedColorway = useColorwayImages
+            ? colorways.find(
+                (cw) => normalizeValue(cw.value) === normalizeValue(value),
+              )
+            : null;
+          const isNewColorway = matchedColorway?.is_new;
           return (
-            <div key={id}>
-              {parent_id === 0 &&
-                (imageAttr ? (
-                  <li
-                    key={`${value}-${id}`}
-                    className={cn(
-                      "cursor-pointer rounded border w-9 md:w-11 h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out hover:border-black",
-                      id === defuatlActive ? "border-black" : "border-gray-100"
-                    )}
-                    onClick={() =>
-                      handleAttributeParent({ [title]: value }, id)
-                    }
-                  >
-                    <span className="block w-full h-full rounded">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <Image
-                        src={`${imageAttr}`}
-                        alt=""
-                        width={100} // 👈 tùy chọn chiều rộng thực tế
-                        height={35}
-                        className="object-cover w-full h-[35px]"
-                        style={{
-                          width: "auto",
-                          height: "100%",
-                        }}
-                        priority={false}
-                      />
-                    </span>
-                  </li>
-                ) : (
-                  <li
-                    key={`${value}-${id}`}
-                    className={cn(
-                      "cursor-pointer rounded border w-9 md:min-w-11 md:w-auto h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out hover:border-black",
-                      id === defuatlActive ? "border-black" : "border-gray-100"
-                    )}
-                    onClick={() =>
-                      handleAttributeParent({ [title]: value }, id)
-                    }
-                  >
-                    <span className="flex justify-center items-center w-full h-full rounded">
-                      {value}
-                    </span>
-                  </li>
-                ))}
-              {parent_id === defuatlActive && (
-                <div>
-                  {(quantity ?? 0) > 0 ? (
-                    <li
-                      key={`${value}-${id}`}
-                      className={cn(
-                        "cursor-pointer rounded border min-w-9 md:min-w-11 md:w-auto h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm font-semibold transition duration-200 ease-in-out hover:border-black",
-                        id === subActive ? "border-black" : "border-gray-100"
-                      )}
-                      onClick={() =>
-                        handleAttributeChildren({ [title]: value }, id)
-                      }
-                    >
-                      {value}
-                    </li>
-                  ) : (
-                    <li
-                      key={`${value}-${id}`}
-                      className={cn(
-                        "cursor-not-allowed rounded border bg-gray-400 w-9 md:min-w-11 md:w-auto h-9 md:h-11 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-heading text-xs md:text-sm font-semibold transition duration-200 ease-in-out"
-                      )}
-                    >
-                      {value}
-                    </li>
-                  )}
-                </div>
+            <li
+              key={`${value}-${id}`}
+              className={cn(
+                "relative rounded border min-w-9 md:min-w-11 h-9 md:h-11 px-2 md:px-3 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 ltr:md:mr-3 rtl:md:ml-3 flex justify-center items-center text-xs md:text-sm uppercase font-semibold transition duration-200 ease-in-out overflow-hidden",
+                {
+                  "cursor-pointer hover:border-black text-heading": !isDisabled,
+                  "cursor-not-allowed opacity-50 bg-gray-100 border-gray-200 text-gray-500":
+                    isDisabled,
+                  "border-black": value === active && !isDisabled,
+                  "border-gray-200": value !== active && !isDisabled,
+                },
               )}
-            </div>
+              onClick={() => {
+                if (!isDisabled) {
+                  onClick({ name: title, value: value });
+                }
+              }}
+            >
+              {isNewColorway && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] leading-3 rounded px-1 font-bold z-10">
+                  New
+                </span>
+              )}
+              {useColorwayImages && imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={getImageUrl(imageUrl)}
+                  alt={value}
+                  className="w-full h-full object-cover rounded"
+                />
+              ) : isColorVariant(title) && meta ? (
+                <span
+                  className="block w-full h-full rounded"
+                  style={{ backgroundColor: meta }}
+                />
+              ) : (
+                value
+              )}
+            </li>
           );
         })}
       </ul>

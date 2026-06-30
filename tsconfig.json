@@ -22,8 +22,17 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "paths": {
+      "@/*": [
+        "./src/*"
+      ],
       "@components/*": [
         "./src/components/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@config/*": [
+        "./src/config/*"
       ],
       "@containers/*": [
         "./src/containers/*"

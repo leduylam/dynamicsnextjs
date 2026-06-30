@@ -3,18 +3,29 @@ import { ROUTES } from "@utils/routes";
 import { useUI } from "@contexts/ui.context";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
-import { ProductAttributes } from "@components/product/product-attributes";
+import {
+  ProductAttributes,
+  type ColorwayForAttribute,
+} from "@components/product/product-attributes";
 import { number_format } from "src/helpers/my-helper";
-import { useCartMutation } from "@framework/carts/use-cart";
 import usePrice from "@framework/product/use-price";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
 import { FaShare } from "react-icons/fa";
 import { MdContentCopy, MdCheck } from "react-icons/md";
-import useProductVariant from "./hooks/use-product-variant";
-import useQuantityInput from "./hooks/use-quantity-input";
-import { buildCartItemWithPrice } from "@utils/cart";
+import { useProductDetail } from "@hooks/products/use-product-detail";
+import { mapVariationAttributes } from "@utils/product-attribute-helpers";
+import { getImageUrl } from "@utils/get-image-url";
+import {
+  findColorwayByAttributeValue,
+  getProductImagesFromColorway,
+} from "@utils/product-image-helpers";
 import { sanitizeHtml } from "@utils/sanitize-html";
+
+const isColorVariant = (title: string) => {
+  const t = title.toLowerCase();
+  return t === "color" || t.includes("màu") || t === "colour";
+};
 
 export default function ProductPopup() {
   const {
@@ -30,79 +41,38 @@ export default function ProductPopup() {
   const canWholeSalePrice = useMemo(() => {
     return accessRights?.canWholeSalePrice ?? false;
   }, [accessRights?.canWholeSalePrice]);
-  // const { addItemToCart } = useCart();
-  const { mutate: updateCart } = useCartMutation();
   const [viewCartBtn, setViewCartBtn] = useState<boolean>(false);
-  const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [showShareUrl, setShowShareUrl] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "success">(
     "idle",
   );
+
   const {
+    allVariations,
     variations,
+    selectedVariant,
     attributes,
     isSelected,
-    activeState,
-    subActive,
-    chooseQuantity,
-    activeAttributes,
-    productSku,
-    productQuantity,
-    handleAttributeParent,
-    handleAttributeChildren,
-    selectFirstAvailable,
-  } = useProductVariant(data);
-
-  const availableQuantity = useMemo(() => {
-    const parsedChoose =
-      typeof chooseQuantity === "number"
-        ? chooseQuantity
-        : Number(chooseQuantity);
-    if (Number.isFinite(parsedChoose) && parsedChoose > 0) {
-      return parsedChoose;
-    }
-    const parsedProduct =
-      typeof productQuantity === "number"
-        ? productQuantity
-        : Number(productQuantity);
-    return Number.isFinite(parsedProduct) && parsedProduct > 0
-      ? parsedProduct
-      : undefined;
-  }, [chooseQuantity, productQuantity]);
-
-  const {
+    handleAttribute,
+    selectedStock,
     quantity,
-    inputValue,
-    increment,
-    decrement,
-    handleInputChange,
-    handleInputBlur,
-    disableDecrement,
-    disableIncrement,
-  } = useQuantityInput({
-    initial: 1,
-    min: 1,
-    max: availableQuantity,
-  });
+    setQuantity,
+    qtyStep,
+    qtyMin,
+    qtyMax,
+    addToCart: addItemToCart,
+    addToCartLoader,
+  } = useProductDetail({ product: data });
+
+  const productSku = selectedVariant?.sku ?? data?.sku;
+  const availableQuantity = selectedStock;
 
   function addToCart() {
     if (!isSelected) return;
-    // to show btn feedback while product carting
-    setAddToCartLoader(true);
-    setTimeout(() => {
-      setAddToCartLoader(false);
-      setViewCartBtn(true);
-    }, 600);
-    const item = buildCartItemWithPrice(
-      data!,
-      attributes,
-      activeState,
-      subActive,
-      canWholeSalePrice,
-    );
-    updateCart({ item, quantity });
+    setViewCartBtn(true);
+    addItemToCart();
   }
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
   const shareBlockRef = useRef<HTMLDivElement | null>(null);
@@ -117,22 +87,13 @@ export default function ProductPopup() {
 
   function navigateToProductPage() {
     closeModal();
-    window.location.href = `${ROUTES.PRODUCT}/${data.slug}?variant=${activeState}`;
+    window.location.href = `${ROUTES.PRODUCT}/${data.slug}`;
   }
   const buildShareUrl = () => {
     if (typeof window === "undefined" || !data?.slug) {
       return "";
     }
-    const variantId =
-      activeAttributes?.id ??
-      (typeof activeState === "number" ? activeState : undefined) ??
-      data?.activeVariant?.id ??
-      data?.selectedVariant?.id ??
-      (typeof subActive === "number" ? subActive : undefined);
-    const url = `${window.location.origin}/products/${data.slug}${
-      variantId ? `?variant=${variantId}` : ""
-    }`;
-    return url;
+    return `${window.location.origin}/products/${data.slug}`;
   };
   const toggleShare = () => {
     const url = buildShareUrl();
@@ -178,24 +139,35 @@ export default function ProductPopup() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showShareUrl]);
-  useEffect(() => {
-    if (!activeState) {
-      selectFirstAvailable();
-    }
-  }, [activeState, selectFirstAvailable]);
   useEffect(
     () => () => {
       clearCopyTimeout();
     },
     [],
   );
-  const [delayedImage, setDelayedImage] = useState<any>(null);
-  const image =
-    activeState && activeAttributes
-      ? Object.keys(activeAttributes?.image || {}).length > 0
-        ? activeAttributes.image
-        : data.image
-      : data.image;
+
+  // Ảnh theo màu đang chọn (colorway) → fallback ảnh product
+  const colorways =
+    (data as { colorways?: ColorwayForAttribute[] })?.colorways ?? [];
+  const colorVariationKey = Object.keys(variations || {}).find(isColorVariant);
+  const activeColorValue = colorVariationKey
+    ? attributes?.[colorVariationKey]
+    : undefined;
+  const image = useMemo(() => {
+    if (colorways.length > 0 && activeColorValue?.trim()) {
+      const cw = findColorwayByAttributeValue(colorways, activeColorValue);
+      if (cw) {
+        const imgs = getProductImagesFromColorway(cw);
+        const first = imgs[0];
+        const path = first?.original || first?.url || first?.thumbnail;
+        if (path) return getImageUrl(path);
+      }
+    }
+    return data?.image ? getImageUrl(data.image) : "";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorways, activeColorValue, data?.image]);
+
+  const [delayedImage, setDelayedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!image) return;
@@ -257,7 +229,9 @@ export default function ProductPopup() {
               {data.description && data.description !== "undefined" && (
                 <p
                   className="text-sm leading-6 md:text-body md:leading-7"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(data?.description) }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(data?.description),
+                  }}
                 />
               )}
 
@@ -309,29 +283,50 @@ export default function ProductPopup() {
               )}
             </div>
 
-            {Object.keys(variations).map((variation) => (
-              <ProductAttributes
-                key={variation}
-                title={variation}
-                attributes={variations[variation]}
-                defuatlActive={activeState === null ? undefined : activeState}
-                activeAttributes={activeAttributes}
-                subActive={subActive === null ? undefined : subActive}
-                active={attributes[variation] ?? ""}
-                handleAttributeParent={handleAttributeParent}
-                handleAttributeChildren={handleAttributeChildren}
-              />
-            ))}
+            {Object.keys(allVariations).map((variation) => {
+              const filtered = variations[variation] ?? [];
+              const variationOptions =
+                filtered.length > 0
+                  ? filtered
+                  : (allVariations[variation] ?? []);
+              if (variationOptions.length === 0) return null;
+
+              const mappedAttributes = mapVariationAttributes(variationOptions);
+
+              const productColorways = (
+                data as { colorways?: ColorwayForAttribute[] }
+              )?.colorways;
+              const optionsForColorways =
+                allVariations?.[variation] ?? variationOptions;
+              const colorwaysForAttr =
+                productColorways && productColorways.length > 0
+                  ? productColorways
+                  : isColorVariant(variation) && optionsForColorways.length > 0
+                    ? optionsForColorways.map((opt) => ({
+                        value: opt.value,
+                        image: opt.variant?.image,
+                        images: opt.variant?.images,
+                      }))
+                    : undefined;
+
+              return (
+                <ProductAttributes
+                  key={variation}
+                  title={variation}
+                  attributes={mappedAttributes}
+                  active={attributes[variation] ?? ""}
+                  onClick={handleAttribute}
+                  colorways={colorwaysForAttr}
+                />
+              );
+            })}
 
             {isAuthorized &&
-              chooseQuantity &&
-              (productQuantity === 0 ? (
+              availableQuantity !== undefined &&
+              (availableQuantity <= 0 ? (
                 <div className="text-red-600">Out of stock</div>
               ) : (
-                <div>
-                  Quantity avaiable:{" "}
-                  {availableQuantity ?? chooseQuantity ?? productQuantity}
-                </div>
+                <div>Quantity available: {availableQuantity}</div>
               ))}
 
             <div className="pt-2 md:pt-4">
@@ -339,13 +334,17 @@ export default function ProductPopup() {
                 <div className="flex items-center justify-between mb-4 gap-x-3 sm:gap-x-4">
                   <Counter
                     quantity={quantity}
-                    quantityInput={inputValue}
-                    onIncrement={increment}
-                    onDecrement={decrement}
-                    onInputChange={handleInputChange}
-                    onInputBlur={handleInputBlur}
-                    disableDecrement={disableDecrement}
-                    disableIncrement={disableIncrement}
+                    onIncrement={() =>
+                      setQuantity((prev) => {
+                        const next = prev + qtyStep;
+                        return qtyMax != null ? Math.min(qtyMax, next) : next;
+                      })
+                    }
+                    onDecrement={() =>
+                      setQuantity((prev) => Math.max(qtyMin, prev - qtyStep))
+                    }
+                    disableDecrement={quantity <= qtyMin}
+                    disableIncrement={qtyMax != null && quantity >= qtyMax}
                     inputAriaLabel="Product quantity"
                   />
                   <Button
@@ -354,7 +353,10 @@ export default function ProductPopup() {
                     className={`w-full h-11 md:h-12 px-1.5 ${
                       !isSelected && "bg-gray-400 hover:bg-gray-400"
                     }`}
-                    disabled={!isSelected || Number(productQuantity) <= 0}
+                    disabled={
+                      !isSelected ||
+                      (availableQuantity !== undefined && availableQuantity <= 0)
+                    }
                     loading={addToCartLoader}
                   >
                     Add to Cart

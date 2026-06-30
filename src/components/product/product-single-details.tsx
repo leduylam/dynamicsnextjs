@@ -1,27 +1,34 @@
-import { useEffect, useMemo, useRef, useState, useCallback, memo } from "react";
+import { useEffect, useMemo, useState, useCallback, memo } from "react";
 import Button from "@components/ui/button";
 import Counter from "@components/common/counter";
 import { useRouter } from "next/router";
 import usePrice from "@framework/product/use-price";
 import { ProductAttributes } from "./product-attributes";
+import type { ColorwayForAttribute } from "./product-attributes";
 import Link from "@components/ui/link";
 import Carousel from "@components/ui/carousel/carousel";
 import { SwiperSlide } from "swiper/react";
 import ProductMetaReview from "@components/product/product-meta-review";
-import { useUI } from "@contexts/ui.context";
-import { number_format } from "src/helpers/my-helper";
-import { useCartMutation } from "@framework/carts/use-cart";
 import ProductDetailTab from "./product-detail-tab";
-import { useAuth } from "@contexts/auth/auth-context";
 import Lightbox from "./lightbox/Lightbox";
 import { motion } from "framer-motion";
 import { useProductQuery } from "@framework/product/get-product";
-import { getAllImageSizes } from "@utils/use-image";
-import useProductVariant from "./hooks/use-product-variant";
-import { buildCartItemWithPrice } from "@utils/cart";
+import { useUI } from "@contexts/ui.context";
+import { useAuth } from "@contexts/auth/auth-context";
+import { number_format } from "src/helpers/my-helper";
 import { sanitizeHtml } from "@utils/sanitize-html";
-import useQuantityInput from "./hooks/use-quantity-input";
-import Image from "next/image";
+import { getImageUrl } from "@utils/get-image-url";
+import { useSsrCompatible } from "@utils/use-ssr-compatible";
+import { useWindowSize } from "@utils/use-window-size";
+import { useProductDetail } from "@hooks/products/use-product-detail";
+import { mapVariationAttributes } from "@utils/product-attribute-helpers";
+import {
+  getProductImages,
+  getProductImagesFromColorway,
+  findColorwayByAttributeValue,
+  getAllProductGalleryImages,
+} from "@utils/product-image-helpers";
+import { ProductImage } from "@/types/product-image";
 
 const productGalleryCarouselResponsive = {
   "768": {
@@ -32,45 +39,27 @@ const productGalleryCarouselResponsive = {
   },
 };
 
-const parseAlbum = (album: any): any[] => {
-  if (!album) return [];
-  if (typeof album === "string") {
-    try {
-      return JSON.parse(album);
-    } catch {
-      return [];
-    }
-  }
-  return album;
+const isColorVariant = (title: string) => {
+  const t = title.toLowerCase();
+  return t === "color" || t.includes("màu") || t === "colour";
 };
-
-const fromGallery = (g: any): string[] =>
-  Array.isArray(g)
-    ? g
-        .map((x: any) => x?.image_path || x?.url || x?.original || x)
-        .filter((u: any) => typeof u === "string" && !!u)
-    : [];
-
-const fromAlbum = (a: any): string[] =>
-  Array.isArray(a) ? parseAlbum(a) : a ? parseAlbum(a) : [];
-
-const uniq = (arr: string[]) => Array.from(new Set(arr));
 
 const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   const { data, isLoading } = useProductQuery(slug);
-  const [imagesLoaded, setImagesLoaded] = useState(0);
-  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
-  const { accessRights } = useAuth();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const canWholeSalePrice = useMemo(() => {
-    return accessRights?.canWholeSalePrice ?? false;
-  }, [accessRights?.canWholeSalePrice]);
   const { isAuthorized } = useUI();
+  const { accessRights } = useAuth();
+  const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
+
+  const canWholeSalePrice = useMemo(
+    () => accessRights?.canWholeSalePrice ?? false,
+    [accessRights?.canWholeSalePrice],
+  );
+
+  const { price, price_sale, percent } = usePrice(data);
+
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const normalizedDescription = useMemo(() => {
     if (!data?.description || data.description === "undefined") return null;
@@ -83,402 +72,242 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     }
     return desc;
   }, [data?.description]);
-  const { mutate: updateCart } = useCartMutation();
-  const [addToCartLoader, setAddToCartLoader] = useState<boolean>(false);
-  const { price, price_sale, percent } = usePrice(data);
-
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const openLightbox = useCallback((index: number) => {
-    setSelectedIndex(index);
-    setLightboxOpen(true);
-  }, []);
 
   const {
+    allVariations,
     variations,
+    selectedVariant,
     attributes,
+    parentAttributeName,
+    childAttributeNames,
     isSelected,
-    activeState,
-    subActive,
-    chooseQuantity,
-    activeAttributes,
-    productSku,
-    productQuantity,
-    handleAttributeParent,
-    handleAttributeChildren,
-    selectVariantById,
-    selectSubVariantById,
-    setAttributesMap,
-  } = useProductVariant(data);
-
-  const availableQuantity = useMemo(() => {
-    const parsedChoose =
-      typeof chooseQuantity === "number"
-        ? chooseQuantity
-        : Number(chooseQuantity);
-    if (Number.isFinite(parsedChoose) && parsedChoose > 0) {
-      return parsedChoose;
-    }
-    const parsedProduct =
-      typeof productQuantity === "number"
-        ? productQuantity
-        : Number(productQuantity);
-    return Number.isFinite(parsedProduct) && parsedProduct > 0
-      ? parsedProduct
-      : undefined;
-  }, [chooseQuantity, productQuantity]);
-
-  const {
+    handleAttribute,
+    selectedStock,
     quantity,
-    inputValue,
-    increment,
-    decrement,
-    handleInputChange,
-    handleInputBlur,
-    disableDecrement,
-    disableIncrement,
-  } = useQuantityInput({
-    initial: 1,
-    min: 1,
-    max: availableQuantity,
+    setQuantity,
+    qtyStep,
+    qtyMin,
+    qtyMax,
+    addToCart,
+    addToCartLoader,
+  } = useProductDetail({
+    product: data,
+    initialQueryParams: router.query,
   });
 
-  const normalizedVariantParam = useMemo(() => {
-    if (!router.isReady) return undefined;
-    const variantParam = router.query["variant"];
-    return Array.isArray(variantParam) ? variantParam[0] : variantParam;
-  }, [router.isReady, router.query.variant]);
-
-  const normalizedSubVariantParam = useMemo(() => {
-    if (!router.isReady) return undefined;
-    const subVariantParam = router.query["subVariant"];
-    return Array.isArray(subVariantParam)
-      ? subVariantParam[0]
-      : subVariantParam;
-  }, [router.isReady, router.query.subVariant]);
-
-  const variantParamRef = useRef<string | undefined>(undefined);
-  const hasInitializedVariantRef = useRef(false);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    if (
-      !data ||
-      !Array.isArray(data.attributes) ||
-      data.attributes.length === 0
-    )
-      return;
-
-    if (normalizedVariantParam) {
-      if (variantParamRef.current === normalizedVariantParam) {
-        return;
-      }
-      variantParamRef.current = normalizedVariantParam;
-      const variantId = Number(normalizedVariantParam);
-      if (!Number.isNaN(variantId)) {
-        selectVariantById(variantId);
-        hasInitializedVariantRef.current = true;
-      }
-      return;
-    }
-
-    variantParamRef.current = undefined;
-
-    if (!hasInitializedVariantRef.current) {
-      const initialAttributes = data.attributes.reduce(
-        (
-          acc: Record<string, string>,
-          attribute: { name: string; value: string },
-        ) => {
-          acc[attribute.name] = attribute.value;
-          return acc;
-        },
-        {},
-      );
-      setAttributesMap(initialAttributes);
-      selectVariantById(data.attributes[0]?.id ?? null);
-      hasInitializedVariantRef.current = true;
-    }
-  }, [
-    router.isReady,
-    data,
-    normalizedVariantParam,
-    selectVariantById,
-    setAttributesMap,
-  ]);
-
-  const subVariantParamRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    if (
-      !data ||
-      !Array.isArray(data.attributes) ||
-      data.attributes.length === 0
-    )
-      return;
-
-    if (!normalizedSubVariantParam) {
-      subVariantParamRef.current = undefined;
-      return;
-    }
-
-    if (subVariantParamRef.current === normalizedSubVariantParam) {
-      return;
-    }
-
-    subVariantParamRef.current = normalizedSubVariantParam;
-
-    const subVariantId = Number(normalizedSubVariantParam);
-    if (Number.isNaN(subVariantId)) return;
-
-    selectSubVariantById(subVariantId);
-  }, [router.isReady, data, normalizedSubVariantParam, selectSubVariantById]);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    const currentVariant =
-      typeof normalizedVariantParam === "string"
-        ? normalizedVariantParam
-        : undefined;
-    const desiredVariant =
-      activeState !== null ? String(activeState) : undefined;
-
-    const currentSubVariant =
-      typeof normalizedSubVariantParam === "string"
-        ? normalizedSubVariantParam
-        : undefined;
-    const desiredSubVariant =
-      subActive !== null ? String(subActive) : undefined;
-
-    const nextQuery = { ...router.query };
-    let changed = false;
-
-    if (desiredVariant) {
-      if (currentVariant !== desiredVariant) {
-        nextQuery.variant = desiredVariant;
-        changed = true;
-      }
-    } else if (currentVariant) {
-      delete nextQuery.variant;
-      changed = true;
-    }
-
-    if (desiredSubVariant) {
-      if (currentSubVariant !== desiredSubVariant) {
-        nextQuery.subVariant = desiredSubVariant;
-        changed = true;
-      }
-    } else if (currentSubVariant) {
-      delete nextQuery.subVariant;
-      changed = true;
-    }
-
-    if (changed) {
-      router.replace(
-        {
-          pathname: router.pathname,
-          query: nextQuery,
-        },
-        undefined,
-        { shallow: true, scroll: false },
-      );
-    }
-  }, [
-    router.isReady,
-    router.pathname,
-    router.query,
-    activeState,
-    subActive,
-    normalizedVariantParam,
-    normalizedSubVariantParam,
-  ]);
-
-  const addToCart = useCallback(() => {
-    if (!isSelected) return;
-    setAddToCartLoader(true);
-    setTimeout(() => {
-      setAddToCartLoader(false);
-    }, 600);
-    const item = buildCartItemWithPrice(
-      data!,
-      attributes,
-      activeState,
-      subActive,
-      canWholeSalePrice,
-    );
-    updateCart({ item, quantity });
-  }, [
-    isSelected,
-    data,
-    attributes,
-    activeState,
-    subActive,
-    canWholeSalePrice,
-    updateCart,
-    quantity,
-  ]);
-
-  const baseProductImages = useMemo(() => {
-    if (Array.isArray(data?.gallery) && data.gallery.length > 0) {
-      return uniq(fromGallery(data.gallery));
-    }
-    if (Array.isArray(data?.album) && data.album.length > 0) {
-      return uniq(fromAlbum(data.album));
-    }
-    if (Array.isArray(data?.attributes)) {
-      const attrGal = data.attributes.flatMap((attr: any) =>
-        fromGallery(attr.gallery),
-      );
-      if (attrGal.length > 0) return uniq(attrGal);
-
-      const attrAlb = data.attributes.flatMap((attr: any) =>
-        fromAlbum(attr.album),
-      );
-      if (attrAlb.length > 0) return uniq(attrAlb);
-    }
-    return [];
-  }, [data?.gallery, data?.album, data?.attributes]);
-
-  const activeProductImages = useMemo(() => {
-    if (!router.isReady || !activeState || !activeAttributes) {
-      return [];
-    }
-    const list = fromGallery(activeAttributes.gallery)
-      .concat(fromAlbum(activeAttributes.album))
-      .concat(fromGallery(data?.gallery))
-      .concat(fromAlbum(data?.album));
-
-    if (list.length > 0) return uniq(list);
-
-    if (Array.isArray(data?.attributes)) {
-      const others = data.attributes
-        .filter((a: any) => a !== activeAttributes)
-        .flatMap((attr: any) => fromGallery(attr.gallery));
-      if (others.length > 0) return uniq(others);
-
-      const othersAlbum = data.attributes
-        .filter((a: any) => a !== activeAttributes)
-        .flatMap((attr: any) => fromAlbum(attr.album));
-      if (othersAlbum.length > 0) return uniq(othersAlbum);
-    }
-    return [];
-  }, [
-    router.isReady,
-    activeState,
-    activeAttributes,
-    data?.gallery,
-    data?.album,
-    data?.attributes,
-  ]);
-
-  const productImages = useMemo(
-    () => ({
-      gallery:
-        activeProductImages.length > 0
-          ? activeProductImages
-          : baseProductImages,
-    }),
-    [activeProductImages, baseProductImages],
+  // Sync URL ?color=xxx&size=xxx khi đổi lựa chọn
+  const orderedAttrNames = useMemo(
+    () =>
+      parentAttributeName ? [parentAttributeName, ...childAttributeNames] : [],
+    [parentAttributeName, childAttributeNames],
   );
 
-  const images = useMemo(() => {
-    const galleryToUse =
-      productImages.gallery.length > 0
-        ? productImages.gallery
-        : baseProductImages;
-    return galleryToUse.map((item: any) => {
-      const allSizes = getAllImageSizes(item);
-      return allSizes;
+  useEffect(() => {
+    if (!router.isReady || !slug) return;
+    const nextQuery: Record<string, string | string[] | undefined> = {
+      ...router.query,
+      slug,
+    };
+    delete nextQuery.variant;
+    delete nextQuery.subVariant;
+    for (const attrName of orderedAttrNames) {
+      const key = attrName.toLowerCase().trim();
+      if (attributes[attrName]) nextQuery[key] = attributes[attrName];
+      else delete nextQuery[key];
+    }
+    const same = orderedAttrNames.every((attrName) => {
+      const key = attrName.toLowerCase().trim();
+      const raw = router.query[key];
+      const cur = Array.isArray(raw) ? raw[0] : raw;
+      const next = nextQuery[key];
+      return String(cur ?? "") === String(next ?? "");
     });
-  }, [productImages.gallery, baseProductImages]);
+    if (same) return;
+    router.replace({ pathname: router.pathname, query: nextQuery }, undefined, {
+      shallow: true,
+      scroll: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attributes, slug, orderedAttrNames, router.isReady]);
 
-  const gridTemplateColumns = useMemo(() => {
-    const imageCount = images?.length || 0;
-    return imageCount > 1
-      ? "repeat(2, minmax(0, 1fr))"
-      : "repeat(1, minmax(0, 1fr))";
-  }, [images?.length]);
+  const colorways =
+    (data as { colorways?: ColorwayForAttribute[] })?.colorways ?? [];
+  const colorVariationKey = Object.keys(variations || {}).find(isColorVariant);
+  const activeColorValue = colorVariationKey
+    ? attributes?.[colorVariationKey]
+    : undefined;
+
+  // Colorway theo màu đã chọn → gallery ảnh đổi theo màu
+  const activeColorway = useMemo(() => {
+    if (colorways.length === 0 || !activeColorValue?.trim()) return null;
+    return findColorwayByAttributeValue(colorways, activeColorValue);
+  }, [colorways, activeColorValue]);
+
+  const displayImages = useMemo(() => {
+    const fromColorway = activeColorway
+      ? getProductImagesFromColorway(activeColorway)
+      : [];
+    return fromColorway.length > 0
+      ? fromColorway
+      : getProductImages(
+          data as Record<string, unknown> | null | undefined,
+          selectedVariant as Record<string, unknown> | null,
+        );
+  }, [activeColorway, data, selectedVariant]);
+
+  const selectedImage = displayImages[selectedImageIndex] || displayImages[0];
+
+  const lightboxImages = useMemo(
+    () =>
+      getAllProductGalleryImages(
+        data as Record<string, unknown> | null | undefined,
+      ),
+    [data],
+  );
+  const lightboxSlides =
+    lightboxImages.length > 0 ? lightboxImages : displayImages;
+
+  const lightboxUrls = useMemo(
+    () =>
+      lightboxSlides.map((img) =>
+        getImageUrl(img.original || img.url || img.thumbnail),
+      ),
+    [lightboxSlides],
+  );
+
+  const openLightbox = useCallback(
+    (displayIndex: number) => {
+      const img = displayImages[displayIndex];
+      let initial = 0;
+      if (img && lightboxUrls.length > 0) {
+        const u = getImageUrl(img.original || img.url || img.thumbnail);
+        const li = lightboxUrls.indexOf(u);
+        if (li >= 0) initial = li;
+      }
+      setSelectedImageIndex(initial);
+      setLightboxOpen(true);
+    },
+    [displayImages, lightboxUrls],
+  );
+
+  // Reset gallery về ảnh đầu khi đổi màu
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [activeColorValue]);
 
   if (isLoading) return <p>Loading...</p>;
+
+  const productSku = selectedVariant?.sku ?? (data as { sku?: string })?.sku;
 
   return (
     <>
       <div className="block lg:grid grid-cols-9 gap-x-10 xl:gap-x-14 pt-7 pb-10 lg:pb-14 2xl:pb-20 items-start">
-        <div className="block lg:hidden">
-          <Carousel
-            pagination={{
-              clickable: true,
-            }}
-            breakpoints={productGalleryCarouselResponsive}
-            className="product-gallery"
-            buttonGroupClassName="hidden"
-          >
-            {images &&
-              images.map((img: any, index: number) => (
-                <SwiperSlide key={`product-gallery-key-${index}`}>
-                  <div className="col-span-1 transition duration-150 ease-in hover:opacity-90">
-                    <Image
-                      src={`${img.original}`}
-                      alt={`${data?.name}--${index}`}
-                      onLoad={() => setImagesLoaded((prev) => prev + 1)}
-                      width={500}
-                      height={500}
-                      className="object-cover w-full mix-blend-multiply"
-                      loading="lazy"
-                    />
-                  </div>
-                </SwiperSlide>
-              ))}
-          </Carousel>
-        </div>
+        <div className="col-span-5 flex flex-col gap-2.5">
+          {displayImages.length > 0 && (
+            <>
+              {width >= 1025 ? (
+                <div className="relative overflow-hidden bg-gray-50 rounded-lg">
+                  <motion.div
+                    key={selectedImageIndex}
+                    initial={{ opacity: 0.4 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className="cursor-pointer outline-none rounded-lg"
+                      onClick={() => openLightbox(selectedImageIndex)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          openLightbox(selectedImageIndex);
+                        }
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        key={`main-${selectedImageIndex}-${selectedImage?.original || selectedImage?.url}`}
+                        src={getImageUrl(
+                          selectedImage?.thumbnail ||
+                            selectedImage?.original ||
+                            selectedImage?.url,
+                        )}
+                        alt={`${data?.name ?? ""}--${selectedImageIndex + 1}`}
+                        className="w-full object-cover mix-blend-multiply pointer-events-none"
+                      />
+                    </div>
+                  </motion.div>
+                </div>
+              ) : (
+                <Carousel
+                  pagination={{ clickable: true }}
+                  breakpoints={productGalleryCarouselResponsive}
+                  className="product-gallery"
+                  buttonGroupClassName="hidden"
+                >
+                  {displayImages.map((item: ProductImage, index: number) => (
+                    <SwiperSlide key={`product-gallery-key-${index}`}>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        className="col-span-1 transition duration-150 ease-in hover:opacity-90 cursor-pointer rounded-md"
+                        onClick={() => openLightbox(index)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            openLightbox(index);
+                          }
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={getImageUrl(
+                            item?.thumbnail || item?.original || item?.url,
+                          )}
+                          alt={`${data?.name ?? ""}--${index + 1}`}
+                          className="object-cover w-full mix-blend-multiply pointer-events-none"
+                        />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Carousel>
+              )}
 
-        <div
-          className="hidden lg:block col-span-5 grid gap-2.5"
-          style={{
-            gridTemplateColumns: gridTemplateColumns,
-            display: "grid",
-          }}
-          suppressHydrationWarning
-        >
-          {images &&
-            images.length > 0 &&
-            images.map((img: any, index: number) => (
-              <motion.div
-                initial={false}
-                animate={
-                  isMounted && imagesLoaded > index
-                    ? { opacity: 1, y: 0 }
-                    : { opacity: 1, y: 0 }
-                }
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                key={index}
-                className="w-full aspect-square transition duration-150 ease-in hover:opacity-90 bg-gray-100 rounded-md overflow-hidden"
-                onClick={() => openLightbox(index)}
-              >
-                <Image
-                  src={`${img.original}`}
-                  alt={`${data?.name}--${index}`}
-                  onLoad={() => setImagesLoaded((prev) => prev + 1)}
-                  width={500}
-                  height={500}
-                  className="object-cover w-full h-full mix-blend-multiply"
-                  loading="lazy"
-                />
-              </motion.div>
-            ))}
+              {displayImages.length > 1 && width >= 1025 && (
+                <div className="grid grid-cols-5 gap-2.5">
+                  {displayImages.map((item: ProductImage, index: number) => (
+                    <div
+                      key={`thumbnail-${index}`}
+                      className={`transition duration-150 ease-in cursor-pointer border-2 bg-gray-50 rounded ${
+                        selectedImageIndex === index
+                          ? "border-black opacity-100"
+                          : "border-transparent opacity-70 hover:opacity-100"
+                      }`}
+                      onClick={() => setSelectedImageIndex(index)}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={getImageUrl(item?.thumbnail || item?.url)}
+                        alt={`${data?.name ?? ""}--thumb-${index + 1}`}
+                        className="object-cover w-full aspect-square mix-blend-multiply"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
           {lightboxOpen && (
             <Lightbox
-              images={images.map((img: any) => img.original)}
-              initialIndex={selectedIndex}
+              images={lightboxUrls}
+              initialIndex={selectedImageIndex}
               onClose={() => setLightboxOpen(false)}
             />
           )}
         </div>
+
         <div className="col-span-4 pt-8 lg:pt-0">
           <div className="pb-7 mb-7 border-b border-gray-300">
             <h2 className="text-heading text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-bold hover:text-black mb-3.5">
@@ -487,7 +316,9 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
             {normalizedDescription && (
               <div
                 className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizedDescription) }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(normalizedDescription),
+                }}
                 suppressHydrationWarning
               />
             )}
@@ -537,45 +368,70 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
               </div>
             )}
           </div>
+
           <div className="pb-3 border-b border-gray-300">
-            {Object.keys(variations).map((variation) => {
+            {Object.keys(allVariations).map((variation) => {
+              const filtered = variations[variation] ?? [];
+              const variationOptions =
+                filtered.length > 0
+                  ? filtered
+                  : (allVariations[variation] ?? []);
+              if (variationOptions.length === 0) return null;
+
+              const mappedAttributes = mapVariationAttributes(variationOptions);
+
+              const productColorways = (
+                data as { colorways?: ColorwayForAttribute[] }
+              )?.colorways;
+              const optionsForColorways =
+                allVariations?.[variation] ?? variationOptions;
+              const colorwaysForAttr =
+                productColorways && productColorways.length > 0
+                  ? productColorways
+                  : isColorVariant(variation) && optionsForColorways.length > 0
+                    ? optionsForColorways.map((opt) => ({
+                        value: opt.value,
+                        image: opt.variant?.image,
+                        images: opt.variant?.images,
+                      }))
+                    : undefined;
+
               return (
                 <ProductAttributes
                   key={variation}
                   title={variation}
-                  attributes={variations[variation]}
-                  defuatlActive={activeState}
-                  activeAttributes={activeAttributes}
-                  subActive={subActive}
+                  attributes={mappedAttributes}
                   active={attributes[variation] ?? ""}
-                  handleAttributeParent={handleAttributeParent}
-                  handleAttributeChildren={handleAttributeChildren}
+                  onClick={handleAttribute}
+                  colorways={colorwaysForAttr}
                 />
               );
             })}
+
             {isAuthorized &&
-              chooseQuantity &&
-              (productQuantity === 0 ? (
+              selectedStock !== undefined &&
+              (selectedStock <= 0 ? (
                 <div className="text-red-600">Out of stock</div>
               ) : (
-                <div>
-                  Quantity avaiable:{" "}
-                  {availableQuantity ?? chooseQuantity ?? productQuantity}
-                </div>
+                <div>Quantity available: {selectedStock}</div>
               ))}
           </div>
+
           {isAuthorized && (
             <div className="flex items-center gap-x-4 ltr:md:pr-32 rtl:md:pl-32 ltr:lg:pr-12 rtl:lg:pl-12 ltr:2xl:pr-32 rtl:2xl:pl-32 ltr:3xl:pr-48 rtl:3xl:pl-48  border-b border-gray-300 py-8">
               <Counter
                 quantity={quantity}
-                quantityInput={inputValue}
-                onIncrement={increment}
-                onDecrement={decrement}
-                onInputChange={handleInputChange}
-                onInputBlur={handleInputBlur}
-                disableDecrement={disableDecrement}
-                disableIncrement={disableIncrement}
-                inputAriaLabel="Product quantity"
+                onIncrement={() =>
+                  setQuantity((prev) => {
+                    const next = prev + qtyStep;
+                    return qtyMax != null ? Math.min(qtyMax, next) : next;
+                  })
+                }
+                onDecrement={() =>
+                  setQuantity((prev) => Math.max(qtyMin, prev - qtyStep))
+                }
+                disableDecrement={quantity <= qtyMin}
+                disableIncrement={qtyMax != null && quantity >= qtyMax}
               />
               <Button
                 onClick={addToCart}
@@ -583,7 +439,10 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
                 className={`w-full md:w-6/12 xl:w-full ${
                   !isSelected && "bg-gray-400 hover:bg-gray-400"
                 }`}
-                disabled={!isSelected || Number(productQuantity) <= 0}
+                disabled={
+                  !isSelected ||
+                  (selectedStock !== undefined && selectedStock <= 0)
+                }
                 loading={addToCartLoader}
               >
                 <span className="py-2 3xl:px-8">Add to cart</span>
@@ -603,17 +462,23 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
                 <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
                   Category:
                 </span>
-                {data?.product_categories?.map((category: any) => (
-                  <Link
-                    key={category.id}
-                    href={"/categories/" + category.slug}
-                    className="transition hover:underline hover:text-heading"
-                  >
-                    <span className="ml-2 bg-blue-100 text-blue-800 px-2 rounded-md font-bold">
-                      {category.name}
-                    </span>
-                  </Link>
-                ))}
+                {data?.product_categories?.map(
+                  (category: {
+                    id: number | string;
+                    slug: string;
+                    name: string;
+                  }) => (
+                    <Link
+                      key={category.id}
+                      href={"/categories/" + category.slug}
+                      className="transition hover:underline hover:text-heading"
+                    >
+                      <span className="ml-2 bg-blue-100 text-blue-800 px-2 rounded-md font-bold">
+                        {category.name}
+                      </span>
+                    </Link>
+                  ),
+                )}
               </li>
               {data?.tags && Array.isArray(data.tags) && (
                 <li className="productTags">
@@ -640,6 +505,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
               )}
             </ul>
           </div>
+
           <ProductMetaReview data={data} />
         </div>
       </div>
