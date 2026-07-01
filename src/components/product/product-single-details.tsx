@@ -143,17 +143,37 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
     return findColorwayByAttributeValue(colorways, activeColorValue);
   }, [colorways, activeColorValue]);
 
+  // Ảnh 404 (main_image cũ/đã xoá lẫn trong gallery) — onError đánh dấu để loại,
+  // vì FE không biết ảnh chết trước khi load. Không mutate data, chỉ lọc lúc render.
+  const [brokenImageUrls, setBrokenImageUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const markImageBroken = useCallback((url: string) => {
+    if (!url) return;
+    setBrokenImageUrls((prev) => {
+      if (prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+  }, []);
+  const imageKey = (img: ProductImage): string =>
+    getImageUrl(img.original || img.url || img.thumbnail);
+
   const displayImages = useMemo(() => {
     const fromColorway = activeColorway
       ? getProductImagesFromColorway(activeColorway)
       : [];
-    return fromColorway.length > 0
-      ? fromColorway
-      : getProductImages(
-          data as Record<string, unknown> | null | undefined,
-          selectedVariant as Record<string, unknown> | null,
-        );
-  }, [activeColorway, data, selectedVariant]);
+    const list =
+      fromColorway.length > 0
+        ? fromColorway
+        : getProductImages(
+            data as Record<string, unknown> | null | undefined,
+            selectedVariant as Record<string, unknown> | null,
+          );
+    return list.filter((img) => !brokenImageUrls.has(imageKey(img)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeColorway, data, selectedVariant, brokenImageUrls]);
 
   const selectedImage = displayImages[selectedImageIndex] || displayImages[0];
 
@@ -234,6 +254,10 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
                             selectedImage?.url,
                         )}
                         alt={`${data?.name ?? ""}--${selectedImageIndex + 1}`}
+                        onError={() =>
+                          selectedImage &&
+                          markImageBroken(imageKey(selectedImage))
+                        }
                         className="w-full object-cover mix-blend-multiply pointer-events-none"
                       />
                     </div>
@@ -266,6 +290,7 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
                             item?.thumbnail || item?.original || item?.url,
                           )}
                           alt={`${data?.name ?? ""}--${index + 1}`}
+                          onError={() => markImageBroken(imageKey(item))}
                           className="object-cover w-full mix-blend-multiply pointer-events-none"
                         />
                       </div>

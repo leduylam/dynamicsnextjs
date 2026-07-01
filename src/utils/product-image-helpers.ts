@@ -134,6 +134,23 @@ export function getInStockColorways<T extends { value?: string | null }>(
 }
 
 /**
+ * Ảnh của các colorway MÀU CÒN HÀNG (mỗi màu 1 ảnh đại diện, theo thứ tự) — dùng
+ * cho product-card làm danh sách ứng viên, xoay sang ảnh sau khi 1 ảnh 404 (onError).
+ */
+export function getInStockColorwayImages(
+  colorways: ColorwayForImages[] | undefined,
+  variants: Array<Record<string, unknown>> | undefined,
+): string[] {
+  const out: string[] = [];
+  for (const cw of getInStockColorways(colorways, variants)) {
+    const first = getProductImagesFromColorway(cw)[0];
+    const raw = first?.original || first?.url || first?.thumbnail;
+    if (raw) out.push(raw);
+  }
+  return out;
+}
+
+/**
  * Ảnh đại diện product-card = ảnh của colorway MÀU CÒN HÀNG đầu tiên (tránh
  * colorway hết hàng vốn hay trỏ ảnh cũ/đã xoá → vỡ ảnh trên grid). null nếu không có.
  */
@@ -141,12 +158,7 @@ export function getFirstInStockColorwayImage(
   colorways: ColorwayForImages[] | undefined,
   variants: Array<Record<string, unknown>> | undefined,
 ): string | null {
-  for (const cw of getInStockColorways(colorways, variants)) {
-    const first = getProductImagesFromColorway(cw)[0];
-    const raw = first?.original || first?.url || first?.thumbnail;
-    if (raw) return raw;
-  }
-  return null;
+  return getInStockColorwayImages(colorways, variants)[0] ?? null;
 }
 
 /**

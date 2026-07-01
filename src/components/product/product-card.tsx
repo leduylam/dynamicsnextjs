@@ -13,7 +13,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   getInStockColorways,
-  getFirstInStockColorwayImage,
+  getInStockColorwayImages,
   type ColorwayForImages,
 } from "@utils/product-image-helpers";
 import { getImageUrl } from "@utils/get-image-url";
@@ -87,8 +87,32 @@ const ProductCard: FC<ProductProps> = ({
   const variants = (product as { variants?: Array<Record<string, unknown>> })
     ?.variants;
 
+  // Ảnh 404 (main_image cũ/đã xoá) — onError đánh dấu để xoay sang ứng viên kế.
+  const [brokenCardUrls, setBrokenCardUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const markCardBroken = (url: string) => {
+    if (!url) return;
+    setBrokenCardUrls((prev) => {
+      if (prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+  };
+
+  // Danh sách ứng viên ảnh đại diện: mỗi màu CÒN HÀNG 1 ảnh, fallback product.image.
+  const candidateImages = useMemo(() => {
+    const imgs = getInStockColorwayImages(colorways, variants);
+    if (product?.image) imgs.push(product.image);
+    return Array.from(new Set(imgs.filter(Boolean)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
+
   const primaryImage =
-    getFirstInStockColorwayImage(colorways, variants) ?? product?.image ?? "";
+    candidateImages.find((u) => !brokenCardUrls.has(u)) ??
+    candidateImages[0] ??
+    "";
 
   useEffect(() => {
     if (primaryImage) {
@@ -178,6 +202,7 @@ const ProductCard: FC<ProductProps> = ({
                 alt={product?.name || "Product Image"}
                 loading={imgLoading} // Chuyển đổi loading
                 onLoad={() => setIsImageLoaded(true)}
+                onError={() => markCardBroken(hoverImage)}
                 className={cn(
                   `bg-white rounded-s-md w-full h-full object-contain transition duration-200 ease-in rounded-md group-hover:rounded-b-none`,
                 )}
@@ -296,7 +321,9 @@ const ProductCard: FC<ProductProps> = ({
         </div>
 
         <AnimatePresence>
-          {isHovered && attrImage.filter(Boolean).length > 1 && (
+          {isHovered &&
+            attrImage.filter((u) => !!u && !brokenCardUrls.has(u)).length >
+              1 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -304,7 +331,9 @@ const ProductCard: FC<ProductProps> = ({
               transition={{ duration: 0.3 }}
               className="absolute bottom-0 left-0 right-0 z-10 bg-white/80 backdrop-blur-sm p-2 grid grid-cols-5 gap-1 rounded-b-md"
             >
-              {attrImage.filter(Boolean).map((img: any, index: number) => (
+              {attrImage
+                .filter((u) => !!u && !brokenCardUrls.has(u))
+                .map((img: any, index: number) => (
                 <div
                   key={index}
                   className="w-auto h-[45px] shadow hover:border hover:border-gray-400 rounded-sm overflow-hidden"
@@ -317,6 +346,7 @@ const ProductCard: FC<ProductProps> = ({
                     className="object-cover w-full"
                     style={{ height: "auto", width: "auto" }}
                     onMouseOver={() => setHoverImage(img)}
+                    onError={() => markCardBroken(img)}
                     loading="lazy"
                   />
                 </div>

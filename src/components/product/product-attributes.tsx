@@ -1,4 +1,5 @@
 import cn from "classnames";
+import { useCallback, useState } from "react";
 import { getImageUrl } from "@utils/get-image-url";
 
 export type ColorwayForAttribute = {
@@ -81,6 +82,20 @@ export const ProductAttributes: React.FC<Props> = ({
   const useColorwayImages =
     isColorVariant(title) && colorways && colorways.length > 0;
 
+  // Ảnh swatch 404 (main_image cũ/đã xoá) → fallback về text/màu thay vì ảnh bể.
+  const [brokenSwatchUrls, setBrokenSwatchUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const markSwatchBroken = useCallback((url: string) => {
+    if (!url) return;
+    setBrokenSwatchUrls((prev) => {
+      if (prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+  }, []);
+
   const isOptionAvailable = ({
     isAvailable,
     stock,
@@ -116,9 +131,15 @@ export const ProductAttributes: React.FC<Props> = ({
       <ul className="flex flex-wrap colors ltr:-mr-3 rtl:-ml-3">
         {visibleAttributes.map(({ id, value, meta, isAvailable, stock }) => {
           const isDisabled = !isOptionAvailable({ isAvailable, stock });
-          const imageUrl = useColorwayImages
+          const rawColorwayImg = useColorwayImages
             ? findColorwayImage(colorways, value)
             : null;
+          const colorwayImgUrl = rawColorwayImg
+            ? getImageUrl(rawColorwayImg)
+            : null;
+          const showColorwayImg = !!(
+            colorwayImgUrl && !brokenSwatchUrls.has(colorwayImgUrl)
+          );
           const matchedColorway = useColorwayImages
             ? colorways.find(
                 (cw) => normalizeValue(cw.value) === normalizeValue(value),
@@ -149,11 +170,12 @@ export const ProductAttributes: React.FC<Props> = ({
                   New
                 </span>
               )}
-              {useColorwayImages && imageUrl ? (
+              {showColorwayImg && colorwayImgUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={getImageUrl(imageUrl)}
+                  src={colorwayImgUrl}
                   alt={value}
+                  onError={() => markSwatchBroken(colorwayImgUrl)}
                   className="w-full h-full object-cover rounded"
                 />
               ) : isColorVariant(title) && meta ? (
