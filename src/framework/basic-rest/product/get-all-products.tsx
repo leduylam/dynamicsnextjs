@@ -20,6 +20,9 @@ const fetchProducts = async ({ pageParam = 1, queryKey, token }: any) => {
     page: pageParam,
     locale: options.locale || "en",
     card: 1, // admin-vgd: chế độ grid card (bỏ load variant nặng)
+    // Storefront chỉ hiển thị sản phẩm còn hàng — BE lọc (applyStockFilter):
+    // có variant → SUM(stock variant) > 0; không variant → stock_quantity > 0.
+    in_stock_only: 1,
     // BE lọc category qua `category_slug` (ProductFilterBuilder), KHÔNG đọc `slug`.
     // Trước đây gửi `slug` → BE bỏ qua → category page trả TẤT CẢ product.
     ...(normalizedSlug ? { category_slug: normalizedSlug } : {}),

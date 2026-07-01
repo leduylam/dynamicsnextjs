@@ -7,6 +7,7 @@ import { GetServerSideProps } from "next";
 import { QueryClient, dehydrate } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { fetchProducts } from "@framework/product/get-all-products";
+import { fetchCategoryBySlug } from "@framework/category/get-category";
 import Breadcrumb from "@components/common/breadcrumb";
 import StickyBox from "react-sticky-box";
 
@@ -58,7 +59,8 @@ export const getServerSideProps: GetServerSideProps<{
       ? slugParam
       : "";
 
-  const categoryName =
+  // Fallback tên suy từ chuỗi slug — chỉ dùng khi không lấy được category thật.
+  const slugDerivedName =
     typeof slugParam === "string"
       ? slugParam.split("/").pop()?.replace(/-/g, " ")
       : Array.isArray(slugParam) && slugParam.length > 0
@@ -76,8 +78,10 @@ export const getServerSideProps: GetServerSideProps<{
     },
   });
 
-  const [translations] = await Promise.all([
+  const [translations, category] = await Promise.all([
     serverSideTranslations(locale!, ["common", "forms", "footer"]),
+    // Lấy tên category thật từ backend (mirror client-vgd) thay vì suy từ slug.
+    fetchCategoryBySlug(normalizedSlug, locale ?? undefined),
     queryClient.prefetchInfiniteQuery({
       queryKey: [
         API_ENDPOINTS.PRODUCTS,
@@ -93,6 +97,8 @@ export const getServerSideProps: GetServerSideProps<{
       staleTime: 1000 * 60 * 5,
     }),
   ]);
+
+  const categoryName = category?.name || slugDerivedName;
 
   return {
     props: {

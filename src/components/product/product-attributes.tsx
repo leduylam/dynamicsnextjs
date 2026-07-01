@@ -80,6 +80,28 @@ export const ProductAttributes: React.FC<Props> = ({
 }) => {
   const useColorwayImages =
     isColorVariant(title) && colorways && colorways.length > 0;
+
+  const isOptionAvailable = ({
+    isAvailable,
+    stock,
+  }: {
+    isAvailable?: boolean;
+    stock?: number;
+  }): boolean => {
+    const hasStock = stock !== undefined && stock > 0;
+    return isAvailable !== undefined ? isAvailable : hasStock;
+  };
+
+  // Nhóm COLOR = mỗi color gom nhiều size → color nào hết sạch mọi size thì ẩn
+  // hẳn color đó (ẩn "nhóm") cho gọn. Nhóm khác (size…) giữ nguyên option leaf,
+  // chỉ hiển thị disabled/mờ khi hết. Stock của option color = max tồn qua các
+  // size (buildVariantOptionsFromVariants) nên = 0 ⇔ color chết hoàn toàn.
+  const visibleAttributes = isColorVariant(title)
+    ? (attributes ?? []).filter(isOptionAvailable)
+    : (attributes ?? []);
+
+  if (visibleAttributes.length === 0) return null;
+
   return (
     <div className={className}>
       <h3 className="text-base md:text-lg text-heading font-semibold mb-2.5 capitalize">
@@ -92,11 +114,8 @@ export const ProductAttributes: React.FC<Props> = ({
         )}
       </h3>
       <ul className="flex flex-wrap colors ltr:-mr-3 rtl:-ml-3">
-        {attributes?.map(({ id, value, meta, isAvailable, stock }) => {
-          const hasStock = stock !== undefined && stock > 0;
-          const isAvailableValue =
-            isAvailable !== undefined ? isAvailable : hasStock;
-          const isDisabled = isAvailableValue === false || !hasStock;
+        {visibleAttributes.map(({ id, value, meta, isAvailable, stock }) => {
+          const isDisabled = !isOptionAvailable({ isAvailable, stock });
           const imageUrl = useColorwayImages
             ? findColorwayImage(colorways, value)
             : null;

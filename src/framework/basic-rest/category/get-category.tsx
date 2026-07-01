@@ -10,6 +10,25 @@ export const fetchCategory = async () => {
   });
   return { category: { data: unwrap<any[]>(data).map(adaptCategory) } };
 };
+
+// Category theo slug — dùng lấy thông tin thật (name/parent…) cho page
+// categories/[...slug], thay vì suy tên từ chuỗi slug. Mirror client-vgd
+// (CATEGORY_BY_SLUG). Trả null khi không tìm thấy để caller fallback an toàn.
+export const fetchCategoryBySlug = async (
+  slug: string,
+  locale?: string,
+): Promise<Category | null> => {
+  if (!slug) return null;
+  try {
+    const { data } = await http.get(API_ENDPOINTS.CATEGORY_BY_SLUG(slug), {
+      params: locale ? { locale } : undefined,
+    });
+    const raw = unwrap<any>(data);
+    return raw ? adaptCategory(raw) : null;
+  } catch {
+    return null;
+  }
+};
 export const useCategoriesQuery = (options: QueryOptionsType) => {
   return useQuery<{ category: { data: Category[] } }, Error>({
     queryKey: [API_ENDPOINTS.CATEGORIES, options],

@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   // ── HOME ──────────────────────────────────────────────────────────────
   CATEGORIES_SERVER: "/api/v1/categories",
   CATEGORIES: "/api/v1/categories",
+  CATEGORY_BY_SLUG: (slug: string) => `/api/v1/categories/${slug}`,
   BRANDS: "/api/v1/brands",
   BANNERS: "/api/v1/banners",
   SECOND_BANNER: "/api/v1/banners",

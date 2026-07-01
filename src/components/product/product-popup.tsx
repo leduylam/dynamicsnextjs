@@ -14,6 +14,7 @@ import Image from "next/image";
 import { FaShare } from "react-icons/fa";
 import { MdContentCopy, MdCheck } from "react-icons/md";
 import { useProductDetail } from "@hooks/products/use-product-detail";
+import { useProductQuery } from "@framework/product/get-product";
 import { mapVariationAttributes } from "@utils/product-attribute-helpers";
 import { getImageUrl } from "@utils/get-image-url";
 import {
@@ -29,11 +30,17 @@ const isColorVariant = (title: string) => {
 
 export default function ProductPopup() {
   const {
-    modalData: { data },
+    modalData: { data: cardData },
     closeModal,
     openCart,
     isAuthorized,
   } = useUI();
+  // Card data (list) chỉ có light variants (KHÔNG có variant_attribute_values)
+  // → không build được variant option/tồn, SKU/ảnh lấy nhầm variant. Fetch full
+  // product theo slug giống trang single để popup có đủ variants + tồn + ảnh +
+  // SKU parent đúng. Trong lúc load fallback về card data.
+  const { data: fullProduct } = useProductQuery(cardData?.slug ?? "");
+  const data = fullProduct ?? cardData;
   const { accessRights } = useAuth();
   const { price, price_sale, percent } = usePrice(data);
 
@@ -355,7 +362,8 @@ export default function ProductPopup() {
                     }`}
                     disabled={
                       !isSelected ||
-                      (availableQuantity !== undefined && availableQuantity <= 0)
+                      (availableQuantity !== undefined &&
+                        availableQuantity <= 0)
                     }
                     loading={addToCartLoader}
                   >
