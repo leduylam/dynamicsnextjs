@@ -11,6 +11,12 @@ import { number_format } from "src/helpers/my-helper";
 import { useAuth } from "@contexts/auth/auth-context";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  getInStockColorways,
+  getFirstInStockColorwayImage,
+  type ColorwayForImages,
+} from "@utils/product-image-helpers";
+import { getImageUrl } from "@utils/get-image-url";
 interface ProductProps {
   product: Product;
   className?: string;
@@ -74,40 +80,32 @@ const ProductCard: FC<ProductProps> = ({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hoverImage, setHoverImage] = useState<string>("");
   const [isHovered, setIsHovered] = useState(false);
+  // Ảnh đại diện + swatch chỉ lấy MÀU CÒN HÀNG (suy từ variants có sẵn trong
+  // response) — giống cách single/popup lọc OOS. Tránh colorway hết hàng vốn hay
+  // trỏ ảnh cũ/đã xoá → vỡ ảnh. Fallback product.image khi không suy được.
+  const colorways = (product as { colorways?: ColorwayForImages[] })?.colorways;
+  const variants = (product as { variants?: Array<Record<string, unknown>> })
+    ?.variants;
+
+  const primaryImage =
+    getFirstInStockColorwayImage(colorways, variants) ?? product?.image ?? "";
+
   useEffect(() => {
-    if (product?.image) {
-      setHoverImage(product?.image || "");
+    if (primaryImage) {
+      setHoverImage(primaryImage);
     }
-  }, [product?.image]);
+  }, [primaryImage]);
+
   useEffect(() => {
-    if (Array.isArray(product?.attributes)) {
-      const imageUrls = product.attributes
-        .map((attr: any) => {
-          if (!attr) return null;
-          // Nếu BE trả object gallery, ưu tiên image_path
-          if (typeof attr.image === "object" && attr.image !== null) {
-            return (
-              attr.image?.original ||
-              attr.image?.large ||
-              attr.image?.medium ||
-              attr.image?.small ||
-              attr.image?.url ||
-              attr.image?.image_path ||
-              null
-            );
-          }
-          // Nếu là string thì dùng trực tiếp
-          if (typeof attr.image === "string" && attr.image.trim() !== "") {
-            return attr.image;
-          }
-          return null;
-        })
-        .filter((u: any) => typeof u === "string" && u.length > 0); // lọc null/undefined
-      setAttrImage(imageUrls);
-    } else {
-      setAttrImage([]);
-    }
-  }, [product?.attributes]);
+    const imageUrls = getInStockColorways(colorways, variants)
+      .map((cw) => {
+        const raw = cw?.image || cw?.main_image || cw?.images?.[0]?.url;
+        return raw ? getImageUrl(raw) : null;
+      })
+      .filter((u): u is string => typeof u === "string" && u.length > 0);
+    setAttrImage(imageUrls);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
   return (
     <div
       className={cn(

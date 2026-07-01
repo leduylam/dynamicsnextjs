@@ -96,6 +96,59 @@ export function getProductImagesFromColorway(
   return list;
 }
 
+/** Màu (chuẩn hoá) CÒN HÀNG, suy từ variants đã có sẵn trong response list.
+ *  variant.name dạng "Color / Size" → màu = phần trước dấu "/". */
+function inStockColorSet(
+  variants: Array<Record<string, unknown>> | undefined,
+): Set<string> {
+  const set = new Set<string>();
+  for (const v of variants ?? []) {
+    const stock = Number(
+      (v?.available_stock as number | undefined) ??
+        (v?.stock as number | undefined) ??
+        0,
+    );
+    if (stock > 0) {
+      const norm = normalizeAttributeValue(String(v?.name ?? "").split("/")[0]);
+      if (norm) set.add(norm);
+    }
+  }
+  return set;
+}
+
+/**
+ * Lọc colorways theo MÀU CÒN HÀNG (suy từ variants — giống cách single/popup lọc
+ * OOS). Không suy được tồn (thiếu variant name/stock) → giữ nguyên để không ẩn nhầm.
+ */
+export function getInStockColorways<T extends { value?: string | null }>(
+  colorways: T[] | undefined,
+  variants: Array<Record<string, unknown>> | undefined,
+): T[] {
+  const list = colorways ?? [];
+  if (!list.length) return list;
+  const inStock = inStockColorSet(variants);
+  if (inStock.size === 0) return list;
+  return list.filter((cw) =>
+    inStock.has(normalizeAttributeValue(String(cw?.value ?? ""))),
+  );
+}
+
+/**
+ * Ảnh đại diện product-card = ảnh của colorway MÀU CÒN HÀNG đầu tiên (tránh
+ * colorway hết hàng vốn hay trỏ ảnh cũ/đã xoá → vỡ ảnh trên grid). null nếu không có.
+ */
+export function getFirstInStockColorwayImage(
+  colorways: ColorwayForImages[] | undefined,
+  variants: Array<Record<string, unknown>> | undefined,
+): string | null {
+  for (const cw of getInStockColorways(colorways, variants)) {
+    const first = getProductImagesFromColorway(cw)[0];
+    const raw = first?.original || first?.url || first?.thumbnail;
+    if (raw) return raw;
+  }
+  return null;
+}
+
 /**
  * Convert image to ProductImage format
  */
