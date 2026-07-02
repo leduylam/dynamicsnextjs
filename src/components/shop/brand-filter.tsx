@@ -6,9 +6,13 @@ import React from "react";
 export const BrandFilter = ({ slug }: { slug?: string }) => {
   const router = useRouter();
   const { pathname, query } = router;
+  // Truyền search text (search page) để BE scope brand theo cùng tập product
+  // đang list, khớp với product grid + attribute filter.
+  const searchText = Array.isArray(query?.text) ? query.text[0] : query?.text;
   const { data, isLoading, error } = useBrandsQuery({
     limit: 10,
     slug,
+    ...(searchText ? { text: searchText } : {}),
     actions: "filters",
   });
   const selectedBrands = query?.brand ? (query.brand as string).split(",") : [];
@@ -38,7 +42,7 @@ export const BrandFilter = ({ slug }: { slug?: string }) => {
         },
       },
       undefined,
-      { scroll: false }
+      { scroll: false },
     );
   }
   const items = data?.brands;

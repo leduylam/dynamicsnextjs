@@ -5,12 +5,17 @@ import { adaptAttributes } from "@framework/utils/adapt";
 import { useQuery } from "@tanstack/react-query";
 
 export const fetchSizes = async (options: QueryOptionsType = {}) => {
-  const { slug, ...query } = options;
+  const { slug, text, ...query } = options;
   const normalizedSlug = Array.isArray(slug) ? slug.join("/") : slug;
+  const normalizedSearch = Array.isArray(text) ? text[0] : text;
+  // BE (ProductController@getAttributes → filterBuilder) scope attributes theo
+  // `category_slug` + `search`, KHÔNG đọc `slug`/`text`. Không map → filter panel
+  // trả TẤT CẢ attributes toàn site thay vì attributes của tập product đang list.
   const { data } = await http.get(API_ENDPOINTS.SIZES, {
     params: {
-      ...(normalizedSlug ? { slug: normalizedSlug } : {}),
       ...query,
+      ...(normalizedSlug ? { category_slug: normalizedSlug } : {}),
+      ...(normalizedSearch ? { search: normalizedSearch } : {}),
     },
   });
   // Mảng phẳng [{id,name,value,label}] để getVariations() groupBy "name".

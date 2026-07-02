@@ -11,10 +11,19 @@ export const fetchBrands = async () => {
   return { brands: list, brandsGrid: list, brandsTimer: list };
 };
 const fetchFilteredBrands = async (options: QueryOptionsType = {}) => {
-  const { slug, ...query } = options;
+  const { slug, text, ...query } = options;
   const normalizedSlug = Array.isArray(slug) ? slug.join("/") : slug;
+  const normalizedSearch = Array.isArray(text) ? text[0] : text;
+  // BE (BrandController@index actions=filters → filterBuilder) scope brand theo
+  // `category_slug` + `search`, KHÔNG đọc `slug`/`text`. Map + in_stock_only=1 để
+  // filter panel chỉ show brand có mặt trong tập product đang list (còn hàng).
   const { data } = await http.get(API_ENDPOINTS.BRANDS_FILTERS, {
-    params: { ...query, slug: normalizedSlug },
+    params: {
+      ...query,
+      in_stock_only: 1,
+      ...(normalizedSlug ? { category_slug: normalizedSlug } : {}),
+      ...(normalizedSearch ? { search: normalizedSearch } : {}),
+    },
   });
   const list = unwrap<any[]>(data).map(adaptBrand);
   return { brands: list, brandsGrid: list, brandsTimer: list };

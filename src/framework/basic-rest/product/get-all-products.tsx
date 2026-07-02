@@ -13,8 +13,12 @@ export type PaginatedProduct = {
 };
 const fetchProducts = async ({ pageParam = 1, queryKey, token }: any) => {
   const [_url, options] = queryKey;
-  const { slug, ...restOptions } = options;
+  const { slug, text, ...restOptions } = options;
   const normalizedSlug = Array.isArray(slug) ? slug.join("/") : slug;
+  // BE lọc từ khoá qua `search` (ProductController@list → applySearch trên
+  // name/slug/sku), KHÔNG đọc `text`. Search box redirect `/search?text=...`
+  // nên phải map `text` → `search`, nếu không BE bỏ qua → trả TẤT CẢ product.
+  const normalizedSearch = Array.isArray(text) ? text[0] : text;
   const params = {
     ...restOptions,
     page: pageParam,
@@ -26,6 +30,7 @@ const fetchProducts = async ({ pageParam = 1, queryKey, token }: any) => {
     // BE lọc category qua `category_slug` (ProductFilterBuilder), KHÔNG đọc `slug`.
     // Trước đây gửi `slug` → BE bỏ qua → category page trả TẤT CẢ product.
     ...(normalizedSlug ? { category_slug: normalizedSlug } : {}),
+    ...(normalizedSearch ? { search: normalizedSearch } : {}),
   };
   const { data } = await http.get(API_ENDPOINTS.PRODUCTS, {
     params,
