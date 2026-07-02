@@ -21,6 +21,7 @@ import { ROUTES } from "@utils/routes";
 import Select from "react-select";
 import { useCheckAccess } from "src/framework/auth/checkAccess";
 import Tooltip from "@components/ui/tooltip";
+import { toast } from "react-toastify";
 
 const CheckoutForm: React.FC = () => {
   const router = useRouter();
@@ -56,13 +57,38 @@ const CheckoutForm: React.FC = () => {
     setValue("phone", a.phone ?? "");
     setValue("company", a.company ?? "");
     setValue("shippingAddressLine1", a.address_line_1 ?? "");
-    setValue("shippingAddressLine2", a.address_line_2 ?? "");
     setValue("shippingCity", a.city ?? "");
     setValue("shippingStateProvince", a.state_province ?? "");
     setValue("shippingCountry", a.country ?? "VN");
   };
 
   function onSubmit(input: CheckoutInputType) {
+    // Saved address có thể thiếu field (name/phone/email/city/state) — được tạo
+    // từ path khác (dashboard order / profile) không bắt buộc đủ như checkout.
+    // Khi chọn address kiểu đó, form bị ẩn nên user không thấy field trống →
+    // Place Order gửi rỗng → BE 422 khó hiểu. Chặn tại client: mở form editable
+    // (đã pre-fill phần có sẵn) để user điền nốt trước khi đặt.
+    const requiredFields: Array<{
+      key: keyof CheckoutInputType;
+      label: string;
+    }> = [
+      { key: "name", label: "Name" },
+      { key: "phone", label: "Phone" },
+      { key: "email", label: "Email" },
+      { key: "shippingAddressLine1", label: "Address" },
+      { key: "shippingCity", label: "City" },
+      { key: "shippingStateProvince", label: "State/Province" },
+      { key: "shippingCountry", label: "Country" },
+    ];
+    const missing = requiredFields.filter(
+      (f) => !String(input[f.key] ?? "").trim(),
+    );
+    if (missing.length > 0) {
+      setIsFormVisible(true);
+      toast.error(`Please complete: ${missing.map((f) => f.label).join(", ")}`);
+      return;
+    }
+
     // input đã đúng contract BE (shipping fields phẳng). Cart server-side.
     placeOrder(input, {
       onSuccess: () => {
@@ -164,16 +190,11 @@ const CheckoutForm: React.FC = () => {
                 />
               </div>
               <Input
-                labelKey="Address line 1 *"
+                labelKey="Address *"
                 {...register("shippingAddressLine1", {
                   required: "Address is required",
                 })}
                 errorKey={errors.shippingAddressLine1?.message}
-                variant="solid"
-              />
-              <Input
-                labelKey="Address line 2"
-                {...register("shippingAddressLine2")}
                 variant="solid"
               />
               <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0">

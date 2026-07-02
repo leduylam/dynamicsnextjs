@@ -25,7 +25,8 @@ export const fetchRelatedProducts = async ({
   const { data } = await http.get(
     `${API_ENDPOINTS.RELATED_PRODUCTS}/${encodeURIComponent(String(slug))}/related`,
     {
-      params: { limit: 10, locale: "en" },
+      // card:1 để related trả shape giống product list (cùng render ProductCard).
+      params: { limit: 10, locale: "en", card: 1 },
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     },
   );

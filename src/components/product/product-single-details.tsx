@@ -218,6 +218,17 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   if (isLoading) return <p>Loading...</p>;
 
   const productSku = selectedVariant?.sku ?? (data as { sku?: string })?.sku;
+  const productBrand = (
+    data as {
+      brand?: {
+        name?: string;
+        slug?: string;
+        image?: { original?: string | null } | null;
+        logo?: string | null;
+      } | null;
+    }
+  )?.brand;
+  const brandLogo = productBrand?.image?.original ?? productBrand?.logo ?? null;
 
   return (
     <>
@@ -477,6 +488,27 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
 
           <div className="py-6">
             <ul className="text-sm space-y-5 pb-1">
+              {productBrand?.name && (
+                <li className="flex items-center">
+                  <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
+                    Brand:
+                  </span>
+                  <Link
+                    href={`/search?brand=${productBrand.slug ?? ""}`}
+                    className="inline-flex items-center gap-2 transition hover:underline hover:text-heading"
+                  >
+                    {brandLogo && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={brandLogo}
+                        alt={productBrand.name}
+                        className="h-6 w-auto object-contain"
+                      />
+                    )}
+                    <span>{productBrand.name}</span>
+                  </Link>
+                </li>
+              )}
               <li>
                 <span className="font-semibold text-heading inline-block ltr:pr-2 rtl:pl-2">
                   SKU:
