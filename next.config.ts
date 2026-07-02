@@ -23,6 +23,13 @@ const nextConfig = {
         pathname: "/**",
       },
       {
+        // Bucket vgd-golf (logo/ảnh site VGD, vd FootJoy) — cần whitelist kẻo
+        // next/image vỡ với "hostname not configured".
+        protocol: "https",
+        hostname: "vgd-golf.s3.ap-southeast-1.amazonaws.com",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
         hostname: "*.dynamicsportsvn.com",
         pathname: "/**",
