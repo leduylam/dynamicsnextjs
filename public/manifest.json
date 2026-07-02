@@ -1,8 +1,8 @@
 {
-  "name": "ChawkBazar E-Commerce Template",
-  "short_name": "ChawkBazar",
+  "name": "Dynamicsports VN",
+  "short_name": "Dynamicsports",
   "theme_color": "#ffffff",
-  "background_color": "#004740",
+  "background_color": "#2b4a9b",
   "display": "fullscreen",
   "orientation": "portrait",
   "scope": "/",

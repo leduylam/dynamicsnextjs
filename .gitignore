@@ -32,14 +32,10 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# vercel
-.vercel
-
 # PWA
 workbox-*.js
 sw.js
 
 
 tsconfig.tsbuildinfo
-# vercel.json
 /.vscode

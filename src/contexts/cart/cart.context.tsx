@@ -29,7 +29,7 @@ export const useCart = () => {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [savedCart, saveCart] = useLocalStorage(
-    `chawkbazar-cart`,
+    `dsc-cart`,
     JSON.stringify(initialState)
   );
   const [state, dispatch] = React.useReducer(
