@@ -13,6 +13,7 @@ interface User {
   email: string;
   phone: string;
   address: string;
+  pricing_tier?: string | null;
 }
 interface UserData {
   user: User;
@@ -102,7 +103,14 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
   const checkAllAccessRights = (
     checkRoles: string[],
     checkPermissions: string[],
+    pricingTier?: string | null,
   ) => {
+    // BE gate giá wholesale = users.pricing_tier ∈ {user, admin}
+    // (BaseApiController::canViewWholesalePrice) — khách storefront KHÔNG có
+    // Spatie role nên phải check tier trước; role staff giữ làm fallback.
+    const wholesaleTiers = ["user", "admin"];
+    const tierAllowed = wholesaleTiers.includes(toSlug(pricingTier));
+
     const wholesaleRoles = [
       "admin",
       "user",
@@ -114,14 +122,14 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
       "warehouse",
       "designer",
     ];
+    const roleAllowed = wholesaleRoles
+      .map(toSlug)
+      .some((role) => checkRoles?.includes(role) ?? false);
 
-    setAccessRight(
-      "canWholeSalePrice",
-      wholesaleRoles,
-      [],
-      checkRoles,
-      checkPermissions,
-    );
+    setAccessRights((prev) => ({
+      ...prev,
+      canWholeSalePrice: tierAllowed || roleAllowed,
+    }));
     setAccessRight(
       "canEdit",
       ["admin"],
@@ -135,7 +143,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     if (initialData) {
       const r = normalizeRolesToSlugs(initialData.roles ?? []);
       setRoles(r);
-      checkAllAccessRights(r, initialData.permissions ?? []);
+      checkAllAccessRights(
+        r,
+        initialData.permissions ?? [],
+        initialData.user?.pricing_tier,
+      );
       setLoading(false);
       return;
     }
@@ -170,7 +182,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         setUser(data.user ?? null);
         setRoles(roleSlugs);
         setPermissions(data.permissions ?? []);
-        checkAllAccessRights(roleSlugs, data.permissions ?? []);
+        checkAllAccessRights(
+          roleSlugs,
+          data.permissions ?? [],
+          data.user?.pricing_tier,
+        );
       } catch (error: any) {
         if (error.name === "AbortError" || error.name === "CanceledError") {
           return;
@@ -212,7 +228,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
             setUser(data.user ?? null);
             setRoles(roleSlugs);
             setPermissions(data.permissions ?? []);
-            checkAllAccessRights(roleSlugs, data.permissions ?? []);
+            checkAllAccessRights(
+              roleSlugs,
+              data.permissions ?? [],
+              data.user?.pricing_tier,
+            );
 
             if (mounted) setLoading(false);
             return;
@@ -258,7 +278,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     setUser(userData.user);
     setRoles(roleSlugs);
     setPermissions(userData.permissions ?? []);
-    checkAllAccessRights(roleSlugs, userData.permissions ?? []);
+    checkAllAccessRights(
+      roleSlugs,
+      userData.permissions ?? [],
+      userData.user?.pricing_tier,
+    );
   };
 
   const logout = async () => {
