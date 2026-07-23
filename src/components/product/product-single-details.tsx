@@ -57,6 +57,10 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
   );
 
   const { price, price_sale, percent } = usePrice(data);
+  // Giá null = BE gate lúc fetch chưa có phiên (adapt giữ null) — auth-context
+  // sẽ invalidate → refetch; trong lúc đó hiện trạng thái chờ thay vì "0 VND".
+  const priceGated =
+    data?.product_retail_price == null && data?.product_price == null;
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -358,7 +362,12 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
                 suppressHydrationWarning
               />
             )}
-            {isAuthorized && (
+            {isAuthorized && priceGated && (
+              <div className="mt-5 text-sm italic text-gray-400 animate-pulse">
+                Loading price…
+              </div>
+            )}
+            {isAuthorized && !priceGated && (
               <div className="flex items-center justify-between mt-5">
                 {canWholeSalePrice && (
                   <div>

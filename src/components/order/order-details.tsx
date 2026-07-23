@@ -65,18 +65,18 @@ const OrderDetails: React.FC<{ className?: string }> = ({
           </tr>
         </thead>
         <tbody>
-          {order.order_items.map((product, index) => (
+          {order.order_items.map((product: OrderItem, index: number) => (
             <OrderItemCard key={index} product={product} />
           ))}
         </tbody>
         <tfoot>
           <tr className="odd:bg-gray-150">
             <td className="p-4 italic"> Sub total:</td>
-            <td className="p-4">{order.grand_total}</td>
+            <td className="p-4">{number_format(order.grand_total)}</td>
           </tr>
           <tr className="odd:bg-gray-150">
             <td className="p-4 italic">Total:</td>
-            <td className="p-4">{order.grand_total}</td>
+            <td className="p-4">{number_format(order.grand_total)}</td>
           </tr>
           <tr className="odd:bg-gray-150">
             <td className="p-4 italic">Note:</td>

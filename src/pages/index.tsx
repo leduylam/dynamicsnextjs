@@ -7,7 +7,6 @@ import { fetchBanners, getSecondBanner } from "@framework/banner/get-banner";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
 import { fetchBrands } from "@framework/brand/get-all-brands";
-import { fetchNewArrivalAncientProducts } from "@framework/product/get-all-new-arrival-products";
 import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { joinMedia } from "@framework/utils/adapt";
@@ -107,11 +106,9 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
       queryFn: getSecondBanner,
       staleTime: 1000 * 60 * 5,
     }),
-    queryClient.prefetchQuery({
-      queryKey: [API_ENDPOINTS.NEW_ARRIVAL_PRODUCTS],
-      queryFn: fetchNewArrivalAncientProducts,
-      staleTime: 1000 * 60 * 5,
-    }),
+    // KHÔNG prefetch new-arrival ở SSR: giá là auth-gated, server không có phiên
+    // → chỉ tạo data guest (giá null); client hook (queryKey kèm user?.id — vốn
+    // không khớp key prefetch này) tự fetch với token qua interceptor.
     queryClient.prefetchQuery({
       queryKey: [API_ENDPOINTS.BRANDS, { limit: 0 }],
       queryFn: fetchBrands,

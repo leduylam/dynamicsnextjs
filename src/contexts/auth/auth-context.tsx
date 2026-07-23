@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
@@ -81,6 +82,28 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
   );
   const [loading, setLoading] = useState<boolean>(!initialData);
   const [accessRights, setAccessRights] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
+  const prevUserIdRef = useRef<number | null>(user?.id ?? null);
+
+  // Giá product/cart là auth-gated (BE null-hoá cho guest). Query có thể đã bắn
+  // TRƯỚC khi phiên sẵn sàng (access cookie hết hạn → BE lặng lẽ trả giá guest,
+  // không 401 nên interceptor không refresh) → cache giữ giá 0 tới hết staleTime.
+  // Mỗi lần user đổi (init /me xong, login, logout) → invalidate để refetch với
+  // token hiện tại. So sánh prev/current id để không refetch thừa mỗi render.
+  useEffect(() => {
+    const currentId = user?.id ?? null;
+    if (prevUserIdRef.current === currentId) return;
+    prevUserIdRef.current = currentId;
+    queryClient.invalidateQueries({
+      predicate: (query) => {
+        const root = query.queryKey[0];
+        return (
+          typeof root === "string" &&
+          (root.startsWith("/api/v1/products") || root.startsWith("/api/v1/cart"))
+        );
+      },
+    });
+  }, [user?.id, queryClient]);
 
   const setAccessRight = (
     key: string,

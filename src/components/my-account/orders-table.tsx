@@ -13,7 +13,7 @@ import { FaEye } from "react-icons/fa";
 
 const OrdersTable: React.FC = () => {
   const { width } = useSsrCompatible(useWindowSize(), { width: 0, height: 0 });
-  const { data, isLoading, isFetching } = useOrdersQuery();
+  const { data, isLoading, isFetching, isError } = useOrdersQuery();
   const orders =
     ((data as OrdersResponse | undefined)?.orders ?? []) as OrderSummary[];
   const showSkeleton = (!orders.length && isLoading) || (!orders.length && isFetching);
@@ -41,6 +41,17 @@ const OrdersTable: React.FC = () => {
               />
             ))}
           </div>
+        ) : isError ? (
+          // Load lỗi ≠ chưa có đơn — nói rõ để user không tưởng đơn vừa đặt bị mất.
+          <p className="text-sm text-red-500">
+            We couldn&apos;t load your orders. Your order may still have been
+            placed — please refresh the page or contact us before re-ordering.
+          </p>
+        ) : !orders.length ? (
+          <p className="text-sm text-body">
+            You have no orders yet. If you just placed an order and don&apos;t
+            see it here, please refresh the page or contact us.
+          </p>
         ) : width >= 1025 ? (
           <table>
             <thead className="text-sm lg:text-base">

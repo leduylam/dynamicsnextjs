@@ -43,6 +43,10 @@ export default function ProductPopup() {
   const data = fullProduct ?? cardData;
   const { accessRights } = useAuth();
   const { price, price_sale, percent } = usePrice(data);
+  // Giá null = BE gate lúc fetch chưa có phiên (adapt giữ null) — hiện trạng
+  // thái chờ thay vì "0"; auth-context invalidate → refetch sẽ đổ giá thật.
+  const priceGated =
+    data?.product_retail_price == null && data?.product_price == null;
 
   // Use useMemo to re-calculate when accessRights changes
   const canWholeSalePrice = useMemo(() => {
@@ -249,7 +253,12 @@ export default function ProductPopup() {
                 {productSku}
               </p>
 
-              {isAuthorized && (
+              {isAuthorized && priceGated && (
+                <div className="mt-3 text-sm italic text-gray-400 animate-pulse">
+                  Loading price…
+                </div>
+              )}
+              {isAuthorized && !priceGated && (
                 <div className="flex items-center justify-between mt-3">
                   {canWholeSalePrice && (
                     <div>

@@ -76,6 +76,11 @@ const ProductCard: FC<ProductProps> = ({
   }
   const isNewArrival = product.new === 1;
   const { price_sale, percent } = usePrice(product);
+  // BE null-hoá giá khi phiên chưa authorized (adapt giữ null, không ép 0).
+  // Cả 2 giá null = data fetch lúc token chưa sẵn sàng → hiện trạng thái chờ
+  // thay vì "Price: 0" (auth-context sẽ invalidate → refetch có giá thật).
+  const priceGated =
+    product.product_retail_price == null && product.product_price == null;
   const [attrImage, setAttrImage] = useState<string[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [hoverImage, setHoverImage] = useState<string>("");
@@ -374,6 +379,11 @@ const ProductCard: FC<ProductProps> = ({
               : ""
           } ${bgTransparent ? "text-white" : "text-heading"}`}
           >
+            {priceGated ? (
+              <span className="block text-sm italic text-gray-400 animate-pulse">
+                Loading price…
+              </span>
+            ) : (
             <span
               className={`block ${
                 canWholeSalePrice ? "text-red-500" : "text-balance"
@@ -386,7 +396,8 @@ const ProductCard: FC<ProductProps> = ({
                 {number_format(product.product_retail_price ?? 0)}
               </span>
             </span>
-            {canWholeSalePrice && (
+            )}
+            {!priceGated && canWholeSalePrice && (
               <>
                 {price_sale && (
                   <del

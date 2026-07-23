@@ -1,6 +1,7 @@
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import http from "@framework/utils/http";
 import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 
 // Contract khớp admin-vgd `CheckoutRequest` (POST /api/v1/checkout). Cart server-side
@@ -39,8 +40,17 @@ export const useCheckoutMutation = () => {
       //   queryKey: [API_ENDPOINTS.CARTS]
       // })
     },
-    onError: (data) => {
-      console.log(data, "Checkout error response");
+    onError: (error) => {
+      // Phân biệt lỗi nghiệp vụ (BE trả message thật: hết hàng, giỏ rỗng, 429…)
+      // với lỗi mạng/timeout (không có response). Trước đây chỉ console.log →
+      // user bấm Place Order thất bại mà không thấy gì.
+      const err = error as AxiosError<{ message?: string }>;
+      const message = err.response
+        ? err.response.data?.message ??
+          `Checkout failed (HTTP ${err.response.status}). Please try again.`
+        : "Network error — please check your connection. If the problem persists, contact us to confirm whether your order went through before re-ordering.";
+      toast.error(message, { autoClose: 5000 });
+      console.error("Checkout error response", error);
     },
   });
 };

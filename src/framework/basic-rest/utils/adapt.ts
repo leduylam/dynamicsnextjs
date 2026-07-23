@@ -127,8 +127,12 @@ export function adaptProductCard(p: any) {
       ? p.attributes
       : [];
   // admin-vgd: retail_price (guest) + price (B2B authorized); stock|available_stock.
-  const retail = Number(p?.retail_price ?? p?.price ?? 0);
-  const price = Number(p?.price ?? p?.retail_price ?? 0);
+  // BE null-hoá giá khi chưa authorized (canViewAnyPrice) — GIỮ null để UI ẩn giá
+  // / hiện "Login to view price", KHÔNG ép 0 (0 hiển thị như giá thật gây hiểu lầm).
+  const retailRaw = p?.retail_price ?? p?.price;
+  const priceRaw = p?.price ?? p?.retail_price;
+  const retail = retailRaw != null ? Number(retailRaw) : null;
+  const price = priceRaw != null ? Number(priceRaw) : null;
   const sale = p?.sale_price != null ? Number(p.sale_price) : null;
   const quantity =
     p?.quantity ?? p?.stock ?? p?.available_stock ?? (p?.in_stock ? 1 : 0);
@@ -147,7 +151,8 @@ export function adaptProductCard(p: any) {
     product_price: price,
     product_retail_price: retail,
     // null (không undefined) để getServerSideProps serialize được.
-    promotion_price: sale && sale > 0 && sale < retail ? sale : null,
+    promotion_price:
+      sale && sale > 0 && retail != null && sale < retail ? sale : null,
   };
 }
 
@@ -241,5 +246,57 @@ export function adaptRefresh(body: any) {
   return {
     access_token: d?.access_token,
     remember: d?.remember_me ?? d?.remember ?? false,
+  };
+}
+
+// ── ORDER ────────────────────────────────────────────────────────────────────
+
+/**
+ * OrderResource.status (int, OrderConstants BE) → màu badge bảng Orders.
+ * Label hiển thị lấy `status_label` BE trả sẵn — chỉ map màu ở đây.
+ */
+const ORDER_STATUS_CLASS: Record<number, string> = {
+  1: "bg-yellow-100 text-yellow-800", // pending payment
+  2: "bg-blue-100 text-blue-800", // processing
+  3: "bg-blue-100 text-blue-800", // packed
+  4: "bg-indigo-100 text-indigo-800", // awaiting pickup
+  5: "bg-indigo-100 text-indigo-800", // in transit
+  6: "bg-green-100 text-green-800", // completed
+  7: "bg-gray-200 text-gray-700", // cancelled
+  8: "bg-red-100 text-red-800", // failed
+};
+
+function formatOrderDate(iso?: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? String(iso) : d.toLocaleDateString("en-GB");
+}
+
+/** OrderResource (list) → OrderSummary mà OrdersTable render (shape api-dsc cũ). */
+export function adaptOrderSummary(o: any) {
+  return {
+    id: o?.id,
+    order_code: o?.order_number ?? String(o?.id ?? ""),
+    created_at: formatOrderDate(o?.created_at),
+    publish: {
+      name: o?.status_label || "Pending",
+      className: ORDER_STATUS_CLASS[Number(o?.status)] ?? "bg-gray-100 text-gray-700",
+    },
+    memo: o?.customer_note ?? "",
+    grand_total: Number(o?.total ?? 0),
+  };
+}
+
+/** OrderResource (detail) → shape OrderDetails component (order_items + grand_total + memo). */
+export function adaptOrderDetail(o: any) {
+  return {
+    ...adaptOrderSummary(o),
+    tracking_number: o?.tracking_number ?? "",
+    order_items: (o?.order_items ?? []).map((it: any) => ({
+      id: it?.id,
+      product_name: it?.product_name,
+      quantity: Number(it?.quantity ?? 0),
+      total: Number(it?.total ?? 0),
+    })),
   };
 }
