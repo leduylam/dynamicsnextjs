@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export const fetchBanners = async () => {
   const { data } = await http.get(API_ENDPOINTS.BANNERS, {
-    params: { position: "hero" },
+    params: { position: "top" },
   });
   const list = unwrap<any[]>(data).map(adaptBanner);
   return { item: list, banners: list };
@@ -14,7 +14,7 @@ export const fetchBanners = async () => {
 
 export const getSecondBanner = async () => {
   const { data } = await http.get(API_ENDPOINTS.SECOND_BANNER, {
-    params: { position: "secondary" },
+    params: { position: "center" },
   });
   const list = unwrap<any[]>(data).map(adaptBanner);
   return { item: list, banners: list };

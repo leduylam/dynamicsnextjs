@@ -49,12 +49,18 @@ export function adaptBrand(b: any) {
 
 export function adaptBanner(b: any) {
   const img = imageUrl(b?.image);
+  // `mobile_image` = ảnh riêng cho màn hình hẹp, admin-vgd phơi ra từ
+  // 2026-08-07. Trước đó cột này có dữ liệu thật (7/14 row — TOÀN banner site
+  // DSC) mà không endpoint nào trả về, nên `album.mobile` phải lấy tạm ảnh
+  // desktop: BannerCard/HeroBlock vốn đã có sẵn nhánh mobile/desktop, chỉ thiếu
+  // đúng nguồn ảnh. Không có ảnh mobile ⇒ vẫn rơi về desktop như cũ.
+  const mobileImg = imageUrl(b?.mobile_image) || img;
   return {
     id: b?.id,
     title: b?.title,
     url: b?.link ?? b?.slug ?? "",
     // HeroBlock/index map album.mobile|desktop qua joinMedia (đã absolute-safe).
-    album: { mobile: img, desktop: img },
+    album: { mobile: mobileImg, desktop: img },
     image: { original: img },
   };
 }
