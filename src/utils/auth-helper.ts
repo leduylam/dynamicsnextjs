@@ -13,8 +13,10 @@ export const handleLoginSuccess = async (
     throw new Error(`Invalid token context: ${context}. Expected: client`);
   }
 
-  // ⚠️ Phải set cookie TRƯỚC mọi await/API để http interceptor (getToken) đọc được ngay
-  // Backend có thể set httpOnly; ta set bản readable để Authorization: Bearer dùng được
+  // ⚠️ Phải lưu token TRƯỚC mọi await/API để `http` interceptor (`getToken`) đọc
+  // được ngay. Từ 2026-09-03 token nằm trong BỘ NHỚ (`get-token.ts`), không còn
+  // cookie readable — nên phép gán này là đồng bộ, càng chắc điều kiện trên.
+  // Refresh token vẫn do BE giữ ở httpOnly cookie `vgd_refresh_token`.
   if (loginData.access_token) {
     setAccessToken(loginData.access_token, loginData.remember);
   }

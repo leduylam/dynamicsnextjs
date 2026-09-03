@@ -2,7 +2,7 @@ import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { useQuery } from "@tanstack/react-query";
 import { State } from "@contexts/cart/cart.reducer";
-import { getToken } from "@framework/utils/get-token";
+import { getToken, hasSessionHint } from "@framework/utils/get-token";
 
 /** Ưu tiên promotion_price, không có thì product_price, cuối cùng price */
 export const getEffectiveCartPrice = (
@@ -164,7 +164,11 @@ export const useCartQuery = (options = {}) => {
     },
     // Cart per-user — chỉ fetch khi đã đăng nhập (admin-vgd cart auth-only).
     // Guest không có server cart → tránh gọi /api/v1/cart (401) khi chưa auth.
-    enabled: typeof window !== "undefined" && !!getToken(),
+    // Hỏi CẢ cờ phiên: token nằm trong bộ nhớ nên ngay sau reload nó rỗng dù
+    // phiên còn sống — chỉ hỏi `getToken()` là giỏ hàng của người đang đăng nhập
+    // không bao giờ được nạp lại. Interceptor `http` refresh trước khi gọi.
+    enabled:
+      typeof window !== "undefined" && (!!getToken() || hasSessionHint()),
     staleTime: 1000 * 60,
     refetchOnWindowFocus: false,
     retry: false,

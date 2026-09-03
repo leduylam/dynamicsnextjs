@@ -131,7 +131,10 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   try {
     await queryClient.prefetchInfiniteQuery({
-      queryKey: [API_ENDPOINTS.PRODUCTS, searchQuery],
+      // `null` = bản khách vãng lai, khớp `usePriceAudienceKey` lúc chưa có
+      // phiên. Thiếu mảnh này thì khoá SSR khác khoá client ⇒ prefetch vô dụng,
+      // trang search hydrate ra skeleton rồi mới fetch lại.
+      queryKey: [API_ENDPOINTS.PRODUCTS, searchQuery, null],
       queryFn: fetchProducts,
       initialPageParam: 1,
     });

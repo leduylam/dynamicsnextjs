@@ -44,7 +44,9 @@ Category.Layout = Layout;
 export const getServerSideProps: GetServerSideProps<{
   slug: string;
   categoryName?: string;
-}> = async ({ locale, params, req }) => {
+// `req` cố ý KHÔNG nhận nữa: SSR không còn đọc gì từ request của khách. Thêm
+// lại nó là bước đầu của việc lén đưa danh tính vào HTML render sẵn.
+}> = async ({ locale, params }) => {
   const slugParam = params?.slug;
 
   const normalizedSlug = Array.isArray(slugParam)
@@ -67,7 +69,13 @@ export const getServerSideProps: GetServerSideProps<{
         ? slugParam[slugParam.length - 1]?.replace(/-/g, " ")
         : undefined;
 
-  const accessToken = req.cookies["client_access_token"] || null;
+  // SSR chạy KHÔNG danh tính, có chủ đích — xem ghi chú dài ở
+  // `pages/products/[slug].tsx`. Tóm tắt: giá chỉ dành cho người đã đăng nhập
+  // nên nó KHÔNG được nằm trong HTML render sẵn; prefetch dưới đây là bản khách
+  // vãng lai (`retail_price: null`), giá do client fetch sau khi có phiên.
+  // `useProductsQuery` cũng mang mảnh khoá `authed` — `staleTime: 0` +
+  // `refetchOnMount` KHÔNG đủ, vì chúng chỉ bắn lúc mount khi phiên thường chưa
+  // khôi phục xong; xem ghi chú trong `get-all-products.tsx`.
 
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -83,15 +91,19 @@ export const getServerSideProps: GetServerSideProps<{
     // Lấy tên category thật từ backend (mirror client-vgd) thay vì suy từ slug.
     fetchCategoryBySlug(normalizedSlug, locale ?? undefined),
     queryClient.prefetchInfiniteQuery({
+      // `null` ở cuối = "bản của khách vãng lai" (`usePriceAudienceKey` trả
+      // `null` khi chưa có phiên), phải khớp đúng khoá `useProductsQuery` dùng
+      // — sai một mảnh là client không dùng được prefetch, hydrate ra skeleton.
       queryKey: [
         API_ENDPOINTS.PRODUCTS,
         { slug: normalizedSlug, limit: 8, locale },
+        null,
       ],
       queryFn: ({ pageParam = 1, queryKey }) =>
         fetchProducts({
           pageParam,
           queryKey,
-          token: accessToken,
+          token: null,
         }),
       initialPageParam: 1,
       staleTime: 1000 * 60 * 5,

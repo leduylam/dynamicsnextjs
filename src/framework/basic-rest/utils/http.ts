@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
 import {
   getToken,
-  getRefreshToken,
+  hasSessionHint,
   setAccessToken,
-  clearAuthCookies,
+  clearAuthSession,
 } from "./get-token";
 import { API_ENDPOINTS } from "./api-endpoints";
 import { getSiteSlug, SITE_HEADER } from "./site";
@@ -41,13 +41,30 @@ export const setLoggingOut = (value: boolean) => {
 };
 
 http.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // Site (tenant) scoping — gắn header X-Site-Id cho mọi call public API,
     // giống client-vgd. Single source: getSiteSlug() (env NEXT_PUBLIC_SITE_SLUG).
     // Không override khi caller đã set header tường minh.
     const siteSlug = getSiteSlug();
     if (siteSlug && !config.headers[SITE_HEADER]) {
       config.headers[SITE_HEADER] = siteSlug;
+    }
+
+    // ⚠ PHẢI refresh CHỦ ĐỘNG, không chờ 401 — đây là chỗ dễ hỏng nhất của
+    // memory-only. Token nằm trong bộ nhớ nên reload trang là mất, trong khi
+    // phiên vẫn sống (refresh cookie httpOnly 30 ngày). Nếu chỉ dựa vào
+    // interceptor 401 thì hỏng IM LẶNG: endpoint catalog là **public**, thiếu
+    // `Authorization` nó trả **200 kiểu khách vãng lai** chứ không 401 — nghĩa
+    // là `retail_price: null` (đo 2026-09-03 trên site dsc: khách null ↔ đăng
+    // nhập 1.200.000). Người đã đăng nhập sẽ thấy trang "không có giá" mà không
+    // request nào lỗi để mà retry.
+    const isRefreshCall = config.url?.includes(API_ENDPOINTS.REFRESH_TOKEN);
+    if (typeof window !== "undefined" && !isRefreshCall && !getToken() && hasSessionHint()) {
+      try {
+        await refreshAccessToken();
+      } catch {
+        // Refresh hỏng ⇒ đi tiếp như khách; `refreshAccessToken` đã tự dọn phiên.
+      }
     }
 
     const token = getToken();
@@ -124,13 +141,22 @@ const refreshAccessToken = async () => {
     throw new Error("User is logging out - refresh cancelled");
   }
 
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    clearAuthCookies();
+  // Điều kiện đúng là "còn phiên hay không", hỏi bằng cờ phiên.
+  //
+  // Bản cũ hỏi `getRefreshToken()` — đọc cookie `client_refresh_token`, thứ
+  // **chưa bao giờ được ghi** ở bản hiện tại: BE đã bỏ `refresh_token` khỏi body
+  // login (đo 2026-09-03: keys = access_token, expires_in, remember_me,
+  // token_type, user) và writer duy nhất phía client hết caller. Nên mọi lần
+  // refresh đều rơi vào nhánh này ⇒ xoá phiên + `location.href = "/signin"`,
+  // tức khách bị **đá về trang đăng nhập** ngay khi JWT hết 60 phút. Credential
+  // thật của refresh là httpOnly cookie `vgd_refresh_token`, browser tự gửi nhờ
+  // `withCredentials` bên dưới — client không cần cầm gì cả.
+  if (!hasSessionHint()) {
+    clearAuthSession();
     if (typeof window !== "undefined" && !isLoggingOut) {
       window.location.href = "/signin";
     }
-    throw new Error("No refresh token available");
+    throw new Error("No session to refresh");
   }
 
   if (isRefreshing) {
@@ -179,7 +205,7 @@ const refreshAccessToken = async () => {
     refreshSubscribers = [];
 
     if (!isLoggingOut) {
-      clearAuthCookies();
+      clearAuthSession();
       if (typeof window !== "undefined") {
         window.location.href = "/signin";
       }

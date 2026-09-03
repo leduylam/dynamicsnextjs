@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import http from "@framework/utils/http";
 import { adaptProductList } from "@framework/utils/adapt";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { usePriceAudienceKey } from "@contexts/auth/auth-context";
 export type PaginatedProduct = {
   data: Product[];
   current_page: number;
@@ -49,8 +50,14 @@ const useProductsQuery = (options: QueryOptionsType) => {
     slug: normalizedSlug,
   };
 
+  // Mảnh khoá định danh — bắt buộc với mọi query mang giá, xem
+  // `usePriceAudienceKey`. Chính query này là chỗ triệu chứng lộ ra:
+  // 8 sản phẩm đầu (trang 1, SSR) kẹt "Loading price…" còn từ sản phẩm thứ 9
+  // (trang 2, fetch lúc cuộn) có giá.
+  const audience = usePriceAudienceKey();
+
   return useInfiniteQuery<PaginatedProduct, Error>({
-    queryKey: [API_ENDPOINTS.PRODUCTS, stableOptions],
+    queryKey: [API_ENDPOINTS.PRODUCTS, stableOptions, audience],
     queryFn: fetchProducts,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {

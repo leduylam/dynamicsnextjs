@@ -1,11 +1,14 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import Cookies from "js-cookie";
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { adaptMe, adaptRefresh } from "@framework/utils/adapt";
-import { getToken, getRefreshToken } from "@framework/utils/get-token";
+import {
+  getToken,
+  hasSessionHint,
+  setAccessToken,
+} from "@framework/utils/get-token";
 
 // Types
 interface User {
@@ -181,8 +184,14 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     const initializeAuth = async () => {
       if (!mounted) return;
 
-      // Guest (không có access lẫn refresh token) → bỏ probe ME, tránh 401 noise.
-      if (!getToken() && !getRefreshToken()) {
+      // Khách vãng lai thật (không token trong bộ nhớ VÀ không cờ phiên) → bỏ
+      // probe ME, tránh 401 noise.
+      //
+      // Vế thứ hai KHÔNG còn là `getRefreshToken()`: cookie đó chưa bao giờ được
+      // ghi nên điều kiện luôn đúng, và với token nay nằm trong bộ nhớ thì mọi
+      // lần reload đều rơi vào đây ⇒ người đang đăng nhập bị coi là khách. Cờ
+      // phiên là thứ duy nhất sống qua reload mà JS đọc được.
+      if (!getToken() && !hasSessionHint()) {
         setUser(null);
         setRoles([]);
         setPermissions([]);
@@ -231,11 +240,11 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
             );
             const { access_token, remember } = adaptRefresh(refreshRes?.data);
             if (access_token && typeof window !== "undefined") {
-              Cookies.set("client_access_token", access_token, {
-                expires: remember ? 7 : 1,
-                sameSite: "Lax",
-                secure: process.env.NODE_ENV === "production",
-              });
+              // Qua helper chung, KHÔNG `Cookies.set` trần: tên cookie + thuộc
+              // tính bảo mật chỉ được khai một chỗ (`get-token.ts`). Bản cũ chép
+              // lại y hệt bốn dòng đó — hôm nay giá trị còn trùng, nhưng đây
+              // đúng là kiểu bản-sao-thứ-hai rồi trôi lệch mà không ai thấy.
+              setAccessToken(access_token, remember);
             }
 
             if (!mounted) return;
@@ -351,4 +360,36 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;
+};
+
+/**
+ * Mảnh khoá định danh cho `queryKey` của MỌI query mang GIÁ.
+ * `null` = khách vãng lai (cũng là giá trị SSR luôn dùng).
+ *
+ * Vì sao cần: giá chỉ trả cho người đã đăng nhập (BE `canViewAnyPrice`), còn SSR
+ * cố ý chạy KHÔNG token nên dữ liệu `dehydrate()` gửi kèm HTML luôn là bản
+ * không-giá. Dùng chung queryKey với SSR thì bản không-giá đó nằm trong cache và
+ * `staleTime` giữ nó lại — người đã đăng nhập nhìn trang không có giá mà **không
+ * request nào lỗi** để retry. Có mảnh khoá này thì lúc phiên khôi phục xong khoá
+ * đổi ⇒ fetch lại ⇒ giá hiện ra, còn bản SSR vẫn phục vụ ngay lần paint đầu nên
+ * không mất SSR cho nội dung/SEO.
+ *
+ * ⚠ `staleTime: 0` + `refetchOnMount` KHÔNG thay được nó: hai thứ đó chỉ bắn một
+ * lần lúc mount, mà lúc mount phiên thường chưa khôi phục xong (token nằm trong
+ * bộ nhớ) ⇒ lấy về bản không-giá rồi nằm lì. Triệu chứng thật 2026-09-03: 8 sản
+ * phẩm đầu kẹt "Loading price…", từ sản phẩm thứ 9 (trang 2, fetch lúc cuộn) mới
+ * có giá.
+ *
+ * Dùng `user?.id` chứ không phải cờ boolean — nó còn tách cache giữa hai người
+ * khác nhau, nên giá theo tier của người này không bị phục vụ cho người kia sau
+ * một lượt đăng xuất/đăng nhập trong cùng phiên trình duyệt. Idiom lấy từ
+ * `useNewArrivalProductsQuery`, giữ MỘT cách duy nhất trong repo.
+ *
+ * KHÔNG ném khi đứng ngoài provider — đây chỉ là gợi ý cache; thiếu provider thì
+ * câu trả lời đúng là "coi như khách", không phải làm vỡ trang.
+ */
+export const usePriceAudienceKey = (): number | string | null => {
+  const ctx = useContext(AuthContext);
+
+  return ctx?.user?.id ?? null;
 };

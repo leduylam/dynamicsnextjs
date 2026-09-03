@@ -1,7 +1,7 @@
 import http from "@framework/utils/http";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { useQuery } from "@tanstack/react-query";
-import { getToken } from "@framework/utils/get-token";
+import { getToken, hasSessionHint } from "@framework/utils/get-token";
 
 export interface Address {
   id: number;
@@ -40,8 +40,10 @@ export const useDeliveryAddressQuery = () => {
   return useQuery<Address[], Error>({
     queryKey: [API_ENDPOINTS.ADDRESSES],
     queryFn: () => fetchDeliveryAddress(),
-    // Addresses auth-only (admin-vgd) — chỉ fetch khi đã đăng nhập.
-    enabled: typeof window !== "undefined" && !!getToken(),
+    // Addresses auth-only (admin-vgd) — chỉ fetch khi đã đăng nhập. Hỏi cả cờ
+    // phiên vì token ở bộ nhớ, ngay sau reload nó rỗng dù phiên còn sống.
+    enabled:
+      typeof window !== "undefined" && (!!getToken() || hasSessionHint()),
     retry: false,
   });
 };
