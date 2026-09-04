@@ -19,6 +19,25 @@ export function getBaseURL(): string {
   return url.replace(/\/+$/, "");
 }
 
+/** Call auth (login/register/refresh/…) — nhận diện để đổi base sang same-origin. */
+const isAuthUrl = (url: string): boolean => url.includes("/api/auth/jwt/");
+
+/**
+ * Base URL cho call auth — **same-origin trên trình duyệt** (2026-09-04).
+ *
+ * Phiên sống bằng refresh cookie httpOnly. Gọi thẳng `admin.vgd.vn` thì cookie đó
+ * là **cookie bên thứ ba**: đo trên prod cho thấy trình duyệt chặn 3P (Safari/ITP
+ * mặc định) không đính cookie vào request ⇒ refresh **401** ⇒ khách bị đá về
+ * `/signin` mỗi lần tải trang. Đi qua route `/api/auth/jwt/*` của chính storefront
+ * thì cookie thành first-party. Xem `src/pages/api/auth/jwt/[...path].ts`.
+ *
+ * Trên server (SSR) không có origin để mà relative, và cũng không có cookie khách
+ * — giữ nguyên đường trực tiếp.
+ */
+function authBaseURL(): string {
+  return typeof window === "undefined" ? getBaseURL() : "";
+}
+
 const http = axios.create({
   baseURL: getBaseURL(),
   withCredentials: true,
@@ -48,6 +67,12 @@ http.interceptors.request.use(
     const siteSlug = getSiteSlug();
     if (siteSlug && !config.headers[SITE_HEADER]) {
       config.headers[SITE_HEADER] = siteSlug;
+    }
+
+    // Auth đi same-origin; catalog `/api/v1/*` vẫn gọi thẳng backend (Bearer
+    // không phải cookie nên không dính chính sách bên thứ ba).
+    if (isAuthUrl(config.url ?? "")) {
+      config.baseURL = authBaseURL();
     }
 
     // ⚠ PHẢI refresh CHỦ ĐỘNG, không chờ 401 — đây là chỗ dễ hỏng nhất của
@@ -176,7 +201,7 @@ const refreshAccessToken = async () => {
   try {
     const siteSlug = getSiteSlug();
     const refreshClient = axios.create({
-      baseURL: getBaseURL(),
+      baseURL: authBaseURL(),
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
