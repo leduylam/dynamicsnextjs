@@ -69,21 +69,37 @@ const FORWARDED_RESPONSE_HEADERS = [
   "x-ratelimit-remaining",
 ];
 
+/** Chỉ chấp nhận thứ có hình dạng IP — chặn header injection và giá trị rác. */
+const IP_SHAPE = /^[0-9a-fA-F:.]{3,45}$/;
+
 /**
  * IP thật của khách, để BE giữ nguyên rate limit theo IP.
  *
  * Không có bước này thì mọi khách của storefront dùng chung **một** bucket
  * (`api-auth-refresh` = 60/phút/IP) ⇒ đông khách là 429 hàng loạt.
+ *
+ * 🔴 **Phải lấy đầu PHẢI, không phải đầu trái** (sửa 2026-09-04). nginx của
+ * Hostinger set `X-Forwarded-For $proxy_add_x_forwarded_for`, tức nó **nối
+ * `$remote_addr` vào CUỐI** chuỗi client gửi lên. Lấy phần tử trái nhất là lấy
+ * đúng phần **do trình duyệt tự khai** ⇒ khách nào cũng tự chọn được bucket rate
+ * limit của mình. Đầu phải mới là IP nginx tự ghi.
+ *
+ * Ưu tiên `X-Real-IP`: `proxy_set_header` **ghi đè** giá trị client gửi lên nên
+ * nó không giả được, và nó không phụ thuộc chuỗi XFF dài ngắn ra sao.
  */
 function clientIp(req: NextApiRequest): string | null {
-  const xff = req.headers["x-forwarded-for"];
-  const raw = Array.isArray(xff) ? xff[0] : xff;
-  if (raw) {
-    const first = raw.split(",")[0]?.trim();
-    if (first) return first;
+  const rawRealIp = req.headers["x-real-ip"];
+  const realIp = (Array.isArray(rawRealIp) ? rawRealIp[0] : rawRealIp)?.trim();
+  if (realIp && IP_SHAPE.test(realIp)) return realIp;
+
+  const rawXff = req.headers["x-forwarded-for"];
+  const xff = Array.isArray(rawXff) ? rawXff.join(",") : rawXff;
+  if (xff) {
+    const hops = xff.split(",").map((hop) => hop.trim()).filter(Boolean);
+    const nearest = hops[hops.length - 1];
+    if (nearest && IP_SHAPE.test(nearest)) return nearest;
   }
-  const realIp = req.headers["x-real-ip"];
-  return Array.isArray(realIp) ? realIp[0] : realIp ?? null;
+  return null;
 }
 
 /**
