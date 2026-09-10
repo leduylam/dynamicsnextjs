@@ -44,9 +44,18 @@ export const useCheckoutMutation = () => {
       // Phân biệt lỗi nghiệp vụ (BE trả message thật: hết hàng, giỏ rỗng, 429…)
       // với lỗi mạng/timeout (không có response). Trước đây chỉ console.log →
       // user bấm Place Order thất bại mà không thấy gì.
-      const err = error as AxiosError<{ message?: string }>;
+      // 422: ưu tiên message đầu của field đầu trong `errors` — `message` tổng của
+      // Laravel bị nối hậu tố framework ("... (and 1 more error)") khi ≥2 lỗi.
+      const err = error as AxiosError<{
+        message?: string;
+        errors?: Record<string, string[]>;
+      }>;
+      const firstFieldError = Object.values(err.response?.data?.errors ?? {}).find(
+        (msgs) => Array.isArray(msgs) && typeof msgs[0] === "string" && msgs[0],
+      )?.[0];
       const message = err.response
-        ? err.response.data?.message ??
+        ? firstFieldError ??
+          err.response.data?.message ??
           `Checkout failed (HTTP ${err.response.status}). Please try again.`
         : "Network error — please check your connection. If the problem persists, contact us to confirm whether your order went through before re-ordering.";
       toast.error(message, { autoClose: 5000 });

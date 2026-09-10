@@ -270,6 +270,7 @@ const ORDER_STATUS_CLASS: Record<number, string> = {
   6: "bg-green-100 text-green-800", // completed
   7: "bg-gray-200 text-gray-700", // cancelled
   8: "bg-red-100 text-red-800", // failed
+  9: "bg-amber-100 text-amber-800", // returned
 };
 
 function formatOrderDate(iso?: string | null): string {
@@ -293,11 +294,19 @@ export function adaptOrderSummary(o: any) {
   };
 }
 
-/** OrderResource (detail) → shape OrderDetails component (order_items + grand_total + memo). */
+/**
+ * OrderResource (detail) → shape OrderDetails component (order_items + grand_total + memo).
+ * Kèm 4 cột tiền của StorefrontOrderResource để màn chi tiết hiện đúng cấu thành
+ * (`grand_total` = `total` đã gồm ship, KHÔNG dùng lại làm sub total).
+ */
 export function adaptOrderDetail(o: any) {
   return {
     ...adaptOrderSummary(o),
     tracking_number: o?.tracking_number ?? "",
+    subtotal: Number(o?.subtotal ?? 0),
+    discount_amount: Number(o?.discount_amount ?? 0),
+    tax_amount: Number(o?.tax_amount ?? 0),
+    shipping_amount: Number(o?.shipping_amount ?? 0),
     order_items: (o?.order_items ?? []).map((it: any) => ({
       id: it?.id,
       product_name: it?.product_name,

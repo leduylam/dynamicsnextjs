@@ -1,9 +1,14 @@
 import { number_format } from "src/helpers/my-helper";
 
-type FooterItemProps = {
-  id: string;
+/**
+ * Dòng tổng tiền của checkout card (`checkout-card.tsx`): id là số thứ tự dòng,
+ * price là số tiền — trừ dòng Shipping có thể là chuỗi t("text-free"), và
+ * subtotal/total còn `undefined` khi cart chưa nạp (render fallback 0).
+ */
+export type FooterItemProps = {
+  id: number | string;
   name: string;
-  price: string;
+  price?: number | string;
 };
 export const CheckoutCardFooterItem: React.FC<{ item: FooterItemProps }> = ({
   item,

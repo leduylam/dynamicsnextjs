@@ -54,8 +54,17 @@ const ALLOWED_PATHS = new Set([
 
 const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH"]);
 
-/** Header duy nhất được chuyển tiếp từ client lên (ngoài các header tự dựng). */
-const FORWARDED_REQUEST_HEADERS = ["authorization", "content-type", "accept"];
+/**
+ * Header duy nhất được chuyển tiếp từ client lên (ngoài các header tự dựng).
+ * `accept-language` để BE (`SetLocale`) trả message auth đúng ngôn ngữ trang —
+ * giá trị vẫn phải nằm trong danh sách locale BE hỗ trợ, ngoài đó BE về default.
+ */
+const FORWARDED_REQUEST_HEADERS = [
+  "authorization",
+  "content-type",
+  "accept",
+  "accept-language",
+];
 
 /**
  * Header của response được giữ lại. Rate limit của BE theo IP vẫn còn hiệu lực

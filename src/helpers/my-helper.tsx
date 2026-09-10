@@ -1,7 +1,10 @@
-export const number_format = (number: any) => {
-  return number
-    ? number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
-    : 0;
+/** Chèn dấu phân cách hàng nghìn; falsy (0/null/undefined/"") ⇒ "0". */
+export const number_format = (
+  value: number | string | null | undefined,
+): string => {
+  return value
+    ? value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+    : "0";
 };
 
 export const cleanSku = (sku: string) => {

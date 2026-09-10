@@ -88,6 +88,20 @@ interface ApiCart {
   total_unique_items: number;
 }
 
+/**
+ * `State` (giỏ client) + 4 cột tiền server của `ApiCart`.
+ * Checkout card cần cấu thành tổng tiền (sub total / giảm giá / ship), không chỉ
+ * `total` — trước đây queryFn nuốt 4 field này nên card phải lấy `total` làm cả
+ * Subtotal lẫn Total. Để optional: consumer khác (`cart.tsx`, `cart-button.tsx`)
+ * không đổi, và cart chưa nạp vẫn hợp lệ.
+ */
+interface CartWithTotals extends State {
+  subtotal?: number;
+  discount_amount?: number;
+  tax_amount?: number;
+  shipping_amount?: number;
+}
+
 interface CartResponse {
   success: boolean;
   data?: ApiCart;
@@ -136,7 +150,7 @@ export const fetchCarts = async (): Promise<ApiCart | null> => {
 };
 
 export const useCartQuery = (options = {}) => {
-  return useQuery<State, Error>({
+  return useQuery<CartWithTotals, Error>({
     queryKey: [API_ENDPOINTS.CARTS],
     queryFn: async () => {
       const apiCart = await fetchCarts();
@@ -160,6 +174,10 @@ export const useCartQuery = (options = {}) => {
         totalItems,
         totalUniqueItems,
         total,
+        subtotal: apiCart?.subtotal,
+        discount_amount: apiCart?.discount_amount,
+        tax_amount: apiCart?.tax_amount,
+        shipping_amount: apiCart?.shipping_amount,
       };
     },
     // Cart per-user — chỉ fetch khi đã đăng nhập (admin-vgd cart auth-only).

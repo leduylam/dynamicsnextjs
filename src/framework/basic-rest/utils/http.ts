@@ -69,6 +69,19 @@ http.interceptors.request.use(
       config.headers[SITE_HEADER] = siteSlug;
     }
 
+    // Locale của trang → BE. `SetLocale` resolve `?locale` → `Accept-Language`
+    // → default `en`; không gửi thì khách VI vẫn nhận nhãn/message tiếng Anh.
+    // Nguồn là `<html lang>` do Next tự đặt theo locale route (pages router có
+    // i18n config, `next/dist/pages/_document.js`: `lang: props.lang || locale`)
+    // — không dựng nguồn locale thứ hai ở FE. SSR không có `document` ⇒ không
+    // gửi, giữ nguyên hành vi hiện tại. Không override header caller đã set.
+    if (typeof document !== "undefined" && !config.headers["Accept-Language"]) {
+      const pageLang = document.documentElement.lang;
+      if (pageLang) {
+        config.headers["Accept-Language"] = pageLang;
+      }
+    }
+
     // Auth đi same-origin; catalog `/api/v1/*` vẫn gọi thẳng backend (Bearer
     // không phải cookie nên không dính chính sách bên thứ ba).
     if (isAuthUrl(config.url ?? "")) {
