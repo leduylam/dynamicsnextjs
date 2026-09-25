@@ -42,9 +42,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     qualities: [75, 100],
     // Next 16 chặn image optimizer trỏ tới IP nội bộ (`dangerouslyAllowLocalIP`

@@ -71,10 +71,14 @@ export const getServerSideProps: GetServerSideProps = async ({
     // không dùng được prefetch, hydrate ra spinner thay vì nội dung render sẵn.
     queryClient.prefetchQuery({
       queryKey: [API_ENDPOINTS.PRODUCT, { slug }, null],
-      queryFn: () => fetchProduct({
-        queryKey: [API_ENDPOINTS.PRODUCT, { slug }],
-        token: null,
-      } as any),
+      // Dùng context thật của react-query, chỉ ghi đè queryKey (fetchProduct đọc
+      // `[endpoint, {slug}]`, không có mảnh audience) + token null (bản khách).
+      queryFn: (context) =>
+        fetchProduct({
+          ...context,
+          queryKey: [API_ENDPOINTS.PRODUCT, { slug }],
+          token: null,
+        }),
       staleTime: 1000 * 60 * 5,
     }),
     queryClient.prefetchInfiniteQuery({
