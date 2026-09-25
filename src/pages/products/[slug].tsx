@@ -6,6 +6,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetServerSideProps } from "next";
 import dynamic from "next/dynamic";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import ProductSingleDetails from "@components/product/product-single-details";
 import RelatedProducts from "@containers/related-products";
@@ -88,6 +89,20 @@ export const getServerSideProps: GetServerSideProps = async ({
       staleTime: 1000 * 60 * 5,
     }),
   ]);
+
+  // H29: slug không tồn tại phải là 404 THẬT (trước đây trả 200 + trang rỗng ⇒
+  // soft-404, Google index rác). `prefetchQuery` nuốt lỗi nên đọc lại state của
+  // đúng khoá vừa prefetch. CHỈ 404 từ BE mới thành notFound — 5xx/mạng giữ hành
+  // vi cũ (render trang, client tự fetch lại) để BE chập chờn không biến cả
+  // catalog thành 404 trong mắt crawler.
+  const productError = queryClient.getQueryState([
+    API_ENDPOINTS.PRODUCT,
+    { slug },
+    null,
+  ])?.error;
+  if (isAxiosError(productError) && productError.response?.status === 404) {
+    return { notFound: true };
+  }
 
   return {
     props: {
