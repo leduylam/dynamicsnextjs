@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /my-account
+Disallow: /vi/my-account
+Disallow: /api
