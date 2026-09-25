@@ -1,42 +1,10 @@
-import nextPWA from "next-pwa";
-import runtimeCache from "next-pwa/cache";
 import { i18n } from "./next-i18next.config";
-/**
- * M45: origin API (admin-vgd) KHÔNG được qua cache của service worker.
- * Bộ mặc định của next-pwa bắt mọi request cross-origin bằng `NetworkFirst`
- * cache 1h ⇒ response API (kể cả bản có Bearer: giá, đơn, tài khoản) nằm lại
- * trong Cache Storage của trình duyệt và được trả ra khi mạng chậm >10s.
- * Rule đứng ĐẦU mảng vì Workbox lấy route khớp đầu tiên; asset tĩnh (ảnh S3,
- * font, js/css) vẫn đi các rule mặc định phía sau.
- * `urlPattern` phải là RegExp (hàm bị serialize vào sw.js, mất closure).
- * ⚠ Máy khách đã cài SW cũ vẫn giữ cache `cross-origin` tới khi SW mới
- * activate (lần tải trang kế tiếp) và entry hết hạn (≤1h).
- */
-// `URL.origin` bỏ port mặc định (`http://localhost:80` → `http://localhost`) —
-// khớp đúng URL mà trình duyệt thực sự gửi đi.
-const apiOrigin = (() => {
-  try {
-    return new URL(process.env.NEXT_PUBLIC_REST_API_ENDPOINT || "").origin;
-  } catch {
-    return "";
-  }
-})();
-const escapeRegExp = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const apiNetworkOnly = apiOrigin
-  ? [
-      {
-        urlPattern: new RegExp(`^${escapeRegExp(apiOrigin)}/`, "i"),
-        handler: "NetworkOnly",
-      },
-    ]
-  : [];
 
-const withPWA = nextPWA({
-  dest: "public",
-  disable: process.env.NODE_ENV !== "production",
-  runtimeCaching: [...apiNetworkOnly, ...runtimeCache],
-});
+// M45 (đợt 19): đã bỏ plugin PWA. Next 16 build bằng Turbopack nên plugin webpack
+// của nó KHÔNG chạy — không sinh sw.js, cấu hình runtimeCaching là chữ chết.
+// `sw.js` cũ trên VPS đã xoá. Trình duyệt từng đăng ký SW sẽ không cập nhật được
+// nữa (404); spec KHÔNG bảo đảm tự unregister khi 404 — muốn gỡ chắc chắn thì phục
+// vụ một `sw.js` kill-switch gọi `self.registration.unregister()`.
 const nextConfig = {
   i18n,
   typescript: {
@@ -91,4 +59,4 @@ const nextConfig = {
     ];
   },
 };
-export default withPWA(nextConfig);
+export default nextConfig;
