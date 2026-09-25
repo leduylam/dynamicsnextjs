@@ -1,6 +1,8 @@
 {
     "error-heading": "Nhìn có vẻ như bạn đã bị lạc",
     "error-sub-heading": "Chúng tôi không thể tìm thấy trang bạn đang tìm kiếm",
+    "error-500-heading": "Đã có lỗi xảy ra phía chúng tôi",
+    "error-500-sub-heading": "Vui lòng thử lại sau ít phút. Nếu lỗi vẫn tiếp diễn, hãy liên hệ với chúng tôi.",
     "support-heading": "Trò chuyện với chúng tôi",
     "support-sub-heading": "Are you on the fence? Have a question? Need a recommendation? Member Services is always here to help. Send us a message.",
     "app-heading": "Ứng dụng Dynamicsports VN",

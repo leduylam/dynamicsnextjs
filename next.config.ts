@@ -82,5 +82,16 @@ const nextConfig = {
     ],
   },
   turbopack: {},
+  // Link trong mail đơn cũ trỏ `/order/{id}` (404) — trang chi tiết thật là
+  // `/my-account/orders/[id]`. `/order` (không id) là trang riêng, không đụng.
+  async redirects() {
+    return [
+      {
+        source: "/order/:id",
+        destination: "/my-account/orders/:id",
+        permanent: true,
+      },
+    ];
+  },
 };
 export default withPWA(nextConfig);
