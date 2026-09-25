@@ -49,6 +49,16 @@ const nextConfig = {
   turbopack: {},
   // Link trong mail đơn cũ trỏ `/order/{id}` (404) — trang chi tiết thật là
   // `/my-account/orders/[id]`. `/order` (không id) là trang riêng, không đụng.
+  // Kill-switch `public/sw.js` phải được trình duyệt lấy bản mới ngay, không bị
+  // cache HTTP giữ lại (trình duyệt vốn giới hạn ≤24h, nhưng đừng để CDN/proxy giữ).
+  async headers() {
+    return [
+      {
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache" }],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
