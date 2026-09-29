@@ -48,5 +48,7 @@
   "placeholder-email-subscribe": "Write your email here",
   "placeholder-order-notes": "Notes about your order, e.g. special notes for delivery",
   "text-orthers-address": "Other Address ...",
-  "text-cancel": "Cancel"
+  "text-cancel": "Cancel",
+  "label-current-password-for-email": "Current password (required to change email)",
+  "current-password-required": "Enter your current password to change your email"
 }

@@ -1,5 +1,4 @@
-import { deleteAddress, Address } from "@framework/checkout/get-all-address";
-import { FaTrashAlt } from "react-icons/fa";
+import { Address } from "@framework/checkout/get-all-address";
 interface DeliveryAddressProps {
   items: Address[];
   handleOtherAddress: () => void;
@@ -12,9 +11,6 @@ const CheckoutList = ({
   handleChangeRadios,
   addressId,
 }: DeliveryAddressProps) => {
-  const handleDeleteAddress = (id: number) => {
-    deleteAddress(id);
-  };
   return (
     <div className="shadow-product p-3">
       {items.map((address) => {
@@ -53,15 +49,8 @@ const CheckoutList = ({
                 <span className="block">{address.phone}</span>
               </label>
             </div>
-            <div className="text-sm col-span-2">{line}</div>
-            <div className="text-sm">
-              <p
-                onClick={() => handleDeleteAddress(address.id)}
-                className="float-right p-2 bg-red-500 hover:bg-red-300 hover:text-red-800 transition duration-150 text-white rounded-full cursor-pointer"
-              >
-                <FaTrashAlt />
-              </p>
-            </div>
+            {/* Nút xoá đã gỡ 2026-09-29: BE không có `DELETE /api/v1/addresses/{id}` (sổ địa chỉ chỉ đọc). */}
+            <div className="text-sm col-span-3">{line}</div>
           </div>
         );
       })}

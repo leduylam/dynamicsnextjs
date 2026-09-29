@@ -48,5 +48,7 @@
     "placeholder-email-subscribe": "Nhập email của bạn ở đây",
     "placeholder-order-notes": "Ghi chú về đơn hàng của bạn, ví dụ: ghi chú đặc biệt cho việc giao hàng",
     "text-orthers-address": "Địa chỉ khác ...",
-    "text-cancel": "Hủy"
+    "text-cancel": "Hủy",
+    "label-current-password-for-email": "Mật khẩu hiện tại (bắt buộc khi đổi email)",
+    "current-password-required": "Nhập mật khẩu hiện tại để đổi email"
 }

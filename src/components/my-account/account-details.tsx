@@ -1,4 +1,5 @@
 import Input from '@components/ui/input';
+import PasswordInput from '@components/ui/password-input';
 import Button from '@components/ui/button';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
@@ -9,24 +10,63 @@ import {
 } from '@framework/customer/use-update-customer';
 import { useAuth } from '@contexts/auth/auth-context';
 import { useTranslation } from 'next-i18next';
-const defaultValues = {};
+import { useEffect } from 'react';
+import { isAxiosError } from 'axios';
 
+const EMPTY: UpdateUserType = { name: '', phone: '', email: '', address: '', current_password: '' };
 
+/**
+ * Hồ sơ khách — lưu thật qua `PUT /api/auth/jwt/profile` (2026-09-29; trước đó form không gọi API và
+ * mỗi ô bị ghim `value` nên không gõ được). Đổi email ⇒ hiện ô mật khẩu hiện tại (BE bắt buộc).
+ */
 const AccountDetails: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const authContext = useAuth();
   const user = authContext ? authContext.user : null;
-  const { mutate: updateUser, isPending } = useUpdateUserMutation();
   const {
     register,
     handleSubmit,
+    reset,
+    watch,
+    setError,
     formState: { errors },
-  } = useForm<UpdateUserType>({
-    defaultValues,
+  } = useForm<UpdateUserType>({ defaultValues: EMPTY });
+
+  const { mutate: updateUser, isPending } = useUpdateUserMutation((saved) => {
+    authContext?.updateUserFields(saved);
   });
+
+  useEffect(() => {
+    if (!user) return;
+    reset({
+      name: user.name ?? '',
+      phone: user.phone ?? '',
+      email: user.email ?? '',
+      address: user.address ?? '',
+      current_password: '',
+    });
+  }, [user, reset]);
+
+  const emailChanged =
+    !!user && (watch('email') ?? '').trim().toLowerCase() !== (user.email ?? '').toLowerCase();
+
   function onSubmit(input: UpdateUserType) {
-    updateUser(input);
+    updateUser(
+      { ...input, current_password: emailChanged ? input.current_password : undefined },
+      {
+        onError: (error) => {
+          const fieldErrors = isAxiosError(error) ? error.response?.data?.errors : undefined;
+          if (fieldErrors?.current_password?.[0]) {
+            setError('current_password', { message: fieldErrors.current_password[0] });
+          }
+          if (fieldErrors?.email?.[0]) {
+            setError('email', { message: fieldErrors.email[0] });
+          }
+        },
+      },
+    );
   }
+
   return (
     <motion.div
       layout
@@ -48,7 +88,6 @@ const AccountDetails: React.FC = () => {
         <div className="flex flex-col space-y-4 sm:space-y-5">
           <Input
             labelKey={t('forms:label-name')}
-            value={user?.name! ?? ''}
             {...register('name', {
               required: 'forms:display-name-required',
             })}
@@ -59,7 +98,6 @@ const AccountDetails: React.FC = () => {
             <Input
               type="tel"
               labelKey={t('forms:label-phone')}
-              value={user?.phone! ?? ''}
               {...register('phone', {
                 required: 'forms:phone-required',
               })}
@@ -69,8 +107,7 @@ const AccountDetails: React.FC = () => {
             />
             <Input
               type="email"
-              labelKey="Email"
-              value={user?.email! ?? ''}
+              labelKey={t('forms:label-email')}
               {...register('email', {
                 required: 'forms:email-required',
                 pattern: {
@@ -84,11 +121,19 @@ const AccountDetails: React.FC = () => {
               errorKey={errors.email?.message}
             />
           </div>
+          {emailChanged ? (
+            <PasswordInput
+              labelKey={t('forms:label-current-password-for-email')}
+              {...register('current_password', {
+                required: 'forms:current-password-required',
+              })}
+              errorKey={errors.current_password?.message}
+            />
+          ) : null}
           <div className="flex flex-col sm:flex-row sm:gap-x-3 space-y-4 sm:space-y-0">
             <Input
               type="text"
               labelKey={t('forms:label-address')}
-              value={user?.address! ?? ''}
               {...register('address', {
                 required: 'forms:address-required',
               })}
@@ -96,7 +141,6 @@ const AccountDetails: React.FC = () => {
               className="w-full"
               errorKey={errors.address?.message}
             />
-
           </div>
           <div className="relative">
             <Button
@@ -105,7 +149,7 @@ const AccountDetails: React.FC = () => {
               disabled={isPending}
               className="h-12 mt-3 w-full sm:w-32"
             >
-              Save
+              {t('common:button-save')}
             </Button>
           </div>
         </div>

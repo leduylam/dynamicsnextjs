@@ -1,5 +1,6 @@
 import cn from "classnames";
 import React, { InputHTMLAttributes, useState } from "react";
+import { useTranslation } from "next-i18next";
 import { Eye } from "@components/icons/eye-icon";
 import { EyeOff } from "@components/icons/eye-off-icon";
 
@@ -27,6 +28,8 @@ const PasswordInput = React.forwardRef<HTMLInputElement, Props>(
     },
     ref
   ) => {
+    // errorKey là KEY i18n (vd 'forms:email-required'); lỗi BE đã dịch sẵn thì t() trả nguyên văn.
+    const { t } = useTranslation();
     const [show, setShow] = useState(false);
 
     const rootClassName = cn(classes.root, inputClassName);
@@ -64,7 +67,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, Props>(
             )}
           </label>
         </div>
-        {errorKey && <p className="my-2 text-xs text-red-500">{errorKey}</p>}
+        {errorKey && <p className="my-2 text-xs text-red-500">{t(errorKey)}</p>}
       </div>
     );
   }

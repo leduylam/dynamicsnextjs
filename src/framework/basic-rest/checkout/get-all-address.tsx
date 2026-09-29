@@ -48,6 +48,3 @@ export const useDeliveryAddressQuery = () => {
   });
 };
 
-export const deleteAddress = async (id: number) => {
-  return await http.delete(`${API_ENDPOINTS.ADDRESSES}/${id}`);
-};

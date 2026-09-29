@@ -1,5 +1,5 @@
 import Input from "@components/ui/input";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import TextArea from "@components/ui/text-area";
 import {
   useCheckoutMutation,
@@ -11,16 +11,12 @@ import {
   useDeliveryAddressQuery,
   Address,
 } from "@framework/checkout/get-all-address";
-import { useCompanyQuery } from "@framework/company/get-company";
 import { useEffect, useState } from "react";
 import CheckoutList from "./checkout-list";
 import { useRouter } from "next/router";
 import { useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@framework/utils/api-endpoints";
 import { ROUTES } from "@utils/routes";
-import Select from "react-select";
-import { useCheckAccess } from "src/framework/auth/checkAccess";
-import Tooltip from "@components/ui/tooltip";
 import { toast } from "react-toastify";
 
 const CheckoutForm: React.FC = () => {
@@ -30,22 +26,16 @@ const CheckoutForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    control,
     setValue,
     formState: { errors },
   } = useForm<CheckoutInputType>({
     defaultValues: { shippingCountry: "VN", saveAddress: false },
   });
   const { data: deliveryAddress } = useDeliveryAddressQuery();
-  const { data: companyData } = useCompanyQuery();
   const [isFormVisible, setIsFormVisible] = useState(
     deliveryAddress ? deliveryAddress.length === 0 : false,
   );
   const [addressId, setAddressId] = useState<number | null>(null);
-  const [companyOptions, setCompanyOptions] = useState([
-    { value: "", label: "— None (optional) —" },
-  ]);
-  const canSelectCompany = useCheckAccess(["admin", "super-admin", "sale"], []);
 
   // Đổ địa chỉ đã lưu vào form fields (BE đọc field, KHÔNG nhận address_id).
   const populateFromAddress = (a: Address) => {
@@ -98,21 +88,6 @@ const CheckoutForm: React.FC = () => {
       },
     });
   }
-
-  useEffect(() => {
-    if (companyData && Array.isArray(companyData.companies)) {
-      const mapped = companyData.companies.map(
-        (c: { company_code: string }) => ({
-          value: c.company_code,
-          label: c.company_code,
-        }),
-      );
-      setCompanyOptions([
-        { value: "", label: "— None (optional) —" },
-        ...mapped,
-      ]);
-    }
-  }, [companyData]);
 
   useEffect(() => {
     if (deliveryAddress && deliveryAddress.length > 0 && addressId === null) {
@@ -251,27 +226,6 @@ const CheckoutForm: React.FC = () => {
                   </p>
                 )}
               </div>
-            </>
-          )}
-          {canSelectCompany && (
-            <>
-              <Tooltip text="The selected company will be used for reports">
-                <label className="text-sm font-semibold cursor-pointer">
-                  Select Company
-                </label>
-              </Tooltip>
-              <Controller
-                name="company"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    className="mt-0"
-                    placeholder="Select Company (optional)"
-                    options={companyOptions ?? []}
-                    onChange={(val) => field.onChange(val ? val.value : null)}
-                  />
-                )}
-              />
             </>
           )}
 

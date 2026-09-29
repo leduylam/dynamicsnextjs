@@ -4,6 +4,7 @@ export const API_ENDPOINTS = {
   LOGIN: "/api/auth/jwt/login",
   REFRESH_TOKEN: "/api/auth/jwt/refresh",
   ME: "/api/auth/jwt/me",
+  PROFILE: "/api/auth/jwt/profile",
   CHANGE_PASSWORD: "/api/auth/jwt/change-password",
   LOGOUT: "/api/auth/jwt/logout",
   FORGET_PASSWORD: "/api/auth/jwt/forget-password",
@@ -46,12 +47,10 @@ export const API_ENDPOINTS = {
   ORDER: "/api/v1/orders",
 
   // ── ADDRESS (admin-vgd) ───────────────────────────────────────────────
-  DELIVERY_ADDRESS: "/api/v1/addresses",
   ADDRESSES: "/api/v1/addresses",
   ADDRESS_DEFAULT: "/api/v1/addresses/default",
 
   // ── COMPANY (admin-vgd) ───────────────────────────────────────────────
-  COMPANIES: "/api/v1/companies",
 
   // ── RETAILER LOCATOR (admin-vgd) ──────────────────────────────────────
   RETAILER_LOCATOR: "/api/v1/retailer-locator",

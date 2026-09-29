@@ -30,6 +30,8 @@ interface AuthContextType {
   permissions: string[] | null;
   login: (userData: UserData) => void;
   logout: () => void;
+  /** Gộp thay đổi hồ sơ vừa lưu (tên/email/…) vào user đang đăng nhập — header cập nhật ngay. */
+  updateUserFields: (patch: Partial<User>) => void;
   clearState: () => void;
   loading: boolean;
   accessRights: Record<string, boolean>;
@@ -317,6 +319,10 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
     );
   };
 
+  const updateUserFields = (patch: Partial<User>) => {
+    setUser((previous) => (previous ? { ...previous, ...patch } : previous));
+  };
+
   const logout = async () => {
     try {
       await http.post(API_ENDPOINTS.LOGOUT);
@@ -345,6 +351,7 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
         permissions,
         login,
         logout,
+        updateUserFields,
         clearState,
         loading,
         accessRights,
