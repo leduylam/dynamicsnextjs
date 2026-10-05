@@ -102,6 +102,8 @@ export type Product = {
   slug: string;
   product_price: number;
   quantity: number;
+  /** Còn hàng có thể đặt — cờ `in_stock` của BE, chuẩn hoá ở `adaptProduct`. */
+  in_stock?: boolean;
   product_retail_price?: number;
   image: any;
   sku?: string;

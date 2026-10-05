@@ -17,6 +17,7 @@ import {
   type ColorwayForImages,
 } from "@utils/product-image-helpers";
 import { getImageUrl } from "@utils/get-image-url";
+import { useTranslation } from "next-i18next";
 interface ProductProps {
   product: Product;
   className?: string;
@@ -76,6 +77,9 @@ const ProductCard: FC<ProductProps> = ({
   }
   const isNewArrival = product.new === 1;
   const { price_sale, percent } = usePrice(product);
+  const { t } = useTranslation("common");
+  // Listing hiện cả SP hết hàng (2026-10-05) — gắn tag thay vì ẩn.
+  const isOutOfStock = product.in_stock === false;
   // BE null-hoá giá khi phiên chưa authorized (adapt giữ null, không ép 0).
   // Cả 2 giá null = data fetch lúc token chưa sẵn sàng → hiện trạng thái chờ
   // thay vì "Price: 0" (auth-context sẽ invalidate → refetch có giá thật).
@@ -226,6 +230,11 @@ const ProductCard: FC<ProductProps> = ({
               </p>
             </span>
           )}
+          {isOutOfStock && (
+            <span className="bg-gray-700 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1.5 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
+              {t("text-out-of-stock")}
+            </span>
+          )}
           {isNewArrival && (
             <span className="bg-red-500 text-white text-10px md:text-xs leading-5 rounded-md inline-block px-1.5 sm:px-1.5 xl:px-2 py-0.5 sm:py-1">
               <p>
@@ -274,11 +283,6 @@ const ProductCard: FC<ProductProps> = ({
             <span className="text-xs font-semibold truncate sm:text-sm text-heading">
               4.5
             </span>
-            {product.quantity === 0 && (
-              <span className="text-xs sm:text-sm leading-5 ltr:pl-3 rtl:pr-3 font-semibold text-[#EF4444]">
-                Out of stock
-              </span>
-            )}
           </div>
         )}
         {!!(showCategory || showRating) && (

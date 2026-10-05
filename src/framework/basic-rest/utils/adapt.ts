@@ -149,6 +149,8 @@ export function adaptProductCard(p: any) {
     slug: p?.slug,
     sku: p?.sku,
     quantity,
+    // Cờ của BE (tồn có thể đặt > 0) thắng; thiếu cờ thì suy từ quantity.
+    in_stock: typeof p?.in_stock === "boolean" ? p.in_stock : Number(quantity) > 0,
     image: mainImg,
     attributes,
     new: p?.isNewArrival ? 1 : 0,

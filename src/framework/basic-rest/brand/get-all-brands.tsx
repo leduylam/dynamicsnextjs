@@ -15,12 +15,11 @@ const fetchFilteredBrands = async (options: QueryOptionsType = {}) => {
   const normalizedSlug = Array.isArray(slug) ? slug.join("/") : slug;
   const normalizedSearch = Array.isArray(text) ? text[0] : text;
   // BE (BrandController@index actions=filters → filterBuilder) scope brand theo
-  // `category_slug` + `search`, KHÔNG đọc `slug`/`text`. Map + in_stock_only=1 để
-  // filter panel chỉ show brand có mặt trong tập product đang list (còn hàng).
+  // `category_slug` + `search`, KHÔNG đọc `slug`/`text`. KHÔNG gửi `in_stock_only` — listing
+  // hiện cả SP hết hàng (2026-10-05) nên filter panel phải khớp cùng tập product.
   const { data } = await http.get(API_ENDPOINTS.BRANDS_FILTERS, {
     params: {
       ...query,
-      in_stock_only: 1,
       ...(normalizedSlug ? { category_slug: normalizedSlug } : {}),
       ...(normalizedSearch ? { search: normalizedSearch } : {}),
     },

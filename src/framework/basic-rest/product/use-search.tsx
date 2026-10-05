@@ -14,7 +14,6 @@ export const fetchSearchedProducts = async (options: QueryOptionsType) => {
   const queryParams = new URLSearchParams({
     ...rest,
     card: "1", // grid card mode (bỏ variant nặng)
-    in_stock_only: "1", // chỉ gợi ý sản phẩm còn hàng
     limit: "6", // dropdown chỉ cần vài gợi ý
     ...(text ? { search: text } : {}),
   }).toString();
