@@ -14,7 +14,7 @@ Hệ thống được tối ưu cho tốc độ, trải nghiệm người dùng 
 ## ✅ Yêu cầu hệ thống
 
 - **Node.js** `>= 20.16.0`
-- **pnpm** `>= 9.7.0`
+- **npm** (đi kèm Node; lockfile chuẩn là `package-lock.json`)
 - **Trình soạn thảo đề xuất**: Visual Studio Code
 
 ---
@@ -45,20 +45,22 @@ Cập nhật các biến môi trường cho đúng API backend.
 ### Bước 2: Cài đặt thư viện
 
 ```bash
-pnpm install
+npm ci
 ```
 
 ### Bước 3: Chạy dev
 
 ```bash
-pnpm dev
+npm run dev -- -p 3003
 ```
+
+Cổng 3003 (cổng của client-dsc trong cụm dev chạy chung với các app khác).
 
 ### Bước 4: Build & start production
 
 ```bash
-pnpm build
-pnpm start
+npm run build
+npm start
 ```
 
 ---
@@ -80,7 +82,7 @@ pnpm start
 ├── .env.local
 ├── tailwind.config.js
 ├── tsconfig.json
-└── next.config.js
+└── next.config.ts
 ```
 
 ---
@@ -136,7 +138,7 @@ export const useProductQuery = (slug: string) => {
 
 ## 🚚 Triển khai
 
-Chạy production qua VPS, Nginx hoặc Docker.
+Production chạy trên VPS bằng pm2, build ngay trên VPS (biến `NEXT_PUBLIC_*` được inline lúc build).
 
 ---
 
