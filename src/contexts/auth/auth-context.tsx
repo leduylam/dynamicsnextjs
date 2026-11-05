@@ -68,11 +68,6 @@ const normalizeRolesToSlugs = (roles: any[]): string[] => {
     })
     .filter(Boolean) as string[];
 
-  // Debug log để kiểm tra role normalization
-  console.log("[Auth] Role normalization:", {
-    input: roles,
-    output: normalized,
-  });
 
   return normalized;
 };

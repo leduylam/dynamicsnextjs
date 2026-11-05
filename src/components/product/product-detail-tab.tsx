@@ -138,7 +138,7 @@ export default function ProductDetailTab({ data }: any) {
                             ))
                         ) : (
                             <p className="text-body text-sm lg:text-sm leading-6 lg:leading-8"
-                                dangerouslySetInnerHTML={{ __html: data?.includes ?? "" }}
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(data?.includes) }}
                             ></p>
                         )}
 

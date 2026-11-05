@@ -34,8 +34,5 @@ export const useChangePasswordMutation = () => {
       }
       router.push("/my-account");
     },
-    onError: (data) => {
-      console.log(data, "ChangePassword error response");
-    },
   });
 };

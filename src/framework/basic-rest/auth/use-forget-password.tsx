@@ -19,8 +19,5 @@ export const useForgetPasswordMutation = () => {
       closeModal();
       toast.success(data.message);
     },
-    onError: (error: any) => {
-      console.log(error, "forget password error response");
-    },
   });
 };

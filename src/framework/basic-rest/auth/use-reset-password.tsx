@@ -39,8 +39,5 @@ export const useResetPasswordMutation = () => {
       router.push("/");
       toast.success("Đặt lại mật khẩu thành công!");
     },
-    onError: (data) => {
-      console.log(data, "reset password error response");
-    },
   });
 };
