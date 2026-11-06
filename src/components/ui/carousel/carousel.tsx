@@ -60,7 +60,7 @@ const Carousel: React.FunctionComponent<CarouselPropsType> = ({
   const nextRef = useRef<HTMLButtonElement>(null);
   const classPagination = paginationPosition ? `pagination-${paginationPosition}` : '';
 
-  let nextButtonClassName = cn(
+  const nextButtonClassName = cn(
     'w-7 h-7 lg:w-8 lg:h-8 text-sm md:text-base lg:text-lg text-black flex items-center justify-center rounded bg-white absolute transition duration-250 hover:bg-gray-900 hover:text-white focus:outline-none transform ltr:shadow-navigation ltr:translate-x-1/2 rtl:shadow-navigationReverse rtl:-translate-x-1/2',
     {
       'rounded-full': type === 'circle',
@@ -70,7 +70,7 @@ const Carousel: React.FunctionComponent<CarouselPropsType> = ({
     nextButtonClasses
   );
 
-  let prevButtonClassName = cn(
+  const prevButtonClassName = cn(
     'w-7 h-7 lg:w-8 lg:h-8 text-sm md:text-base lg:text-lg text-black flex items-center justify-center rounded bg-white absolute transition duration-250 hover:bg-gray-900 hover:text-white focus:outline-none transform ltr:shadow-navigation ltr:-translate-x-1/2 rtl:shadow-navigationReverse rtl:translate-x-1/2',
     {
       'rounded-full': type === 'circle',

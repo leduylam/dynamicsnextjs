@@ -67,7 +67,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, locale })
         collection, // Trả dữ liệu nếu tìm thấy
       },
     };
-  } catch (error) {
+  } catch {
     return {
       props: {
         collection: null, // Tránh crash nếu API lỗi

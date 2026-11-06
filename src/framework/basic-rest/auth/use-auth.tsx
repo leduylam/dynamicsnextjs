@@ -10,7 +10,7 @@ export const useAuth = () => {
             try {
                 const data = await me();
                 setUser(data);
-            } catch (error) {
+            } catch {
                 clearAuthSession();
             } finally {
                 setLoading(false);

@@ -51,9 +51,9 @@ const MobileMenu = () => {
       e.preventDefault();
       e.stopPropagation();
     }
-    let newActiveMenus = [...activeMenus];
+    const newActiveMenus = [...activeMenus];
     if (newActiveMenus.includes(menuName)) {
-      var index = newActiveMenus.indexOf(menuName);
+      const index = newActiveMenus.indexOf(menuName);
       if (index > -1) {
         newActiveMenus.splice(index, 1);
       }

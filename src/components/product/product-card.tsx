@@ -190,7 +190,6 @@ const ProductCard: FC<ProductProps> = ({
           imageContentClassName,
         )}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <motion.div
           initial={false} // ✅ FIX: Hydration - Disable initial animation để match server
           animate={{ opacity: isImageLoaded ? 1 : 0.3 }}

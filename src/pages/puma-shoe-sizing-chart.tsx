@@ -100,7 +100,7 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
         ])),
       },
     };
-  } catch (error) {
+  } catch {
     return {
       props: {
         ...(await serverSideTranslations(locale!, [

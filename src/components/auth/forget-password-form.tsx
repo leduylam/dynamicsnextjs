@@ -36,7 +36,7 @@ const ForgetPasswordForm = () => {
 			await forgetPassword({
 				...values,
 			})
-		} catch (error) {
+		} catch {
 			setError('Invalid credentials. Please try again.');
 		}
 	};

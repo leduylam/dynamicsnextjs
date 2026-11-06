@@ -29,7 +29,7 @@ const normalizeSpec = (specValue: unknown): any[] => {
       try {
         const parsed = JSON.parse(trimmed);
         return normalizeSpec(parsed);
-      } catch (error) {
+      } catch {
         // fall through to treat the value as plain text below
       }
     }

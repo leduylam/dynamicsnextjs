@@ -321,7 +321,7 @@ export const AuthProvider = ({ children, initialData }: AuthProviderProps) => {
   const logout = async () => {
     try {
       await http.post(API_ENDPOINTS.LOGOUT);
-    } catch (error) {
+    } catch {
       // Silent fail
     } finally {
       setUser(null);

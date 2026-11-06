@@ -56,7 +56,7 @@ export const ColorFilter = () => {
   }, [query?.color]);
   function handleItemClick(e: React.FormEvent<HTMLInputElement>): void {
     const { value } = e.currentTarget;
-    let currentFormState = formState.includes(value)
+    const currentFormState = formState.includes(value)
       ? formState.filter((i) => i !== value)
       : [...formState, value];
     // setFormState(currentFormState);

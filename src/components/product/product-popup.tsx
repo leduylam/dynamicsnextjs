@@ -175,7 +175,6 @@ export default function ProductPopup() {
       }
     }
     return data?.image ? getImageUrl(data.image) : "";
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colorways, activeColorValue, data?.image]);
 
   const [delayedImage, setDelayedImage] = useState<string | null>(null);

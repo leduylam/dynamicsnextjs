@@ -24,7 +24,7 @@ function safeParseImage(image: any): string | null {
     try {
       const parsed = JSON.parse(image);
       return parsed?.original || parsed || null;
-    } catch (err) {
+    } catch {
       return image;
     }
   }

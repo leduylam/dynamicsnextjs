@@ -24,7 +24,7 @@ const LoginForm: React.FC = () => {
         password,
         remember_me,
       });
-    } catch (error) {
+    } catch {
       setError('Invalid credentials. Please try again.');
     }
   }

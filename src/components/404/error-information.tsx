@@ -21,7 +21,6 @@ const ErrorInformation: React.FC<ErrorInformationProps> = ({ image, title, text 
         }
         <Text variant="mediumHeading">{title}</Text>
         <p className="text-sm md:text-base leading-7 pt-2 md:pt-3.5 pb-7 md:pb-9">
-          {/* eslint-disable-next-line react/no-unescaped-entities */}
           {text}
         </p>
         <Link

@@ -29,7 +29,7 @@ export const useChangePasswordMutation = () => {
       });
       try {
         await router.prefetch("/my-account");
-      } catch (error) {
+      } catch {
         // ignore prefetch errors; fallback to normal navigation
       }
       router.push("/my-account");

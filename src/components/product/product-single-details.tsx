@@ -176,7 +176,6 @@ const ProductSingleDetails = memo(({ slug }: { slug: string }) => {
             selectedVariant as Record<string, unknown> | null,
           );
     return list.filter((img) => !brokenImageUrls.has(imageKey(img)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeColorway, data, selectedVariant, brokenImageUrls]);
 
   const selectedImage = displayImages[selectedImageIndex] || displayImages[0];

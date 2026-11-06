@@ -25,7 +25,7 @@ export default function ProductDetailTab({ data }: any) {
             content: featured,
           },
         ]);
-      } catch (error) {
+      } catch {
         setFeatures([]);
       }
     }

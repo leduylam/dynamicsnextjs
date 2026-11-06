@@ -41,7 +41,7 @@ export const useLoginMutation = () => {
         queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SEARCH] });
         queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CARTS] });
         closeModal();
-      } catch (error) {
+      } catch {
         toast.error("Failed to fetch user data");
       }
     },
