@@ -8,7 +8,7 @@
     "type:check": "tsc --noEmit",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint src",
     "test:sanitize": "node --test scripts/sanitize.test.mjs"
   },
   "dependencies": {

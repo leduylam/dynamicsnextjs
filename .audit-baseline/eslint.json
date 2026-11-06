@@ -1,0 +1,1466 @@
+{
+ "tool": "eslint",
+ "command": "npm run lint",
+ "date": "2026-11-06",
+ "files_scanned": 302,
+ "total": 346,
+ "note": "Nợ cũ — finding chỉ tính lỗi MỚI so với danh sách này (file+rule+message+severity, so theo count).",
+ "items": [
+  {
+   "file": "src/components/404/error-information.tsx",
+   "rule": "parse",
+   "message": "Unused eslint-disable directive (no problems were reported from '…').",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/forget-password-form.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/forget-password-form.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/login-form.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/login-form.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/reset-password-form.tsx",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "React Hook useEffect has a missing dependency: '…'. Either include it or remove the dependency array.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/reset-password-form.tsx",
+   "rule": "react-hooks/incompatible-library",
+   "message": "Compilation Skipped: Use of incompatible library This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default Re",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/auth/sign-up-form.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/auth/sign-up-form.tsx",
+   "rule": "react-hooks/incompatible-library",
+   "message": "Compilation Skipped: Use of incompatible library This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default Re",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/cart/cart-item.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/cart/cart.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/components/checkout/checkout-card.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/checkout/checkout-form.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/collection/collection-top-bar.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/collection/collection-top-bar.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/accordion.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/components/common/banner-card.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/breadcrumb.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/common/card.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/common/counter.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/common/form/review-form.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/icon-card.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/rating-display.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/common/sale-with-progress.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/sale-with-progress.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/common/scrollbar.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/search-product.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/search.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/testimonial-card.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/common/vendor-card.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/icons/eye-icon.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/icons/eye-off-icon.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/icons/menu-icon.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/icons/thunder-icon.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/icons/UserLineIcon.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/layout/footer/widgets.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/layout/header/auth-menu.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/layout/header/header-menu.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/layout/header/header.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/layout/header/mobile-menu.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 6
+  },
+  {
+   "file": "src/components/layout/header/mobile-menu.tsx",
+   "rule": "no-var",
+   "message": "Unexpected var, use let or const instead.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/layout/header/mobile-menu.tsx",
+   "rule": "prefer-const",
+   "message": "'…' is never reassigned. Use '…' instead.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/layout/layout.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/my-account/account-details.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/my-account/account-details.tsx",
+   "rule": "react-hooks/incompatible-library",
+   "message": "Compilation Skipped: Use of incompatible library This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default Re",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/my-account/change-password.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/my-account/change-password.tsx",
+   "rule": "react-hooks/incompatible-library",
+   "message": "Compilation Skipped: Use of incompatible library This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default Re",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/my-account/orders-table.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/my-account/orders-table.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/order/order-information.tsx",
+   "rule": "@typescript-eslint/no-non-null-asserted-optional-chain",
+   "message": "Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/feeds/best-seller-product-feed.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/feeds/best-seller-product-feed.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/feeds/new-arrivals-product-feed.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/hooks/use-product-variant.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/product/hooks/use-product-variant.ts",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/hooks/use-quantity-input.ts",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/product/product-card.tsx",
+   "rule": "@next/next/no-img-element",
+   "message": "Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize i",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-card.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-card.tsx",
+   "rule": "parse",
+   "message": "Unused eslint-disable directive (no problems were reported from '…').",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-card.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/product/product-detail-tab.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/components/product/product-detail-tab.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-detail-tab.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-meta-review.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 7
+  },
+  {
+   "file": "src/components/product/product-meta-review.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-meta-review.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-popup.tsx",
+   "rule": "@next/next/no-location-assign-relative-destination",
+   "message": "Do not use `window.location.href` to navigate to internal Next.js pages. Use `redirect()` in the render phase, or `useRouter().push()` in Client Components' eve",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-popup.tsx",
+   "rule": "parse",
+   "message": "Unused eslint-disable directive (no problems were reported from '…').",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-popup.tsx",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "The '…' logical expression could make the dependencies of useMemo Hook (at line 179) change on every render. Move it inside the useMemo callback. Alternatively,",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-popup.tsx",
+   "rule": "react-hooks/preserve-manual-memoization",
+   "message": "Compilation Skipped: Existing memoization could not be preserved React Compiler has skipped optimizing this component because the existing manual memoization co",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/product/product-popup.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-single-details.tsx",
+   "rule": "parse",
+   "message": "Unused eslint-disable directive (no problems were reported from '…').",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/product/product-single-details.tsx",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "The '…' logical expression could make the dependencies of useMemo Hook (at line 148) change on every render. Move it inside the useMemo callback. Alternatively,",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/retailer-locator/retailer-table.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/shop/brand-filter.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/brand-filter.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/brand-filter.tsx",
+   "rule": "prefer-const",
+   "message": "'…' is never reassigned. Use '…' instead.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/brand-filter.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/bucket-list.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/color-filter.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/color-filter.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/color-filter.tsx",
+   "rule": "prefer-const",
+   "message": "'…' is never reassigned. Use '…' instead.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/color-filter.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/filtered-item.tsx",
+   "rule": "react-hooks/immutability",
+   "message": "Error: This value cannot be modified Modifying a value returned from a hook is not allowed. Consider moving the modification into the hook where the value is co",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/price-filter.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/price-filter.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/price-filter.tsx",
+   "rule": "prefer-const",
+   "message": "'…' is never reassigned. Use '…' instead.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/price-filter.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/size-filter.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shop/size-filter.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 4
+  },
+  {
+   "file": "src/components/shop/size-filter.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shops/shop-sidebar-drawer.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shops/shop-sidebar.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/shops/shop-sidebar.tsx",
+   "rule": "@typescript-eslint/no-non-null-asserted-optional-chain",
+   "message": "Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/active-link.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/carousel/carousel.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/ui/carousel/carousel.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/ui/carousel/carousel.tsx",
+   "rule": "prefer-const",
+   "message": "'…' is never reassigned. Use '…' instead.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/ui/carousel/carousel.tsx",
+   "rule": "react-hooks/refs",
+   "message": "Error: Cannot access refs during render React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in even",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/components/ui/category-menu.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/ui/checkbox.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/container.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/components/ui/container.tsx",
+   "rule": "prefer-const",
+   "message": "'…' is never reassigned. Use '…' instead.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/input.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/language-switcher.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/list-box.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/list-menu.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/ui/list-menu.tsx",
+   "rule": "react-hooks/immutability",
+   "message": "Error: This value cannot be modified Modifying component props or hook arguments is not allowed. Consider using a local variable instead. /var/www/vgd/client-ds",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/brand-card-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/card-icon-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/card-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/card-rounded-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/category-card-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/category-list-card-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/content-feed-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/product-card-grid-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/product-card-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/product-card-small-list-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/product-flash-sale-grid-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/product-flash-sale-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/product-list-card-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/loaders/search-result-loader.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/logo.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/password-input.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/text-area.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/components/ui/text.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/components/widgets/widget-link.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/containers/banner-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/containers/banner-carousel-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/containers/banner-carousel-block.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/containers/brand-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/containers/brand-block.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/containers/brand-timer-block.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/containers/brand-timer-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/containers/buy-designer-ancient.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/containers/collection-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/containers/contact-info.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/containers/hero-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/containers/hero-slider.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/containers/products-block.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/containers/related-products.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/contexts/auth/auth-context.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 6
+  },
+  {
+   "file": "src/contexts/auth/auth-context.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/auth/auth-context.tsx",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "React Hook useEffect has a missing dependency: '…'. Either include it or remove the dependency array.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/auth/auth-context.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/cart/cart.context.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/cart/cart.reducer.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/cart/cart.utils.ts",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "An interface declaring no members is equivalent to its supertype.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/cart/cart.utils.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/contexts/ui.context.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 5
+  },
+  {
+   "file": "src/contexts/ui.context.tsx",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "React Hook React.useMemo has missing dependencies: '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', '…', and ",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/auth/use-auth.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/auth/use-auth.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/auth/use-auth.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/auth/use-login.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/framework/basic-rest/auth/use-login.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/banner/get-banner.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/framework/basic-rest/brand/get-all-brands.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/framework/basic-rest/carts/use-cart.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/framework/basic-rest/category/get-all-categories.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/category/get-category.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/framework/basic-rest/customer/use-change-password.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/product/get-all-products.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/framework/basic-rest/product/get-all-products.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/product/get-product.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/product/get-related-product.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/product/get-related-product.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is assigned a value but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/product/use-price.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/framework/basic-rest/types.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 9
+  },
+  {
+   "file": "src/framework/basic-rest/utils/adapt.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 27
+  },
+  {
+   "file": "src/framework/basic-rest/utils/get-variations.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 3
+  },
+  {
+   "file": "src/framework/basic-rest/utils/http.ts",
+   "rule": "@next/next/no-location-assign-relative-destination",
+   "message": "Do not use `window.location.href` to navigate to internal Next.js pages. Use `redirect()` in the render phase, or `useRouter().push()` in Client Components' eve",
+   "severity": "warning",
+   "count": 2
+  },
+  {
+   "file": "src/hooks/products/use-product-detail.ts",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "The '…' logical expression could make the dependencies of useMemo Hook (at line 136) change on every render. To fix this, wrap the initialization of '…' in its ",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/hooks/products/use-product-detail.ts",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "The '…' logical expression could make the dependencies of useMemo Hook (at line 144) change on every render. To fix this, wrap the initialization of '…' in its ",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/hooks/products/use-product-detail.ts",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "The '…' logical expression could make the dependencies of useMemo Hook (at line 76) change on every render. To fix this, wrap the initialization of '…' in its o",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/hooks/products/use-product-detail.ts",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 4
+  },
+  {
+   "file": "src/pages/_app.tsx",
+   "rule": "@typescript-eslint/no-empty-object-type",
+   "message": "The `{}` (\"empty object\") type allows any non-nullish value, including literals like `0` and `\"\"`. - If that'…'allowObjectTypes' rule option. - If you want a ty",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/_app.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/_app.tsx",
+   "rule": "react-hooks/refs",
+   "message": "Error: Cannot access refs during render React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in even",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/pages/checkout.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/collections/[slug].tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/collections/[slug].tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/collections/[slug].tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/forget-password.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/greg-norman-apparel-sizing-chart.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/greg-norman-apparel-sizing-chart.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/index.tsx",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/order.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/puma-apparel-sizing-chart.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/puma-apparel-sizing-chart.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/puma-shoe-sizing-chart.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/puma-shoe-sizing-chart.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/register-dynamics-access.tsx",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/reset-password.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/retailer-locator/index.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/pages/us-kids-golf-sizing-chart.tsx",
+   "rule": "@typescript-eslint/ban-ts-comment",
+   "message": "Use \"@ts-expect-error\" instead of \"@ts-ignore\", as \"@ts-ignore\" will do nothing if the following line is error-free.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/pages/us-kids-golf-sizing-chart.tsx",
+   "rule": "@typescript-eslint/no-unused-vars",
+   "message": "'…' is defined but never used.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/utils/auth-helper.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/utils/auth-helper.ts",
+   "rule": "@typescript-eslint/no-unsafe-function-type",
+   "message": "The `Function` type accepts any function-like value. Prefer explicitly defining any function parameters and return type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/utils/cart.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/utils/generate-cart-item.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 6
+  },
+  {
+   "file": "src/utils/generate-cart-item.ts",
+   "rule": "@typescript-eslint/no-non-null-asserted-optional-chain",
+   "message": "Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong.",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/utils/use-accept-cookies.ts",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/utils/use-breadcrumb.ts",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/utils/use-image.ts",
+   "rule": "@typescript-eslint/no-explicit-any",
+   "message": "Unexpected any. Specify a different type.",
+   "severity": "error",
+   "count": 2
+  },
+  {
+   "file": "src/utils/use-ssr-compatible.ts",
+   "rule": "react-hooks/set-state-in-effect",
+   "message": "Error: Calling setState synchronously within an effect can trigger cascading renders Effects are intended to synchronize state between React and external system",
+   "severity": "error",
+   "count": 1
+  },
+  {
+   "file": "src/utils/useLazyRender.ts",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "React Hook useEffect has a missing dependency: '…'. Either include it or remove the dependency array.",
+   "severity": "warning",
+   "count": 1
+  },
+  {
+   "file": "src/utils/useLazyRender.ts",
+   "rule": "react-hooks/exhaustive-deps",
+   "message": "The ref value '…' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy '…' to a variable",
+   "severity": "warning",
+   "count": 1
+  }
+ ]
+}
